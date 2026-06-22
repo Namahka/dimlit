@@ -5,17 +5,15 @@ import { useState } from 'react'
 const BG = '#faf7f0'
 const ACCENT = '#7c3aed'
 
-// ── Edit this to add your special thanks ──────────────────────────
-const SPECIAL_THANKS: string[] = [
-  // e.g. 'My sister Sara', 'Beacon for the inspiration'
-]
-// ──────────────────────────────────────────────────────────────────
+// ── Add names here ─────────────────────────────────────────────────
+const SPECIAL_THANKS: string[] = []
+// ───────────────────────────────────────────────────────────────────
 
 interface Props {
   onComplete: () => void
 }
 
-const slides = [
+const infoSlides = [
   {
     title: 'Some nights feel\nheavier than others.',
     body: "You don't need to fix it right now.\nYou just need to know you're not alone.",
@@ -34,39 +32,41 @@ const slides = [
     title: 'Connection here\nis quiet.',
     body: "You don't have to talk.\nYou don't have to explain.\n\nSometimes, a small signal\nis enough.",
     icon: null,
-    isLast: false,
   },
 ]
+
+// 0..infoSlides.length-1 = info slides
+// infoSlides.length = Beacon thanks slide
+// infoSlides.length + 1 = DimLit special thanks (last)
+const TOTAL = infoSlides.length + 2
 
 export function OnboardingFlow({ onComplete }: Props) {
   const [step, setStep] = useState(0)
 
-  const totalSlides = slides.length + 1 // +1 for special thanks
-  const isSpecialThanks = step === totalSlides - 1
-
   function next() {
-    if (step < totalSlides - 1) {
-      setStep(step + 1)
-    } else {
+    if (step < TOTAL - 1) setStep(step + 1)
+    else {
       localStorage.setItem('dimlit_onboarding_done', '1')
       onComplete()
     }
   }
 
-  const slide = !isSpecialThanks ? slides[step] : null
+  const isBeaconSlide = step === TOTAL - 2
+  const isDimLitSlide = step === TOTAL - 1
+  const slide = (!isBeaconSlide && !isDimLitSlide) ? infoSlides[step] : null
 
   return (
     <div className="h-full flex flex-col" style={{ background: BG }}>
       {/* Progress dots */}
       <div className="flex-shrink-0 flex justify-center gap-1.5 pt-14 pb-2">
-        {Array.from({ length: totalSlides }).map((_, i) => (
+        {Array.from({ length: TOTAL }).map((_, i) => (
           <div key={i} className="h-1 rounded-full transition-all"
             style={{ width: i === step ? 24 : 6, background: i <= step ? ACCENT : '#e7e5e4' }} />
         ))}
       </div>
 
       <div className="flex-1 flex flex-col justify-center items-center px-8 text-center">
-        {!isSpecialThanks && slide ? (
+        {slide && (
           <>
             {slide.icon && (
               <div className="w-20 h-20 rounded-full mx-auto flex items-center justify-center mb-8"
@@ -83,31 +83,57 @@ export function OnboardingFlow({ onComplete }: Props) {
               </p>
             </div>
           </>
-        ) : (
-          /* Special Thanks */
-          <>
-            <img src="/icon-512.png" alt="DimLit" className="w-20 h-20 rounded-3xl mb-6 shadow-md" />
-            <div className="space-y-4 mb-10">
-              <h1 className="text-3xl font-bold text-stone-800">DimLit</h1>
-              <p className="text-stone-500 text-sm leading-relaxed max-w-xs">
-                Built for everyone who has ever felt alone in the middle of the night.
-              </p>
-              {SPECIAL_THANKS.length > 0 && (
-                <div className="mt-4 space-y-1">
-                  <p className="text-xs text-stone-400 uppercase tracking-widest mb-3">Special Thanks</p>
-                  {SPECIAL_THANKS.map((name) => (
-                    <p key={name} className="text-stone-600 text-sm">{name}</p>
-                  ))}
-                </div>
-              )}
+        )}
+
+        {isBeaconSlide && (
+          <div className="space-y-5 mb-10 max-w-xs">
+            <div className="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center mb-2"
+              style={{ background: `${ACCENT}12` }}>
+              <span className="text-3xl">🕯️</span>
             </div>
-          </>
+            <h1 className="text-3xl font-bold text-stone-800">Special Thanks</h1>
+            <p className="text-stone-600 text-sm leading-relaxed">
+              DimLit is deeply inspired by{' '}
+              <a href="https://beaconpostpartum.com/" target="_blank" rel="noopener noreferrer"
+                className="font-semibold underline" style={{ color: ACCENT }}>
+                Beacon Postpartum
+              </a>
+              {' '}— an app built for new mothers who are awake alone at night.
+            </p>
+            <p className="text-stone-500 text-sm leading-relaxed">
+              Beacon showed that something as simple as knowing others are awake can make a hard night lighter.
+            </p>
+            <p className="text-stone-500 text-sm leading-relaxed">
+              DimLit takes that same idea and brings it to anyone struggling with anxiety in the dark.
+            </p>
+            <p className="text-stone-400 text-xs leading-relaxed">
+              We are grateful to the Beacon team for building something that truly matters.
+            </p>
+            {SPECIAL_THANKS.length > 0 && (
+              <div className="mt-2 space-y-1">
+                <p className="text-xs text-stone-400 uppercase tracking-widest mb-2">Also thanks to</p>
+                {SPECIAL_THANKS.map((name) => (
+                  <p key={name} className="text-stone-600 text-sm">{name}</p>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {isDimLitSlide && (
+          <div className="space-y-4 mb-10">
+            <img src="/icon-512.png" alt="DimLit" className="w-20 h-20 rounded-3xl mx-auto mb-2 shadow-md" />
+            <h1 className="text-3xl font-bold text-stone-800">DimLit</h1>
+            <p className="text-stone-500 text-sm leading-relaxed max-w-xs">
+              Built for everyone who has ever felt alone in the middle of the night.
+            </p>
+          </div>
         )}
 
         <button onClick={next}
           className="w-full max-w-xs py-4 rounded-2xl text-white font-medium text-base"
           style={{ background: ACCENT }}>
-          {step === totalSlides - 1 ? "I'm ready" : 'Continue'}
+          {isDimLitSlide ? "I'm ready" : 'Continue'}
         </button>
       </div>
     </div>
