@@ -1,7 +1,5 @@
 import {
   signInWithPopup,
-  signInWithRedirect,
-  getRedirectResult,
   GoogleAuthProvider,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -19,7 +17,6 @@ import type { User } from '../../domain/entities/User'
 
 const googleProvider = new GoogleAuthProvider()
 googleProvider.setCustomParameters({ prompt: 'select_account' })
-const isLocalhost = typeof window !== 'undefined' && window.location.hostname === 'localhost'
 
 async function getOrCreateUserDoc(uid: string, fallbackUsername: string, email?: string, emailVerified = true): Promise<User> {
   const ref = doc(db, 'users', uid)
@@ -27,13 +24,7 @@ async function getOrCreateUserDoc(uid: string, fallbackUsername: string, email?:
 
   if (snap.exists()) {
     const data = snap.data()
-    return {
-      id: uid,
-      username: data.username as string,
-      email: data.email as string | undefined,
-      emailVerified,
-      createdAt: data.createdAt?.toDate() ?? new Date(),
-    }
+    return { id: uid, username: data.username as string, email: data.email as string | undefined, emailVerified, createdAt: data.createdAt?.toDate() ?? new Date() }
   }
 
   const username = fallbackUsername.trim() || 'Anonymous'
@@ -47,37 +38,21 @@ export class FirebaseUserRepository implements IUserRepository {
       const unsub = firebaseOnAuthStateChanged(auth, async (fu) => {
         unsub()
         if (!fu) { resolve(null); return }
-        const user = await getOrCreateUserDoc(fu.uid, fu.displayName ?? fu.email?.split('@')[0] ?? 'Anonymous', fu.email ?? undefined, fu.emailVerified)
-        resolve(user)
+        resolve(await getOrCreateUserDoc(fu.uid, fu.displayName ?? fu.email?.split('@')[0] ?? 'Anonymous', fu.email ?? undefined, fu.emailVerified))
       })
     })
   }
 
   onAuthStateChanged(callback: (user: User | null) => void): () => void {
-    if (!isLocalhost) {
-      getRedirectResult(auth).then(async (result) => {
-        if (result?.user) {
-          const user = await getOrCreateUserDoc(result.user.uid, result.user.displayName ?? result.user.email?.split('@')[0] ?? 'Anonymous', result.user.email ?? undefined, result.user.emailVerified)
-          callback(user)
-        }
-      }).catch(() => {})
-    }
-
     return firebaseOnAuthStateChanged(auth, async (fu) => {
       if (!fu) { callback(null); return }
-      const user = await getOrCreateUserDoc(fu.uid, fu.displayName ?? fu.email?.split('@')[0] ?? 'Anonymous', fu.email ?? undefined, fu.emailVerified)
-      callback(user)
+      callback(await getOrCreateUserDoc(fu.uid, fu.displayName ?? fu.email?.split('@')[0] ?? 'Anonymous', fu.email ?? undefined, fu.emailVerified))
     })
   }
 
   async signInWithGoogle(): Promise<User> {
-    if (isLocalhost) {
-      const { user: fu } = await signInWithPopup(auth, googleProvider)
-      return getOrCreateUserDoc(fu.uid, fu.displayName ?? fu.email?.split('@')[0] ?? 'Anonymous', fu.email ?? undefined, fu.emailVerified)
-    } else {
-      await signInWithRedirect(auth, googleProvider)
-      return {} as User
-    }
+    const { user: fu } = await signInWithPopup(auth, googleProvider)
+    return getOrCreateUserDoc(fu.uid, fu.displayName ?? fu.email?.split('@')[0] ?? 'Anonymous', fu.email ?? undefined, fu.emailVerified)
   }
 
   async signInWithEmailPassword(email: string, password: string): Promise<User> {
@@ -91,9 +66,7 @@ export class FirebaseUserRepository implements IUserRepository {
     return getOrCreateUserDoc(fu.uid, username, email, false)
   }
 
-  async signOut(): Promise<void> {
-    await firebaseSignOut(auth)
-  }
+  async signOut(): Promise<void> { await firebaseSignOut(auth) }
 
   async updateUsername(userId: string, username: string): Promise<void> {
     await updateDoc(doc(db, 'users', userId), { username })
