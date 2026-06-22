@@ -88,7 +88,6 @@ export function AdminTab() {
               <div>
                 <p className="text-sm font-medium text-stone-700">{u.username}</p>
                 <p className="text-xs text-stone-400">{u.email ?? 'No email (Google)'}</p>
-                <p className="text-xs text-stone-300">{u.id}</p>
               </div>
               <button onClick={() => deleteUser(u.id)}
                 className="text-xs text-red-400 hover:text-red-600 flex-shrink-0">
