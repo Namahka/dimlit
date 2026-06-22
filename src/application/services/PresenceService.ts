@@ -4,7 +4,7 @@ import { GetActivePresences } from '../../domain/usecases/GetActivePresences'
 import type { IPresenceRepository } from '../../domain/repositories/IPresenceRepository'
 import type { Presence } from '../../domain/entities/Presence'
 
-const COORD_PRECISION = 1 // rounds to ~10 km
+const COORD_PRECISION = 2 // rounds to ~1 km
 
 function round(val: number, precision: number): number {
   return Math.round(val * Math.pow(10, precision)) / Math.pow(10, precision)
