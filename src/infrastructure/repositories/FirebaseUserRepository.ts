@@ -18,6 +18,7 @@ import type { IUserRepository } from '../../domain/repositories/IUserRepository'
 import type { User } from '../../domain/entities/User'
 
 const googleProvider = new GoogleAuthProvider()
+googleProvider.setCustomParameters({ prompt: 'select_account' })
 const isLocalhost = typeof window !== 'undefined' && window.location.hostname === 'localhost'
 
 async function getOrCreateUserDoc(uid: string, fallbackUsername: string, email?: string, emailVerified = true): Promise<User> {

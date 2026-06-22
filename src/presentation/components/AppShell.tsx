@@ -10,12 +10,14 @@ import { MessagesTab } from './tabs/MessagesTab'
 import { HelpTab } from './tabs/HelpTab'
 import { SettingsTab } from './tabs/SettingsTab'
 import { useAuth } from '../hooks/useAuth'
+import { usePresence } from '../hooks/usePresence'
 
 export function AppShell() {
   const { user, error: authError, signInWithGoogle, signInWithEmail, register, signOut,
     updateUsername, updatePassword, deleteAccount, sendVerificationEmail, reloadUser } = useAuth()
   const [activeTab, setActiveTab] = useState<Tab>('home')
   const [onboardingDone, setOnboardingDone] = useState<boolean | null>(null)
+  const { country } = usePresence(user ?? null)
 
   useEffect(() => {
     setOnboardingDone(!!localStorage.getItem('dimlit_onboarding_done'))
@@ -57,7 +59,7 @@ export function AppShell() {
           <HomeTab user={user} onGoToMessages={() => setActiveTab('messages')} />
         </div>
         <div className={`absolute inset-0 flex flex-col ${activeTab === 'messages' ? 'flex' : 'hidden'}`}>
-          <MessagesTab user={user} country="Unknown" />
+          <MessagesTab user={user} country={country} />
         </div>
         <div className={`absolute inset-0 overflow-y-auto ${activeTab === 'help' ? 'block' : 'hidden'}`}>
           <HelpTab />
