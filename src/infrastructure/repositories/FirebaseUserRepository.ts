@@ -75,6 +75,10 @@ export class FirebaseUserRepository implements IUserRepository {
 
   async updateUsername(userId: string, username: string): Promise<void> {
     await updateDoc(doc(db, 'users', userId), { username })
+    // Also update presence so the map shows the new username
+    try {
+      await updateDoc(doc(db, 'presences', userId), { username })
+    } catch { /* presence might not exist yet */ }
   }
 
   async updatePassword(newPassword: string): Promise<void> {

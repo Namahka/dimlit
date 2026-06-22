@@ -11,6 +11,8 @@ function SetView({ coords }: { coords: [number, number] }) {
   return null
 }
 
+import { useState } from 'react'
+
 interface Props {
   presences: Presence[]
   userId: string
@@ -20,6 +22,12 @@ interface Props {
 }
 
 export function MapCardInner({ presences, userId, userCoords, isReady, onSendHug }: Props) {
+  const [sentTo, setSentTo] = useState<Set<string>>(new Set())
+
+  async function handleHug(toUserId: string) {
+    await onSendHug(toUserId)
+    setSentTo(prev => new Set(prev).add(toUserId))
+  }
   return (
     // maxWidth + margin auto = only the map is centered, nothing else
     <div style={{ maxWidth: 700, margin: '0 auto' }}>
@@ -61,10 +69,11 @@ export function MapCardInner({ presences, userId, userCoords, isReady, onSendHug
                       <span className="font-semibold text-gray-800">{p.username}</span>
                       <span className="text-gray-400 text-xs">{p.city ?? p.country}</span>
                       <button
-                        onClick={(e) => { e.stopPropagation(); onSendHug(p.userId) }}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs text-white font-medium"
-                        style={{ background: '#7c3aed' }}>
-                        🤗 Send a hug
+                        onClick={(e) => { e.stopPropagation(); handleHug(p.userId) }}
+                        disabled={sentTo.has(p.userId)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs text-white font-medium disabled:opacity-60"
+                        style={{ background: sentTo.has(p.userId) ? '#a78bfa' : '#7c3aed' }}>
+                        {sentTo.has(p.userId) ? '✓ Hug sent' : '🤗 Send a hug'}
                       </button>
                     </>
                   )}

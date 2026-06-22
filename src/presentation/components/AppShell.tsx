@@ -7,11 +7,15 @@ import { OnboardingFlow } from './OnboardingFlow'
 import { EmailVerificationScreen } from './EmailVerificationScreen'
 import { HomeTab } from './tabs/HomeTab'
 import { MessagesTab } from './tabs/MessagesTab'
-import { HelpTab } from './tabs/HelpTab'
+import { HugsTab } from './tabs/HugsTab'
 import { TipsTab } from './tabs/TipsTab'
+import { HelpTab } from './tabs/HelpTab'
 import { SettingsTab } from './tabs/SettingsTab'
+import { AdminTab } from './tabs/AdminTab'
 import { useAuth } from '../hooks/useAuth'
 import { usePresence } from '../hooks/usePresence'
+
+const ADMIN_EMAIL = 'namahka@hotmail.com'
 
 export function AppShell() {
   const { user, error: authError, signInWithGoogle, signInWithEmail, register, signOut,
@@ -19,6 +23,8 @@ export function AppShell() {
   const [activeTab, setActiveTab] = useState<Tab>('home')
   const [onboardingDone, setOnboardingDone] = useState<boolean | null>(null)
   const { country } = usePresence(user ?? null)
+
+  const isAdmin = user?.email === ADMIN_EMAIL
 
   useEffect(() => {
     setOnboardingDone(!!localStorage.getItem('dimlit_onboarding_done'))
@@ -30,19 +36,9 @@ export function AppShell() {
   if (user === null) {
     return <LoginScreen onGoogle={signInWithGoogle} onEmailSignIn={signInWithEmail} onRegister={register} error={authError} />
   }
-
-  // Email not verified (email/password users only)
   if (!user.emailVerified && user.email) {
-    return (
-      <EmailVerificationScreen
-        email={user.email}
-        onResend={sendVerificationEmail}
-        onCheck={reloadUser}
-        onSignOut={signOut}
-      />
-    )
+    return <EmailVerificationScreen email={user.email} onResend={sendVerificationEmail} onCheck={reloadUser} onSignOut={signOut} />
   }
-
   if (!onboardingDone) {
     return <OnboardingFlow onComplete={() => setOnboardingDone(true)} />
   }
@@ -62,6 +58,9 @@ export function AppShell() {
         <div className={`absolute inset-0 flex flex-col ${activeTab === 'messages' ? 'flex' : 'hidden'}`}>
           <MessagesTab user={user} country={country} />
         </div>
+        <div className={`absolute inset-0 overflow-y-auto ${activeTab === 'hugs' ? 'block' : 'hidden'}`}>
+          <HugsTab user={user} country={country} />
+        </div>
         <div className={`absolute inset-0 overflow-y-auto ${activeTab === 'tips' ? 'block' : 'hidden'}`}>
           <TipsTab />
         </div>
@@ -78,10 +77,15 @@ export function AppShell() {
             onSignOut={signOut}
           />
         </div>
+        {isAdmin && (
+          <div className={`absolute inset-0 overflow-y-auto ${activeTab === 'admin' ? 'block' : 'hidden'}`}>
+            <AdminTab />
+          </div>
+        )}
       </div>
 
       <div className="flex-shrink-0 border-t border-stone-200">
-        <BottomNav active={activeTab} onChange={setActiveTab} />
+        <BottomNav active={activeTab} onChange={setActiveTab} isAdmin={isAdmin} />
       </div>
     </div>
   )
