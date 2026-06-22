@@ -40,7 +40,7 @@ const infoSlides = [
 // 0..infoSlides.length-1 = info slides
 // infoSlides.length = username slide
 // infoSlides.length + 1 = Beacon thanks slide
-// infoSlides.length + 2 = DimLit special thanks (last)
+// infoSlides.length + 2 = dimlit special thanks (last)
 const TOTAL = infoSlides.length + 3
 
 export function OnboardingFlow({ user, onUpdateUsername, onComplete }: Props) {
@@ -65,8 +65,8 @@ export function OnboardingFlow({ user, onUpdateUsername, onComplete }: Props) {
 
   const isUsernameSlide = step === infoSlides.length
   const isBeaconSlide = step === TOTAL - 2
-  const isDimLitSlide = step === TOTAL - 1
-  const slide = (!isUsernameSlide && !isBeaconSlide && !isDimLitSlide) ? infoSlides[step] : null
+  const isdimlitSlide = step === TOTAL - 1
+  const slide = (!isUsernameSlide && !isBeaconSlide && !isdimlitSlide) ? infoSlides[step] : null
 
   return (
     <div className="h-full flex flex-col" style={{ background: BG }}>
@@ -131,7 +131,7 @@ export function OnboardingFlow({ user, onUpdateUsername, onComplete }: Props) {
                 className="font-semibold underline" style={{ color: ACCENT }}>
                 Beacon Postpartum
               </a>
-              , an app built for new mothers awake in the middle of the night.
+              , an app built for new mothers awake in the hardest hours.
             </p>
             <p className="text-stone-500 text-sm leading-relaxed">
               Beacon proved that just knowing someone else is awake can change how a hard night feels. dimlit takes that same idea further.
@@ -150,12 +150,12 @@ export function OnboardingFlow({ user, onUpdateUsername, onComplete }: Props) {
           </div>
         )}
 
-        {isDimLitSlide && (
+        {isdimlitSlide && (
           <div className="space-y-4 mb-10">
-            <img src="/icon-512.png" alt="DimLit" className="w-20 h-20 rounded-3xl mx-auto mb-2 shadow-md" />
-            <h1 className="text-3xl font-bold text-stone-800">DimLit</h1>
+            <img src="/icon-512.png" alt="dimlit" className="w-20 h-20 rounded-3xl mx-auto mb-2 shadow-md" />
+            <h1 className="text-3xl font-bold text-stone-800">dimlit</h1>
             <p className="text-stone-500 text-sm leading-relaxed max-w-xs">
-              Built for everyone who has ever felt alone in the middle of the night.
+              Built for everyone who has ever felt alone in the hardest hours.
             </p>
           </div>
         )}
@@ -165,7 +165,7 @@ export function OnboardingFlow({ user, onUpdateUsername, onComplete }: Props) {
           disabled={isUsernameSlide ? username.trim().length < 2 || saving : false}
           className="w-full max-w-xs py-4 rounded-2xl text-white font-medium text-base disabled:opacity-50"
           style={{ background: ACCENT }}>
-          {saving ? 'Saving…' : isDimLitSlide ? "I'm ready" : 'Continue'}
+          {saving ? 'Saving…' : isdimlitSlide ? "I'm ready" : 'Continue'}
         </button>
       </div>
     </div>

@@ -10,16 +10,16 @@ export async function POST(req: NextRequest) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      sender: { name: 'DimLit', email: 'noreply@dimlit.app' },
+      sender: { name: 'dimlit', email: 'noreply@dimlit.app' },
       to: [{ email: 'namahka@hotmail.com' }],
-      subject: '🚨 New report on DimLit',
+      subject: '🚨 New report on dimlit',
       htmlContent: `
         <h2>A message has been reported</h2>
         <p><strong>Username:</strong> ${username}</p>
         <p><strong>Message:</strong> ${text}</p>
         <p><strong>Message ID:</strong> ${messageId}</p>
         <hr/>
-        <p style="color:#999;font-size:12px">DimLit moderation</p>
+        <p style="color:#999;font-size:12px">dimlit moderation</p>
       `,
     }),
   })

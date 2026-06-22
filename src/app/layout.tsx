@@ -2,10 +2,10 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'DimLit',
+  title: 'dimlit',
   description: "You're not alone.",
   manifest: '/manifest.json',
-  appleWebApp: { capable: true, statusBarStyle: 'default', title: 'DimLit' },
+  appleWebApp: { capable: true, statusBarStyle: 'default', title: 'dimlit' },
 }
 
 export const viewport: Viewport = {
