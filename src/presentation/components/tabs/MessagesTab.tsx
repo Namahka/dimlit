@@ -57,8 +57,8 @@ export function MessagesTab({ user, country }: { user: User; country: string }) 
           <div key={msg.id} className="px-4 py-3.5 rounded-2xl bg-white border border-stone-100 shadow-sm">
             <div className="flex items-center justify-between mb-1.5">
               <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-full bg-violet-100 flex items-center justify-center text-xs font-bold text-violet-600">{msg.country.slice(0, 1)}</div>
-                <span className="text-xs text-stone-400">{msg.country} · {timeAgo(msg.createdAt)}</span>
+                <div className="w-6 h-6 rounded-full bg-violet-100 flex items-center justify-center text-xs font-bold text-violet-600">{msg.username.slice(0, 1).toUpperCase()}</div>
+                <span className="text-xs text-stone-400">{msg.username} · {timeAgo(msg.createdAt)}</span>
               </div>
               <button
                 onClick={() => reportMessage(msg.id, msg.text, user.id)}

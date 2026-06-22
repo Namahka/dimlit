@@ -21,6 +21,7 @@ function toMessage(id: string, data: Record<string, unknown>): Message {
   return {
     id,
     userId: data.userId as string,
+    username: (data.username as string | undefined) ?? 'Anonymous',
     text: data.text as string,
     country: data.country as string,
     createdAt,
@@ -31,6 +32,7 @@ export class FirebaseMessageRepository implements IMessageRepository {
   async addMessage(msg: Omit<Message, 'id'>): Promise<void> {
     await addDoc(collection(db, 'messages'), {
       userId: msg.userId,
+      username: msg.username,
       text: msg.text,
       country: msg.country,
       createdAt: serverTimestamp(),

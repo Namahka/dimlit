@@ -22,7 +22,7 @@ export function useMessages(user: User | null) {
     setSending(true)
     setSendError(null)
     try {
-      await repo.addMessage({ userId: user.id, text: text.trim(), country, createdAt: new Date() })
+      await repo.addMessage({ userId: user.id, username: user.username, text: text.trim(), country, createdAt: new Date() })
     } catch (e) {
       setSendError('Could not send — check Firestore rules.')
       console.error(e)

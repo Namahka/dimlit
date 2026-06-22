@@ -50,7 +50,7 @@ export function AppShell() {
   return (
     <div className="flex flex-col h-full" style={{ background: '#faf7f0' }}>
       <div className="flex-shrink-0 flex items-center justify-between px-5 py-3.5 border-b border-stone-200">
-        <button onClick={() => setActiveTab('home')} className="text-xl font-love" style={{ color: '#7c3aed' }}>
+        <button onClick={() => setActiveTab('home')} className="text-3xl font-love" style={{ color: '#7c3aed' }}>
           dimlit
         </button>
       </div>

@@ -19,6 +19,7 @@ export function SettingsTab({ username, email, onUpdateUsername, onSendPasswordR
   const [usernameSaved, setUsernameSaved] = useState(false)
   const [passwordMsg, setPasswordMsg] = useState('')
   const [showDelete, setShowDelete] = useState(false)
+  const [deleteEmailSent, setDeleteEmailSent] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState('')
 
   async function handleUsernameSubmit(e: React.FormEvent) {
@@ -93,15 +94,6 @@ export function SettingsTab({ username, email, onUpdateUsername, onSendPasswordR
           </p>
         </div>
 
-        {/* About */}
-        <div className="bg-white rounded-2xl border border-stone-100 shadow-sm px-5 py-4">
-          <h3 className="font-semibold text-stone-800 text-sm mb-1">About DimLit</h3>
-          <p className="text-sm text-stone-500 leading-relaxed">
-            DimLit shows you that others are awake with anxiety right now.
-          </p>
-          <p className="text-xs text-stone-300 mt-2">Version 0.1.0</p>
-        </div>
-
         {/* Sign out */}
         <div className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
           <button onClick={onSignOut}
@@ -114,13 +106,22 @@ export function SettingsTab({ username, email, onUpdateUsername, onSendPasswordR
         <div className="bg-white rounded-2xl border border-red-100 shadow-sm px-5 py-4">
           <h3 className="font-semibold text-red-500 text-sm mb-2">Delete account</h3>
           {!showDelete ? (
-            <button onClick={() => setShowDelete(true)}
-              className="text-sm text-red-400 hover:text-red-600">
+            <button onClick={() => setShowDelete(true)} className="text-sm text-red-400 hover:text-red-600">
               I want to delete my account
             </button>
+          ) : !deleteEmailSent ? (
+            <div className="space-y-2">
+              <p className="text-xs text-stone-500">We'll send a confirmation email to verify it's you before deleting.</p>
+              {email && <p className="text-xs font-medium text-stone-600">{email}</p>}
+              <button onClick={async () => { if (email) { await onSendPasswordReset(email); setDeleteEmailSent(true) } }}
+                className="w-full py-2.5 rounded-xl text-sm text-white font-medium bg-red-500">
+                Send confirmation email
+              </button>
+              <button onClick={() => setShowDelete(false)} className="text-xs text-stone-400 w-full text-center">Cancel</button>
+            </div>
           ) : (
             <div className="space-y-2">
-              <p className="text-xs text-stone-500">Type DELETE to confirm. This cannot be undone.</p>
+              <p className="text-xs text-stone-500">Email sent. Once verified, type DELETE below to permanently delete your account.</p>
               <input type="text" placeholder="DELETE" value={deleteConfirm}
                 onChange={(e) => setDeleteConfirm(e.target.value)}
                 className="w-full px-3 py-2 rounded-xl text-sm border border-red-200 outline-none text-stone-800" />
@@ -128,9 +129,8 @@ export function SettingsTab({ username, email, onUpdateUsername, onSendPasswordR
                 className="w-full py-2.5 rounded-xl text-sm text-white font-medium bg-red-500 disabled:opacity-40">
                 Delete my account permanently
               </button>
-              <button onClick={() => setShowDelete(false)} className="text-xs text-stone-400 w-full text-center">
-                Cancel
-              </button>
+              <button onClick={() => { setShowDelete(false); setDeleteEmailSent(false); setDeleteConfirm('') }}
+                className="text-xs text-stone-400 w-full text-center">Cancel</button>
             </div>
           )}
         </div>

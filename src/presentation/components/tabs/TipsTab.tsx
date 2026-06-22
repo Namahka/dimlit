@@ -16,7 +16,6 @@ export function TipsTab() {
     <div style={{ background: '#faf7f0', minHeight: '100%' }}>
       <div className="px-5 pt-6 pb-4 border-b border-stone-200">
         <h2 className="text-xl font-bold text-stone-800">Tips for Anxious Nights</h2>
-        <p className="text-sm text-stone-400 mt-0.5">Techniques that actually work at 3am.</p>
       </div>
       <div className="px-5 py-4 space-y-3 pb-10">
         {tips.map((tip) => (
