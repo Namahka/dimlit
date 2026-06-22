@@ -43,7 +43,7 @@ export function MessagesTab({ user, country }: { user: User; country: string }) 
   return (
     <div className="flex flex-col h-full" style={{ background: BG }}>
       <div className="px-5 pt-6 pb-3 border-b border-stone-200">
-        <h2 className="text-xl font-bold text-stone-800">Messages of Hope</h2>
+        <h2 className="text-xl font-bold text-stone-800">Quiet Notes</h2>
         <p className="text-xs text-amber-600 bg-amber-50 border border-amber-100 rounded-xl px-3 py-2 mt-2 leading-relaxed">
           Please keep messages kind and supportive. Harmful content will be removed.
         </p>
@@ -51,7 +51,7 @@ export function MessagesTab({ user, country }: { user: User; country: string }) 
 
       <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
         {messages.length === 0 && (
-          <p className="text-sm text-center text-stone-300 mt-12">Be the first to leave a message tonight.</p>
+          <p className="text-sm text-center text-stone-300 mt-12">Be the first to leave a message right now.</p>
         )}
         {messages.map((msg) => {
           const liked = msg.likes.includes(user.id)
@@ -89,7 +89,7 @@ export function MessagesTab({ user, country }: { user: User; country: string }) 
         <div className="flex gap-2">
           <input type="text" value={text}
             onChange={(e) => setText(e.target.value.slice(0, 280))}
-            placeholder="Share something kind…"
+            placeholder="Share something…"
             className="flex-1 px-4 py-2.5 rounded-2xl text-sm outline-none bg-white border border-stone-200 text-stone-800 placeholder-stone-300" />
           <button type="submit" disabled={!text.trim() || sending}
             className="px-4 py-2.5 rounded-2xl text-sm font-medium text-white disabled:opacity-40"

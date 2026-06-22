@@ -74,23 +74,23 @@ export function HomeTab({ user, onGoToMessages }: { user: User; onGoToMessages: 
           <MapCard presences={presences} userId={user.id} userCoords={userCoords} isReady={isReady}
             onSendHug={async (id) => { await sendHug(id, country) }} />
 
-          {/* Messages of Hope — same width as map, directly below */}
+          {/* Quiet Notes — same width as map, directly below */}
           <div className="mt-4 bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
             <div className="flex items-center justify-between px-5 pt-4 pb-3">
-              <h2 className="font-semibold text-stone-800">Messages of Hope</h2>
+              <h2 className="font-semibold text-stone-800">Quiet Notes</h2>
               <button onClick={onGoToMessages} className="w-7 h-7 rounded-full flex items-center justify-center text-white text-base leading-none"
                 style={{ background: ACCENT }}>+</button>
             </div>
             {messages.length === 0 ? (
-              <p className="text-sm text-stone-400 px-5 pb-4">Be the first to share something tonight.</p>
+              <p className="text-sm text-stone-400 px-5 pb-4">Be the first to share something right now.</p>
             ) : (
               <>
                 <div className="divide-y divide-stone-50">
                   {messages.slice(0, 2).map((msg) => (
                     <div key={msg.id} className="px-5 py-3">
                       <div className="flex items-center gap-2 mb-1">
-                        <div className="w-6 h-6 rounded-full bg-violet-100 flex items-center justify-center text-xs font-bold text-violet-600">{msg.country.slice(0, 1)}</div>
-                        <span className="text-xs text-stone-400">{msg.country} · {timeAgo(msg.createdAt)}</span>
+                        <div className="w-6 h-6 rounded-full bg-violet-100 flex items-center justify-center text-xs font-bold text-violet-600">{msg.username.slice(0, 1).toUpperCase()}</div>
+                        <span className="text-xs text-stone-400">{msg.username} · {timeAgo(msg.createdAt)}</span>
                       </div>
                       <p className="text-sm text-stone-700 leading-relaxed">{msg.text}</p>
                     </div>

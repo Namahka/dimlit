@@ -10,6 +10,8 @@ const SPECIAL_THANKS: string[] = []
 // ───────────────────────────────────────────────────────────────────
 
 interface Props {
+  user: { id: string; username: string }
+  onUpdateUsername: (u: string) => Promise<void>
   onComplete: () => void
 }
 
@@ -36,14 +38,24 @@ const infoSlides = [
 ]
 
 // 0..infoSlides.length-1 = info slides
-// infoSlides.length = Beacon thanks slide
-// infoSlides.length + 1 = DimLit special thanks (last)
-const TOTAL = infoSlides.length + 2
+// infoSlides.length = username slide
+// infoSlides.length + 1 = Beacon thanks slide
+// infoSlides.length + 2 = DimLit special thanks (last)
+const TOTAL = infoSlides.length + 3
 
-export function OnboardingFlow({ onComplete }: Props) {
+export function OnboardingFlow({ user, onUpdateUsername, onComplete }: Props) {
   const [step, setStep] = useState(0)
+  const [username, setUsername] = useState(user.username)
+  const [saving, setSaving] = useState(false)
 
-  function next() {
+  async function next() {
+    if (isUsernameSlide) {
+      if (username.trim().length >= 2 && username.trim() !== user.username) {
+        setSaving(true)
+        await onUpdateUsername(username.trim())
+        setSaving(false)
+      }
+    }
     if (step < TOTAL - 1) setStep(step + 1)
     else {
       localStorage.setItem('dimlit_onboarding_done', '1')
@@ -51,9 +63,10 @@ export function OnboardingFlow({ onComplete }: Props) {
     }
   }
 
+  const isUsernameSlide = step === infoSlides.length
   const isBeaconSlide = step === TOTAL - 2
   const isDimLitSlide = step === TOTAL - 1
-  const slide = (!isBeaconSlide && !isDimLitSlide) ? infoSlides[step] : null
+  const slide = (!isUsernameSlide && !isBeaconSlide && !isDimLitSlide) ? infoSlides[step] : null
 
   return (
     <div className="h-full flex flex-col" style={{ background: BG }}>
@@ -83,6 +96,26 @@ export function OnboardingFlow({ onComplete }: Props) {
               </p>
             </div>
           </>
+        )}
+
+        {isUsernameSlide && (
+          <div className="space-y-6 mb-10 w-full max-w-xs">
+            <div className="text-center space-y-2">
+              <h1 className="text-3xl font-bold text-stone-800">What should we call you?</h1>
+              <p className="text-stone-400 text-sm">This is how others will see you.</p>
+            </div>
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value.slice(0, 24))}
+              placeholder="Your name"
+              minLength={2}
+              maxLength={24}
+              className="w-full px-4 py-3 rounded-2xl text-sm outline-none bg-white border border-stone-200 text-stone-800 text-center text-lg"
+              style={{ borderColor: username.trim().length >= 2 ? ACCENT : '#e7e5e4' }}
+            />
+            <p className="text-xs text-stone-300 text-center">2–24 characters</p>
+          </div>
         )}
 
         {isBeaconSlide && (
@@ -130,10 +163,12 @@ export function OnboardingFlow({ onComplete }: Props) {
           </div>
         )}
 
-        <button onClick={next}
-          className="w-full max-w-xs py-4 rounded-2xl text-white font-medium text-base"
+        <button
+          onClick={next}
+          disabled={isUsernameSlide ? username.trim().length < 2 || saving : false}
+          className="w-full max-w-xs py-4 rounded-2xl text-white font-medium text-base disabled:opacity-50"
           style={{ background: ACCENT }}>
-          {isDimLitSlide ? "I'm ready" : 'Continue'}
+          {saving ? 'Saving…' : isDimLitSlide ? "I'm ready" : 'Continue'}
         </button>
       </div>
     </div>

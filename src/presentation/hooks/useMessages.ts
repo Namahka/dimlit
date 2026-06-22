@@ -14,7 +14,10 @@ export function useMessages(user: User | null) {
 
   useEffect(() => {
     if (!user) return
-    return repo.listenToMessages(setMessages)
+    return repo.listenToMessages((all) => {
+      const cutoff = Date.now() - 12 * 60 * 60 * 1000
+      setMessages(all.filter(m => m.createdAt.getTime() > cutoff))
+    })
   }, [user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   async function addMessage(text: string, country: string) {
