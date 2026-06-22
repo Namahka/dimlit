@@ -5,4 +5,5 @@ export interface Message {
   text: string
   country: string
   createdAt: Date
+  likes: string[] // array of userIds
 }

@@ -7,6 +7,10 @@ import {
   limit,
   serverTimestamp,
   Timestamp,
+  doc,
+  updateDoc,
+  arrayUnion,
+  arrayRemove,
 } from 'firebase/firestore'
 import { db } from '../firebase/firebaseApp'
 import type { IMessageRepository } from '../../domain/repositories/IMessageRepository'
@@ -25,6 +29,7 @@ function toMessage(id: string, data: Record<string, unknown>): Message {
     text: data.text as string,
     country: data.country as string,
     createdAt,
+    likes: (data.likes as string[] | undefined) ?? [],
   }
 }
 
@@ -35,7 +40,15 @@ export class FirebaseMessageRepository implements IMessageRepository {
       username: msg.username,
       text: msg.text,
       country: msg.country,
+      likes: [],
       createdAt: serverTimestamp(),
+    })
+  }
+
+  async toggleLike(messageId: string, userId: string, liked: boolean): Promise<void> {
+    const ref = doc(db, 'messages', messageId)
+    await updateDoc(ref, {
+      likes: liked ? arrayRemove(userId) : arrayUnion(userId),
     })
   }
 

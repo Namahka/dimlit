@@ -31,5 +31,9 @@ export function useMessages(user: User | null) {
     }
   }
 
-  return { messages, sending, sendError, addMessage }
+  async function toggleLike(messageId: string, userId: string, liked: boolean) {
+    await repo.toggleLike(messageId, userId, liked)
+  }
+
+  return { messages, sending, sendError, addMessage, toggleLike }
 }

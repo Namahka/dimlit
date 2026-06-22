@@ -19,20 +19,13 @@ function timeAgo(date: Date): string {
 
 async function reportMessage(messageId: string, text: string, reporterUserId: string) {
   try {
-    await addDoc(collection(db, 'reports'), {
-      messageId,
-      text,
-      reporterUserId,
-      reportedAt: serverTimestamp(),
-    })
+    await addDoc(collection(db, 'reports'), { messageId, text, reporterUserId, reportedAt: serverTimestamp() })
     alert('Report sent. Thank you.')
-  } catch {
-    alert('Could not send report.')
-  }
+  } catch { alert('Could not send report.') }
 }
 
 export function MessagesTab({ user, country }: { user: User; country: string }) {
-  const { messages, sending, sendError, addMessage } = useMessages(user)
+  const { messages, sending, sendError, addMessage, toggleLike } = useMessages(user)
   const [text, setText] = useState('')
 
   async function handleSubmit(e: React.FormEvent) {
@@ -44,33 +37,47 @@ export function MessagesTab({ user, country }: { user: User; country: string }) 
 
   return (
     <div className="flex flex-col h-full" style={{ background: BG }}>
-      <div className="px-5 pt-6 pb-4 border-b border-stone-200">
+      <div className="px-5 pt-6 pb-3 border-b border-stone-200">
         <h2 className="text-xl font-bold text-stone-800">Messages of Hope</h2>
-        <p className="text-sm text-stone-400 mt-0.5">Anonymous words from people awake right now.</p>
+        <p className="text-xs text-amber-600 bg-amber-50 border border-amber-100 rounded-xl px-3 py-2 mt-2 leading-relaxed">
+          Please keep messages kind and supportive. Harmful content will be removed.
+        </p>
       </div>
 
       <div className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
         {messages.length === 0 && (
           <p className="text-sm text-center text-stone-300 mt-12">Be the first to leave a message tonight.</p>
         )}
-        {messages.map((msg) => (
-          <div key={msg.id} className="px-4 py-3.5 rounded-2xl bg-white border border-stone-100 shadow-sm">
-            <div className="flex items-center justify-between mb-1.5">
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-full bg-violet-100 flex items-center justify-center text-xs font-bold text-violet-600">{msg.username.slice(0, 1).toUpperCase()}</div>
-                <span className="text-xs text-stone-400">{msg.username} · {timeAgo(msg.createdAt)}</span>
+        {messages.map((msg) => {
+          const liked = msg.likes.includes(user.id)
+          return (
+            <div key={msg.id} className="px-4 py-3.5 rounded-2xl bg-white border border-stone-100 shadow-sm">
+              <div className="flex items-center justify-between mb-1.5">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-full bg-violet-100 flex items-center justify-center text-xs font-bold text-violet-600">
+                    {msg.username.slice(0, 1).toUpperCase()}
+                  </div>
+                  <span className="text-xs text-stone-400">{msg.username} · {timeAgo(msg.createdAt)}</span>
+                </div>
+                <button onClick={() => reportMessage(msg.id, msg.text, user.id)}
+                  className="text-xs text-stone-300 hover:text-red-400 transition-colors">
+                  Report
+                </button>
               </div>
+              <p className="text-sm leading-relaxed text-stone-700 mb-2">{msg.text}</p>
               <button
-                onClick={() => reportMessage(msg.id, msg.text, user.id)}
-                className="text-xs text-stone-300 hover:text-red-400 transition-colors"
-                title="Report this message"
+                onClick={() => toggleLike(msg.id, user.id, liked)}
+                className="flex items-center gap-1.5 text-xs transition-colors"
+                style={{ color: liked ? ACCENT : '#c4bfb8' }}
               >
-                Report
+                <svg viewBox="0 0 24 24" fill={liked ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={2} className="w-4 h-4">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+                </svg>
+                {msg.likes.length > 0 && <span>{msg.likes.length}</span>}
               </button>
             </div>
-            <p className="text-sm leading-relaxed text-stone-700">{msg.text}</p>
-          </div>
-        ))}
+          )
+        })}
       </div>
 
       <form onSubmit={handleSubmit} className="px-5 pb-4 pt-3 border-t border-stone-200">
@@ -80,7 +87,7 @@ export function MessagesTab({ user, country }: { user: User; country: string }) 
             placeholder="Share something kind…"
             className="flex-1 px-4 py-2.5 rounded-2xl text-sm outline-none bg-white border border-stone-200 text-stone-800 placeholder-stone-300" />
           <button type="submit" disabled={!text.trim() || sending}
-            className="px-4 py-2.5 rounded-2xl text-sm font-medium text-white disabled:opacity-40 transition-colors"
+            className="px-4 py-2.5 rounded-2xl text-sm font-medium text-white disabled:opacity-40"
             style={{ background: ACCENT }}>
             Send
           </button>
