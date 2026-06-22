@@ -42,8 +42,8 @@ export function MapTab({ user, userCoords, country }: Props) {
           {presences.length === 0
             ? "You're not alone"
             : presences.length === 1
-            ? '1 person awake right now'
-            : `${presences.length} people awake right now`}
+            ? '1 person is here with you'
+            : `${presences.length} people here to make you feel less alone`}
         </div>
       </div>
 

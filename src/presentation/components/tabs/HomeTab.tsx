@@ -66,9 +66,9 @@ export function HomeTab({ user, onGoToMessages }: { user: User; onGoToMessages: 
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-stone-200 shadow-sm">
               <span className="w-2 h-2 rounded-full" style={{ background: ACCENT }} />
               <span className="text-sm text-stone-700 font-medium">
-                {presences.length === 0 ? "You're the first one awake"
-                  : presences.length === 1 ? '1 person awake right now'
-                  : `${presences.length} people awake right now`}
+                {presences.length === 0 ? "You're not alone"
+                  : presences.length === 1 ? '1 person is here with you'
+                  : `${presences.length} people here to make you feel less alone`}
               </span>
             </div>
           </div>
