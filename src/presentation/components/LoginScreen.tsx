@@ -28,9 +28,7 @@ export function LoginScreen({ onGoogle, onEmailSignIn, onRegister, error }: Prop
     <div className="flex flex-col items-center justify-center h-full px-6" style={{ background: BG }}>
       <div className="w-full max-w-sm space-y-7">
         <div className="text-center space-y-3">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-1" style={{ background: ACCENT }}>
-            <span className="text-3xl">🌙</span>
-          </div>
+          <img src="/icon-512.png" alt="DimLit" className="w-16 h-16 rounded-2xl mb-1 shadow-md" />
           <h1 className="text-4xl font-bold" style={{ color: ACCENT }}>DimLit</h1>
           <p className="text-sm text-stone-400">You&apos;re not alone.</p>
         </div>
