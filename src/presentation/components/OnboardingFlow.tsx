@@ -126,21 +126,18 @@ export function OnboardingFlow({ user, onUpdateUsername, onComplete }: Props) {
             </div>
             <h1 className="text-3xl font-bold text-stone-800">Special Thanks</h1>
             <p className="text-stone-600 text-sm leading-relaxed">
-              DimLit is deeply inspired by{' '}
+              dimlit was inspired by{' '}
               <a href="https://beaconpostpartum.com/" target="_blank" rel="noopener noreferrer"
                 className="font-semibold underline" style={{ color: ACCENT }}>
                 Beacon Postpartum
               </a>
-              {' '}— an app built for new mothers who are awake alone at night.
+              , an app built for new mothers awake in the middle of the night.
             </p>
             <p className="text-stone-500 text-sm leading-relaxed">
-              Beacon showed that something as simple as knowing others are awake can make a hard night lighter.
-            </p>
-            <p className="text-stone-500 text-sm leading-relaxed">
-              DimLit takes that same idea and brings it to anyone struggling with anxiety in the dark.
+              Beacon proved that just knowing someone else is awake can change how a hard night feels. dimlit takes that same idea further.
             </p>
             <p className="text-stone-400 text-xs leading-relaxed">
-              We are grateful to the Beacon team for building something that truly matters.
+              Thank you to the Beacon team for building something that matters.
             </p>
             {SPECIAL_THANKS.length > 0 && (
               <div className="mt-2 space-y-1">

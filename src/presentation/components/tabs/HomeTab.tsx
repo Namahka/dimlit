@@ -1,11 +1,21 @@
 'use client'
 
 import dynamic from 'next/dynamic'
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore'
+import { db } from '../../../infrastructure/firebase/firebaseApp'
 import { useActiveUsers } from '../../hooks/useActiveUsers'
 import { usePresence } from '../../hooks/usePresence'
 import { useHugs } from '../../hooks/useHugs'
 import { useMessages } from '../../hooks/useMessages'
 import type { User } from '../../../domain/entities/User'
+
+async function reportMessage(messageId: string, text: string, username: string, reporterUserId: string) {
+  try {
+    await addDoc(collection(db, 'reports'), { messageId, text, username, reporterUserId, reportedAt: serverTimestamp() })
+    await fetch('/api/report', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, text, messageId }) })
+    alert('Report sent.')
+  } catch { alert('Could not send report.') }
+}
 
 const ACCENT = '#7c3aed'
 const MAP_MAX = 700
@@ -27,7 +37,7 @@ export function HomeTab({ user, onGoToMessages }: { user: User; onGoToMessages: 
   const presences = useActiveUsers(user.id)
   const { country, userCoords, isReady, locationDenied, requestLocation } = usePresence(user)
   const { latestHug, sendHug, clearLatestHug } = useHugs(user.id)
-  const { messages } = useMessages(user)
+  const { messages, toggleLike } = useMessages(user)
 
   return (
     <div className="overflow-y-auto h-full" style={{ background: '#faf7f0' }}>
@@ -86,17 +96,32 @@ export function HomeTab({ user, onGoToMessages }: { user: User; onGoToMessages: 
             ) : (
               <>
                 <div className="divide-y divide-stone-50">
-                  {messages.slice(0, 2).map((msg) => (
-                    <div key={msg.id} className="px-5 py-3">
-                      <div className="flex items-center gap-2 mb-1">
-                        <div className="w-6 h-6 rounded-full bg-violet-100 flex items-center justify-center text-xs font-bold text-violet-600">{msg.username.slice(0, 1).toUpperCase()}</div>
-                        <span className="text-xs text-stone-400">{msg.username} · {timeAgo(msg.createdAt)}</span>
+                  {messages.slice(0, 3).map((msg) => {
+                    const liked = msg.likes.includes(user.id)
+                    return (
+                      <div key={msg.id} className="px-5 py-3">
+                        <div className="flex items-center justify-between mb-1">
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-full bg-violet-100 flex items-center justify-center text-xs font-bold text-violet-600">{msg.username.slice(0, 1).toUpperCase()}</div>
+                            <span className="text-xs text-stone-400">{msg.username} · {timeAgo(msg.createdAt)}</span>
+                          </div>
+                          <button onClick={() => reportMessage(msg.id, msg.text, msg.username, user.id)}
+                            className="text-xs text-stone-300 hover:text-red-400 transition-colors">Report</button>
+                        </div>
+                        <p className="text-sm text-stone-700 leading-relaxed mb-1.5">{msg.text}</p>
+                        <button onClick={() => toggleLike(msg.id, user.id, liked)}
+                          className="flex items-center gap-1 text-xs transition-colors"
+                          style={{ color: liked ? ACCENT : '#c4bfb8' }}>
+                          <svg viewBox="0 0 24 24" fill={liked ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={2} className="w-3.5 h-3.5">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+                          </svg>
+                          {msg.likes.length > 0 && <span>{msg.likes.length}</span>}
+                        </button>
                       </div>
-                      <p className="text-sm text-stone-700 leading-relaxed">{msg.text}</p>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
-                {messages.length > 2 && (
+                {messages.length > 3 && (
                   <button onClick={onGoToMessages} className="w-full text-center text-sm py-3 border-t border-stone-50" style={{ color: ACCENT }}>
                     See all {messages.length} →
                   </button>
