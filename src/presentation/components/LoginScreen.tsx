@@ -1,77 +1,36 @@
 'use client'
 
-import { useState } from 'react'
-
 const BG = '#faf7f0'
 const ACCENT = '#7c3aed'
 
 interface Props {
   onGoogle: () => void
-  onEmailSignIn: (email: string, password: string) => void
-  onRegister: (email: string, password: string, username: string) => void
   error: string | null
 }
 
-export function LoginScreen({ onGoogle, onEmailSignIn, onRegister, error }: Props) {
-  const [mode, setMode] = useState<'signin' | 'register'>('signin')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [username, setUsername] = useState('')
-
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    if (mode === 'signin') onEmailSignIn(email, password)
-    else onRegister(email, password, username)
-  }
-
+export function LoginScreen({ onGoogle, error }: Props) {
   return (
     <div className="flex flex-col items-center justify-center h-full px-6" style={{ background: BG }}>
-      <div className="w-full max-w-sm space-y-7">
-        <div className="text-center space-y-3">
+      <div className="w-full max-w-sm space-y-8 text-center">
+        <div className="space-y-3">
           <img src="/icon-512.png" alt="DimLit" style={{ width: 160, height: 160, borderRadius: 36, display: 'block', margin: '0 auto 12px' }} />
           <h1 className="text-6xl font-love" style={{ color: ACCENT }}>dimlit</h1>
           <p className="text-sm text-stone-400">You&apos;re not alone.</p>
         </div>
 
-        <button onClick={onGoogle}
-          className="w-full flex items-center justify-center gap-3 font-medium py-3 rounded-2xl bg-white border border-stone-200 text-stone-800 hover:bg-stone-50 transition-colors">
-          <GoogleIcon />
-          Continue with Google
-        </button>
-
-        <div className="flex items-center gap-3">
-          <div className="flex-1 h-px bg-stone-200" />
-          <span className="text-xs text-stone-300">or</span>
-          <div className="flex-1 h-px bg-stone-200" />
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-3">
-          {mode === 'register' && (
-            <input type="text" placeholder="Username" value={username}
-              onChange={(e) => setUsername(e.target.value)} required minLength={2} maxLength={24}
-              className="w-full px-4 py-3 rounded-2xl text-sm outline-none bg-white border border-stone-200 text-stone-800 placeholder-stone-300" />
-          )}
-          <input type="email" placeholder="Email" value={email}
-            onChange={(e) => setEmail(e.target.value)} required
-            className="w-full px-4 py-3 rounded-2xl text-sm outline-none bg-white border border-stone-200 text-stone-800 placeholder-stone-300" />
-          <input type="password" placeholder="Password" value={password}
-            onChange={(e) => setPassword(e.target.value)} required minLength={6}
-            className="w-full px-4 py-3 rounded-2xl text-sm outline-none bg-white border border-stone-200 text-stone-800 placeholder-stone-300" />
+        <div className="space-y-3">
+          <button onClick={onGoogle}
+            className="w-full flex items-center justify-center gap-3 font-medium py-3.5 rounded-2xl bg-white border border-stone-200 text-stone-800 hover:bg-stone-50 transition-colors shadow-sm">
+            <GoogleIcon />
+            Continue with Google
+          </button>
 
           {error && <p className="text-red-500 text-xs text-center">{error}</p>}
 
-          <button type="submit" className="w-full py-3 rounded-2xl text-sm text-white font-medium"
-            style={{ background: ACCENT }}>
-            {mode === 'signin' ? 'Sign in' : 'Create account'}
-          </button>
-        </form>
-
-        <p className="text-center text-sm text-stone-400">
-          {mode === 'signin' ? "Don't have an account? " : 'Already have an account? '}
-          <button onClick={() => setMode(mode === 'signin' ? 'register' : 'signin')} style={{ color: ACCENT }}>
-            {mode === 'signin' ? 'Create one' : 'Sign in'}
-          </button>
-        </p>
+          <p className="text-xs text-stone-300 leading-relaxed">
+            By continuing you agree to our community guidelines.
+          </p>
+        </div>
       </div>
     </div>
   )

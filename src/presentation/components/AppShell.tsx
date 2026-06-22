@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { BottomNav, type Tab } from './BottomNav'
 import { LoginScreen } from './LoginScreen'
 import { OnboardingFlow } from './OnboardingFlow'
-import { EmailVerificationScreen } from './EmailVerificationScreen'
 import { HomeTab } from './tabs/HomeTab'
 import { MessagesTab } from './tabs/MessagesTab'
 import { HugsTab } from './tabs/HugsTab'
@@ -47,10 +46,7 @@ export function AppShell() {
     return <div className="flex items-center justify-center h-full text-sm text-stone-400" style={{ background: '#faf7f0' }}>Loading…</div>
   }
   if (user === null) {
-    return <LoginScreen onGoogle={signInWithGoogle} onEmailSignIn={signInWithEmail} onRegister={register} error={authError} />
-  }
-  if (!user.emailVerified && user.email) {
-    return <EmailVerificationScreen email={user.email} onResend={sendVerificationEmail} onCheck={reloadUser} onSignOut={signOut} />
+    return <LoginScreen onGoogle={signInWithGoogle} error={authError} />
   }
   if (!onboardingDone) {
     return <OnboardingFlow user={user} onUpdateUsername={updateUsername} onComplete={() => setOnboardingDone(true)} />
