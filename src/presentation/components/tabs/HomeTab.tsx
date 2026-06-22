@@ -84,10 +84,10 @@ export function HomeTab({ user, onGoToMessages }: { user: User; onGoToMessages: 
           <MapCard presences={presences} userId={user.id} userCoords={userCoords} isReady={isReady}
             onSendHug={async (id) => { await sendHug(id, country) }} />
 
-          {/* Lift Each Other Up — same width as map, directly below */}
+          {/* Lift each other up — same width as map, directly below */}
           <div className="mt-4 bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
             <div className="flex items-center justify-between px-5 pt-4 pb-3">
-              <h2 className="font-semibold text-stone-800">Lift Each Other Up</h2>
+              <h2 className="font-semibold text-stone-800">Lift each other up</h2>
               <button onClick={onGoToMessages} className="w-7 h-7 rounded-full flex items-center justify-center text-white text-base leading-none"
                 style={{ background: ACCENT }}>+</button>
             </div>
