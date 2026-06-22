@@ -17,9 +17,14 @@ function timeAgo(date: Date): string {
   return `${Math.floor(diff / 86400)}d ago`
 }
 
-async function reportMessage(messageId: string, text: string, reporterUserId: string) {
+async function reportMessage(messageId: string, text: string, username: string, reporterUserId: string) {
   try {
-    await addDoc(collection(db, 'reports'), { messageId, text, reporterUserId, reportedAt: serverTimestamp() })
+    await addDoc(collection(db, 'reports'), { messageId, text, username, reporterUserId, reportedAt: serverTimestamp() })
+    await fetch('/api/report', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, text, messageId }),
+    })
     alert('Report sent. Thank you.')
   } catch { alert('Could not send report.') }
 }
@@ -59,7 +64,7 @@ export function MessagesTab({ user, country }: { user: User; country: string }) 
                   </div>
                   <span className="text-xs text-stone-400">{msg.username} · {timeAgo(msg.createdAt)}</span>
                 </div>
-                <button onClick={() => reportMessage(msg.id, msg.text, user.id)}
+                <button onClick={() => reportMessage(msg.id, msg.text, msg.username, user.id)}
                   className="text-xs text-stone-300 hover:text-red-400 transition-colors">
                   Report
                 </button>
