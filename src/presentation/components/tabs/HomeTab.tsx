@@ -1,0 +1,112 @@
+'use client'
+
+import dynamic from 'next/dynamic'
+import { useActiveUsers } from '../../hooks/useActiveUsers'
+import { usePresence } from '../../hooks/usePresence'
+import { useHugs } from '../../hooks/useHugs'
+import { useMessages } from '../../hooks/useMessages'
+import type { User } from '../../../domain/entities/User'
+
+const ACCENT = '#7c3aed'
+const MAP_MAX = 700
+
+const MapCard = dynamic(
+  () => import('./MapCardInner').then((m) => m.MapCardInner),
+  { ssr: false, loading: () => <div style={{ height: 480, background: '#1a1a2e', borderRadius: 12 }} /> }
+)
+
+function timeAgo(date: Date): string {
+  const diff = (Date.now() - date.getTime()) / 1000
+  if (diff < 60) return 'just now'
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`
+  return `${Math.floor(diff / 86400)}d ago`
+}
+
+export function HomeTab({ user, onGoToMessages }: { user: User; onGoToMessages: () => void }) {
+  const presences = useActiveUsers(user.id)
+  const { country, userCoords, isReady, locationDenied, requestLocation } = usePresence(user)
+  const { latestHug, sendHug, clearLatestHug } = useHugs(user.id)
+  const { messages } = useMessages(user)
+
+  return (
+    <div className="overflow-y-auto h-full" style={{ background: '#faf7f0' }}>
+      <div className="px-5 py-5">
+
+        {/* Hug banner */}
+        {latestHug && (
+          <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-violet-50 border border-violet-200 mb-4">
+            <span className="text-xl">🤗</span>
+            <p className="text-sm text-violet-800 flex-1">Someone from {latestHug.fromCountry} sent you a hug</p>
+            <button onClick={clearLatestHug} className="text-violet-300 text-xl">×</button>
+          </div>
+        )}
+
+        {/* Welcome — full width */}
+        <div className="mb-5">
+          <p className="text-sm text-stone-400">Welcome back,</p>
+          <h1 className="text-3xl font-bold text-stone-800">{user.username}</h1>
+        </div>
+
+        {/* Map block — centered, max 700px */}
+        <div style={{ maxWidth: MAP_MAX, margin: '0 auto' }}>
+
+          {/* Count pill — above the map */}
+          <div className="flex items-center gap-2 mb-3">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-stone-200 shadow-sm">
+              <span className="w-2 h-2 rounded-full" style={{ background: ACCENT }} />
+              <span className="text-sm text-stone-700 font-medium">
+                {presences.length === 0 ? "You're the first one awake"
+                  : presences.length === 1 ? '1 person awake right now'
+                  : `${presences.length} people awake right now`}
+              </span>
+            </div>
+          </div>
+
+          {locationDenied && (
+            <div className="flex items-center justify-between gap-3 bg-amber-50 border border-amber-200 px-4 py-3 rounded-2xl mb-3">
+              <p className="text-sm text-amber-700">Allow location to appear on the map.</p>
+              <button onClick={requestLocation} className="text-xs font-medium text-white bg-amber-500 px-3 py-1.5 rounded-full">Allow</button>
+            </div>
+          )}
+
+          {/* Map */}
+          <MapCard presences={presences} userId={user.id} userCoords={userCoords} isReady={isReady}
+            onSendHug={async (id) => { await sendHug(id, country) }} />
+
+          {/* Messages of Hope — same width as map, directly below */}
+          <div className="mt-4 bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
+            <div className="flex items-center justify-between px-5 pt-4 pb-3">
+              <h2 className="font-semibold text-stone-800">Messages of Hope</h2>
+              <button onClick={onGoToMessages} className="w-7 h-7 rounded-full flex items-center justify-center text-white text-base leading-none"
+                style={{ background: ACCENT }}>+</button>
+            </div>
+            {messages.length === 0 ? (
+              <p className="text-sm text-stone-400 px-5 pb-4">Be the first to share something tonight.</p>
+            ) : (
+              <>
+                <div className="divide-y divide-stone-50">
+                  {messages.slice(0, 2).map((msg) => (
+                    <div key={msg.id} className="px-5 py-3">
+                      <div className="flex items-center gap-2 mb-1">
+                        <div className="w-6 h-6 rounded-full bg-violet-100 flex items-center justify-center text-xs font-bold text-violet-600">{msg.country.slice(0, 1)}</div>
+                        <span className="text-xs text-stone-400">{msg.country} · {timeAgo(msg.createdAt)}</span>
+                      </div>
+                      <p className="text-sm text-stone-700 leading-relaxed">{msg.text}</p>
+                    </div>
+                  ))}
+                </div>
+                {messages.length > 2 && (
+                  <button onClick={onGoToMessages} className="w-full text-center text-sm py-3 border-t border-stone-50" style={{ color: ACCENT }}>
+                    See all {messages.length} →
+                  </button>
+                )}
+              </>
+            )}
+          </div>
+
+        </div>
+      </div>
+    </div>
+  )
+}
