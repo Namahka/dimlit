@@ -63,7 +63,7 @@ export function EmailVerificationScreen({ email, onResend, onCheck, onSignOut }:
         </button>
 
         <button onClick={onSignOut} className="text-xs text-stone-400 mt-2">
-          Sign out
+          Go back
         </button>
       </div>
     </div>
