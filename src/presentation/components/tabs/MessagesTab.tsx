@@ -45,7 +45,7 @@ export function MessagesTab({ user, country }: { user: User; country: string }) 
       <div className="px-5 pt-6 pb-3 border-b border-stone-200">
         <h2 className="text-xl font-bold text-stone-800">Lift each other up</h2>
         <p className="text-xs text-amber-600 bg-amber-50 border border-amber-100 rounded-xl px-3 py-2 mt-2 leading-relaxed">
-          Please keep messages kind and supportive. Harmful content will be removed.
+          Please keep messages kind and supportive. Harmful content will be removed and accounts may be deleted.
         </p>
       </div>
 
