@@ -3,7 +3,7 @@ import './globals.css'
 
 export const metadata: Metadata = {
   title: 'DimLit',
-  description: "You're not alone in the dark.",
+  description: "You're not alone.",
   manifest: '/manifest.json',
   appleWebApp: { capable: true, statusBarStyle: 'default', title: 'DimLit' },
 }

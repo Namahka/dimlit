@@ -32,7 +32,7 @@ export function LoginScreen({ onGoogle, onEmailSignIn, onRegister, error }: Prop
             <span className="text-3xl">🌙</span>
           </div>
           <h1 className="text-4xl font-bold" style={{ color: ACCENT }}>DimLit</h1>
-          <p className="text-sm text-stone-400">You&apos;re not alone in the dark.</p>
+          <p className="text-sm text-stone-400">You&apos;re not alone.</p>
         </div>
 
         <button onClick={onGoogle}

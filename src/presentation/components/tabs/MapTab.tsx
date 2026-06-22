@@ -40,7 +40,7 @@ export function MapTab({ user, userCoords, country }: Props) {
         <div className="inline-flex items-center gap-2 bg-violet-50 border border-violet-100 text-violet-700 text-sm font-medium px-4 py-2 rounded-full">
           <span className="w-2 h-2 rounded-full bg-violet-400 animate-pulse" />
           {presences.length === 0
-            ? "You're not alone in the dark"
+            ? "You're not alone"
             : presences.length === 1
             ? '1 person awake right now'
             : `${presences.length} people awake right now`}
