@@ -37,6 +37,7 @@ function toPresence(id: string, data: Record<string, unknown>): Presence {
 export class FirebasePresenceRepository implements IPresenceRepository {
   async setActive(presence: Presence): Promise<void> {
     const docRef = doc(db, 'presences', presence.userId)
+    console.log('[presence] writing active for', presence.userId, presence.username)
     await setDoc(docRef, {
       userId: presence.userId,
       username: presence.username,

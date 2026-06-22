@@ -13,6 +13,9 @@ import { SettingsTab } from './tabs/SettingsTab'
 import { AdminTab } from './tabs/AdminTab'
 import { useAuth } from '../hooks/useAuth'
 import { usePresence } from '../hooks/usePresence'
+import { useHugs } from '../hooks/useHugs'
+import { getDocs, collection, query, orderBy } from 'firebase/firestore'
+import { db } from '../../infrastructure/firebase/firebaseApp'
 
 const ADMIN_EMAIL = 'namahka@hotmail.com'
 
@@ -34,9 +37,12 @@ export function AppShell() {
     updateUsername, sendPasswordReset, deleteAccount, sendVerificationEmail, reloadUser } = useAuth()
   const [activeTab, setActiveTab] = useState<Tab>('home')
   const [onboardingDone, setOnboardingDone] = useState<boolean | null>(null)
+  const [reportCount, setReportCount] = useState(0)
   const { country } = usePresence(user ?? null)
+  const { receivedHugs } = useHugs(user?.id ?? null)
 
   const isAdmin = user?.email === ADMIN_EMAIL
+  const hugCount = receivedHugs.length
 
   useEffect(() => {
     if (!user || user === undefined) return
@@ -54,6 +60,14 @@ export function AppShell() {
       })
     })
   }, [user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Load report count for admin badge
+  useEffect(() => {
+    if (!isAdmin) return
+    getDocs(query(collection(db, 'reports'), orderBy('reportedAt', 'desc')))
+      .then(snap => setReportCount(snap.size))
+      .catch(() => {})
+  }, [isAdmin])
 
   if (user === undefined || onboardingDone === null) {
     return <div className="flex items-center justify-center h-full text-sm text-stone-400" style={{ background: '#faf7f0' }}>Loading…</div>
@@ -117,7 +131,7 @@ export function AppShell() {
       </div>
 
       <div className="flex-shrink-0 border-t border-stone-200">
-        <BottomNav active={activeTab} onChange={setActiveTab} isAdmin={isAdmin} />
+        <BottomNav active={activeTab} onChange={setActiveTab} isAdmin={isAdmin} hugCount={hugCount} reportCount={reportCount} />
       </div>
     </div>
   )
