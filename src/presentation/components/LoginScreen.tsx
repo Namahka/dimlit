@@ -27,9 +27,6 @@ export function LoginScreen({ onGoogle, error }: Props) {
 
           {error && <p className="text-red-500 text-xs text-center">{error}</p>}
 
-          <p className="text-xs text-stone-300 leading-relaxed">
-            By continuing you agree to our community guidelines.
-          </p>
         </div>
       </div>
     </div>

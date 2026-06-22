@@ -39,10 +39,21 @@ export function AppShell() {
   const isAdmin = user?.email === ADMIN_EMAIL
 
   useEffect(() => {
-    if (user && user !== null && user !== undefined) {
-      setOnboardingDone(!!localStorage.getItem(`dimlit_onboarding_${(user as { id: string }).id}`))
-    }
-  }, [user])
+    if (!user || user === undefined) return
+    // Check Firestore first, fall back to localStorage
+    import('firebase/firestore').then(({ doc, getDoc }) => {
+      import('../../infrastructure/firebase/firebaseApp').then(({ db }) => {
+        getDoc(doc(db, 'users', user.id)).then((snap) => {
+          if (snap.exists() && snap.data().onboardingDone) {
+            setOnboardingDone(true)
+          } else {
+            // legacy: check localStorage
+            setOnboardingDone(!!localStorage.getItem(`dimlit_onboarding_${user.id}`))
+          }
+        })
+      })
+    })
+  }, [user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (user === undefined || onboardingDone === null) {
     return <div className="flex items-center justify-center h-full text-sm text-stone-400" style={{ background: '#faf7f0' }}>Loading…</div>

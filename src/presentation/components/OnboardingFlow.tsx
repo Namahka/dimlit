@@ -59,6 +59,12 @@ export function OnboardingFlow({ user, onUpdateUsername, onComplete }: Props) {
     if (step < TOTAL - 1) setStep(step + 1)
     else {
       localStorage.setItem(`dimlit_onboarding_${user.id}`, '1')
+      // Also save to Firestore so it works across devices
+      import('firebase/firestore').then(({ doc, updateDoc }) => {
+        import('../../../infrastructure/firebase/firebaseApp').then(({ db }) => {
+          updateDoc(doc(db, 'users', user.id), { onboardingDone: true }).catch(() => {})
+        })
+      })
       onComplete()
     }
   }
