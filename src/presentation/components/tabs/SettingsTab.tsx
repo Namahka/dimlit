@@ -92,27 +92,14 @@ export function SettingsTab({ username, email, onUpdateUsername, onSendPasswordR
             <button onClick={() => setShowDelete(true)} className="text-sm text-red-400 hover:text-red-600">
               I want to delete my account
             </button>
-          ) : !deleteEmailSent ? (
-            <div className="space-y-2">
-              <p className="text-xs text-stone-500">We'll send a confirmation email to verify it's you before deleting.</p>
-              {email && <p className="text-xs font-medium text-stone-600">{email}</p>}
-              <button onClick={async () => { if (email) { await onSendPasswordReset(email); setDeleteEmailSent(true) } }}
-                className="w-full py-2.5 rounded-xl text-sm text-white font-medium bg-red-500">
-                Send confirmation email
-              </button>
-              <button onClick={() => setShowDelete(false)} className="text-xs text-stone-400 w-full text-center">Cancel</button>
-            </div>
           ) : (
             <div className="space-y-2">
-              <p className="text-xs text-stone-500">Email sent. Once verified, type DELETE below to permanently delete your account.</p>
-              <input type="text" placeholder="DELETE" value={deleteConfirm}
-                onChange={(e) => setDeleteConfirm(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl text-sm border border-red-200 outline-none text-stone-800" />
-              <button onClick={handleDelete} disabled={deleteConfirm !== 'DELETE'}
-                className="w-full py-2.5 rounded-xl text-sm text-white font-medium bg-red-500 disabled:opacity-40">
-                Delete my account permanently
+              <p className="text-xs text-stone-500">Are you sure? This cannot be undone.</p>
+              <button onClick={handleDelete}
+                className="w-full py-2.5 rounded-xl text-sm text-white font-medium bg-red-500">
+                Yes, delete my account
               </button>
-              <button onClick={() => { setShowDelete(false); setDeleteEmailSent(false); setDeleteConfirm('') }}
+              <button onClick={() => setShowDelete(false)}
                 className="text-xs text-stone-400 w-full text-center">Cancel</button>
             </div>
           )}
