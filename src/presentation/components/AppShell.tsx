@@ -8,13 +8,14 @@ import { EmailVerificationScreen } from './EmailVerificationScreen'
 import { HomeTab } from './tabs/HomeTab'
 import { MessagesTab } from './tabs/MessagesTab'
 import { HelpTab } from './tabs/HelpTab'
+import { TipsTab } from './tabs/TipsTab'
 import { SettingsTab } from './tabs/SettingsTab'
 import { useAuth } from '../hooks/useAuth'
 import { usePresence } from '../hooks/usePresence'
 
 export function AppShell() {
   const { user, error: authError, signInWithGoogle, signInWithEmail, register, signOut,
-    updateUsername, updatePassword, deleteAccount, sendVerificationEmail, reloadUser } = useAuth()
+    updateUsername, sendPasswordReset, deleteAccount, sendVerificationEmail, reloadUser } = useAuth()
   const [activeTab, setActiveTab] = useState<Tab>('home')
   const [onboardingDone, setOnboardingDone] = useState<boolean | null>(null)
   const { country } = usePresence(user ?? null)
@@ -61,6 +62,9 @@ export function AppShell() {
         <div className={`absolute inset-0 flex flex-col ${activeTab === 'messages' ? 'flex' : 'hidden'}`}>
           <MessagesTab user={user} country={country} />
         </div>
+        <div className={`absolute inset-0 overflow-y-auto ${activeTab === 'tips' ? 'block' : 'hidden'}`}>
+          <TipsTab />
+        </div>
         <div className={`absolute inset-0 overflow-y-auto ${activeTab === 'help' ? 'block' : 'hidden'}`}>
           <HelpTab />
         </div>
@@ -69,7 +73,7 @@ export function AppShell() {
             username={user.username}
             email={user.email}
             onUpdateUsername={updateUsername}
-            onUpdatePassword={updatePassword}
+            onSendPasswordReset={sendPasswordReset}
             onDeleteAccount={deleteAccount}
             onSignOut={signOut}
           />

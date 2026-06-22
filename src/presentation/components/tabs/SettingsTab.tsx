@@ -9,16 +9,14 @@ interface Props {
   username: string
   email?: string
   onUpdateUsername: (u: string) => Promise<void>
-  onUpdatePassword: (p: string) => Promise<void>
+  onSendPasswordReset: (email: string) => Promise<void>
   onDeleteAccount: () => Promise<void>
   onSignOut: () => void
 }
 
-export function SettingsTab({ username, email, onUpdateUsername, onUpdatePassword, onDeleteAccount, onSignOut }: Props) {
+export function SettingsTab({ username, email, onUpdateUsername, onSendPasswordReset, onDeleteAccount, onSignOut }: Props) {
   const [newUsername, setNewUsername] = useState(username)
   const [usernameSaved, setUsernameSaved] = useState(false)
-  const [newPassword, setNewPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
   const [passwordMsg, setPasswordMsg] = useState('')
   const [showDelete, setShowDelete] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState('')
@@ -31,17 +29,14 @@ export function SettingsTab({ username, email, onUpdateUsername, onUpdatePasswor
     setTimeout(() => setUsernameSaved(false), 2000)
   }
 
-  async function handlePasswordSubmit(e: React.FormEvent) {
-    e.preventDefault()
+  async function handlePasswordReset() {
+    if (!email) return
     setPasswordMsg('')
-    if (newPassword.length < 6) { setPasswordMsg('Password must be at least 6 characters.'); return }
-    if (newPassword !== confirmPassword) { setPasswordMsg("Passwords don't match."); return }
     try {
-      await onUpdatePassword(newPassword)
-      setPasswordMsg('Password updated!')
-      setNewPassword(''); setConfirmPassword('')
-    } catch (err) {
-      setPasswordMsg(err instanceof Error ? err.message : 'Error updating password.')
+      await onSendPasswordReset(email)
+      setPasswordMsg('Email sent! Check your inbox to reset your password.')
+    } catch {
+      setPasswordMsg('Could not send email. Try again.')
     }
   }
 
@@ -75,24 +70,18 @@ export function SettingsTab({ username, email, onUpdateUsername, onUpdatePasswor
         {/* Change password (email users only) */}
         {email && (
           <div className="bg-white rounded-2xl border border-stone-100 shadow-sm px-5 py-4">
-            <h3 className="font-semibold text-stone-800 text-sm mb-3">Change password</h3>
-            <form onSubmit={handlePasswordSubmit} className="space-y-2">
-              <input type="password" placeholder="New password" value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)} minLength={6}
-                className="w-full px-3 py-2 rounded-xl text-sm border border-stone-200 outline-none text-stone-800 placeholder-stone-300" />
-              <input type="password" placeholder="Confirm new password" value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl text-sm border border-stone-200 outline-none text-stone-800 placeholder-stone-300" />
-              {passwordMsg && (
-                <p className={`text-xs ${passwordMsg.includes('updated') ? 'text-green-500' : 'text-red-400'}`}>
-                  {passwordMsg}
-                </p>
-              )}
-              <button type="submit" className="w-full py-2.5 rounded-xl text-sm text-white font-medium"
-                style={{ background: ACCENT }}>
-                Update password
-              </button>
-            </form>
+            <h3 className="font-semibold text-stone-800 text-sm mb-1">Change password</h3>
+            <p className="text-xs text-stone-400 mb-3">A reset link will be sent to {email}</p>
+            {passwordMsg && (
+              <p className={`text-xs mb-2 ${passwordMsg.includes('sent') ? 'text-green-500' : 'text-red-400'}`}>
+                {passwordMsg}
+              </p>
+            )}
+            <button onClick={handlePasswordReset}
+              className="w-full py-2.5 rounded-xl text-sm text-white font-medium"
+              style={{ background: ACCENT }}>
+              Send password reset email
+            </button>
           </div>
         )}
 

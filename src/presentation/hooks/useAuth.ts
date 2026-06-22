@@ -31,6 +31,7 @@ export function useAuth() {
     setUser({ ...user, username })
   }
   async function updatePassword(newPassword: string) { await userRepo.updatePassword(newPassword) }
+  async function sendPasswordReset(email: string) { await userRepo.sendPasswordResetEmail(email) }
   async function deleteAccount() {
     if (!user) return
     await userRepo.deleteAccount(user.id)
@@ -42,7 +43,7 @@ export function useAuth() {
     return verified
   }
 
-  return { user, error, signInWithGoogle, signInWithEmail, register, signOut, updateUsername, updatePassword, deleteAccount, sendVerificationEmail, reloadUser }
+  return { user, error, signInWithGoogle, signInWithEmail, register, signOut, updateUsername, updatePassword, sendPasswordReset, deleteAccount, sendVerificationEmail, reloadUser }
 }
 
 function getErr(e: unknown): string {

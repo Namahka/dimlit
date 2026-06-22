@@ -6,6 +6,7 @@ import {
   onAuthStateChanged as firebaseOnAuthStateChanged,
   signOut as firebaseSignOut,
   updatePassword as firebaseUpdatePassword,
+  sendPasswordResetEmail as firebaseSendPasswordResetEmail,
   deleteUser,
   sendEmailVerification,
   reload,
@@ -67,6 +68,10 @@ export class FirebaseUserRepository implements IUserRepository {
   }
 
   async signOut(): Promise<void> { await firebaseSignOut(auth) }
+
+  async sendPasswordResetEmail(email: string): Promise<void> {
+    await firebaseSendPasswordResetEmail(auth, email)
+  }
 
   async updateUsername(userId: string, username: string): Promise<void> {
     await updateDoc(doc(db, 'users', userId), { username })
