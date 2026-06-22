@@ -1,5 +1,7 @@
 import {
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   GoogleAuthProvider,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -37,6 +39,9 @@ async function getOrCreateUserDoc(uid: string, fallbackUsername: string, email?:
   return { id: uid, username, email, createdAt: new Date() }
 }
 
+// Check if we're on localhost (popup works fine) or production (use redirect)
+const isLocalhost = typeof window !== 'undefined' && window.location.hostname === 'localhost'
+
 export class FirebaseUserRepository implements IUserRepository {
   async getCurrentUser(): Promise<User | null> {
     return new Promise((resolve) => {
@@ -54,6 +59,20 @@ export class FirebaseUserRepository implements IUserRepository {
   }
 
   onAuthStateChanged(callback: (user: User | null) => void): () => void {
+    // On production, handle redirect result on load
+    if (!isLocalhost) {
+      getRedirectResult(auth).then(async (result) => {
+        if (result?.user) {
+          const user = await getOrCreateUserDoc(
+            result.user.uid,
+            result.user.displayName ?? result.user.email?.split('@')[0] ?? 'Anonymous',
+            result.user.email ?? undefined
+          )
+          callback(user)
+        }
+      }).catch(() => {})
+    }
+
     return firebaseOnAuthStateChanged(auth, async (firebaseUser) => {
       if (!firebaseUser) { callback(null); return }
       const user = await getOrCreateUserDoc(
@@ -66,12 +85,19 @@ export class FirebaseUserRepository implements IUserRepository {
   }
 
   async signInWithGoogle(): Promise<User> {
-    const { user: firebaseUser } = await signInWithPopup(auth, googleProvider)
-    return getOrCreateUserDoc(
-      firebaseUser.uid,
-      firebaseUser.displayName ?? firebaseUser.email?.split('@')[0] ?? 'Anonymous',
-      firebaseUser.email ?? undefined
-    )
+    if (isLocalhost) {
+      const { user: firebaseUser } = await signInWithPopup(auth, googleProvider)
+      return getOrCreateUserDoc(
+        firebaseUser.uid,
+        firebaseUser.displayName ?? firebaseUser.email?.split('@')[0] ?? 'Anonymous',
+        firebaseUser.email ?? undefined
+      )
+    } else {
+      // On production, use redirect to avoid COOP issues
+      await signInWithRedirect(auth, googleProvider)
+      // This line won't be reached — page redirects
+      return {} as User
+    }
   }
 
   async signInWithEmailPassword(email: string, password: string): Promise<User> {
