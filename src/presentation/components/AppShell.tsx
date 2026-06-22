@@ -39,8 +39,10 @@ export function AppShell() {
   const isAdmin = user?.email === ADMIN_EMAIL
 
   useEffect(() => {
-    setOnboardingDone(!!localStorage.getItem('dimlit_onboarding_done'))
-  }, [])
+    if (user && user !== null && user !== undefined) {
+      setOnboardingDone(!!localStorage.getItem(`dimlit_onboarding_${(user as { id: string }).id}`))
+    }
+  }, [user])
 
   if (user === undefined || onboardingDone === null) {
     return <div className="flex items-center justify-center h-full text-sm text-stone-400" style={{ background: '#faf7f0' }}>Loading…</div>

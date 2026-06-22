@@ -58,7 +58,7 @@ export function OnboardingFlow({ user, onUpdateUsername, onComplete }: Props) {
     }
     if (step < TOTAL - 1) setStep(step + 1)
     else {
-      localStorage.setItem('dimlit_onboarding_done', '1')
+      localStorage.setItem(`dimlit_onboarding_${user.id}`, '1')
       onComplete()
     }
   }
