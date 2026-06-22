@@ -1,5 +1,16 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'Love';
+  src: url('/Love.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.font-love {
+  font-family: 'Love', sans-serif;
+}
+
 body {
   background: #faf7f0;
   color: #1c1917;
