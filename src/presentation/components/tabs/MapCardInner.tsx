@@ -11,6 +11,16 @@ function SetView({ coords }: { coords: [number, number] }) {
   return null
 }
 
+function AutoClose({ trigger }: { trigger: boolean }) {
+  const map = useMap()
+  useEffect(() => {
+    if (!trigger) return
+    const t = setTimeout(() => map.closePopup(), 1500)
+    return () => clearTimeout(t)
+  }, [trigger, map])
+  return null
+}
+
 import { useState } from 'react'
 
 interface Props {
@@ -48,6 +58,7 @@ export function MapCardInner({ presences, userId, userCoords, isReady, onSendHug
             maxZoom={19}
           />
           {userCoords && <SetView coords={userCoords} />}
+          <AutoClose trigger={sentTo.size > 0} />
           {presences.map((p) => (
             <CircleMarker
               key={p.userId}
