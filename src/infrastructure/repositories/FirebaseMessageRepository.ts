@@ -34,7 +34,7 @@ function toMessage(id: string, data: Record<string, unknown>): Message {
 }
 
 export class FirebaseMessageRepository implements IMessageRepository {
-  async addMessage(msg: Omit<Message, 'id'>): Promise<void> {
+  async addMessage(msg: Omit<Message, 'id' | 'likes'>): Promise<void> {
     await addDoc(collection(db, 'messages'), {
       userId: msg.userId,
       username: msg.username,

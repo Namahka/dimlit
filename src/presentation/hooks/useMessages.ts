@@ -22,7 +22,7 @@ export function useMessages(user: User | null) {
     setSending(true)
     setSendError(null)
     try {
-      await repo.addMessage({ userId: user.id, username: user.username, text: text.trim(), country, createdAt: new Date() })
+      await repo.addMessage({ userId: user.id, username: user.username, text: text.trim(), country, createdAt: new Date() } as Omit<import('../../domain/entities/Message').Message, 'id' | 'likes'>)
     } catch (e) {
       setSendError('Could not send — check Firestore rules.')
       console.error(e)
