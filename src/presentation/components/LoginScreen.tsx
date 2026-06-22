@@ -28,7 +28,7 @@ export function LoginScreen({ onGoogle, onEmailSignIn, onRegister, error }: Prop
     <div className="flex flex-col items-center justify-center h-full px-6" style={{ background: BG }}>
       <div className="w-full max-w-sm space-y-7">
         <div className="text-center space-y-3">
-          <img src="/icon-512.png" alt="DimLit" style={{ width: 120, height: 120, borderRadius: 28, marginBottom: 8, display: 'block', margin: '0 auto 8px' }} />
+          <img src="/icon-512.png" alt="DimLit" style={{ width: 160, height: 160, borderRadius: 36, display: 'block', margin: '0 auto 12px' }} />
           <h1 className="text-6xl font-love" style={{ color: ACCENT }}>dimlit</h1>
           <p className="text-sm text-stone-400">You&apos;re not alone.</p>
         </div>
