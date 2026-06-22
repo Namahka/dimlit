@@ -30,7 +30,7 @@ const HelpIcon = () => (
 )
 
 export function AppShell() {
-  const { user, error: authError, signInWithGoogle, signInWithEmail, register, signOut,
+  const { user, error: authError, signInWithGoogle, signOut,
     updateUsername, sendPasswordReset, deleteAccount, sendVerificationEmail, reloadUser } = useAuth()
   const [activeTab, setActiveTab] = useState<Tab>('home')
   const [onboardingDone, setOnboardingDone] = useState<boolean | null>(null)
