@@ -72,7 +72,8 @@ export function SettingsTab({ username, email, onUpdateUsername, onSendPasswordR
         {email && (
           <div className="bg-white rounded-2xl border border-stone-100 shadow-sm px-5 py-4">
             <h3 className="font-semibold text-stone-800 text-sm mb-1">Change password</h3>
-            <p className="text-xs text-stone-400 mb-3">A reset link will be sent to {email}</p>
+            <p className="text-xs text-stone-400 mb-1">A reset link will be sent to {email}</p>
+            <p className="text-xs text-stone-300 mb-3">Sent from noreply@dimlit-f84ef.firebaseapp.com — check junk/spam if you don&apos;t see it.</p>
             {passwordMsg && (
               <p className={`text-xs mb-2 ${passwordMsg.includes('sent') ? 'text-green-500' : 'text-red-400'}`}>
                 {passwordMsg}

@@ -40,7 +40,10 @@ export function EmailVerificationScreen({ email, onResend, onCheck, onSignOut }:
       <p className="text-stone-400 text-sm leading-relaxed mb-1">
         We sent a verification link to
       </p>
-      {email && <p className="font-medium text-stone-700 text-sm mb-6">{email}</p>}
+      {email && <p className="font-medium text-stone-700 text-sm">{email}</p>}
+      <p className="text-xs text-stone-400 mb-6 mt-1">
+        Sent from <span className="font-medium">noreply@dimlit-f84ef.firebaseapp.com</span> — check your junk/spam folder if you don't see it.
+      </p>
       <p className="text-stone-400 text-sm mb-8">
         Click the link in the email, then come back here.
       </p>
