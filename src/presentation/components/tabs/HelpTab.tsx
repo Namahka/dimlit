@@ -8,7 +8,7 @@ export function HelpTab() {
     <div className="overflow-y-auto h-full" style={{ background: BG }}>
       <div className="px-5 pt-6 pb-4 border-b border-stone-200">
         <h2 className="text-xl font-bold text-stone-800">Help & Resources</h2>
-        <p className="text-sm text-stone-400 mt-0.5">You don&apos;t have to face this alone.</p>
+        <p className="text-sm text-stone-500 mt-0.5 leading-relaxed">If you&apos;re experiencing thoughts of harming yourself or others, please reach out to a crisis line or emergency services in your country.</p>
       </div>
 
       <div className="px-5 py-6 space-y-4">
