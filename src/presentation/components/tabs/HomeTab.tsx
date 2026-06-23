@@ -17,7 +17,7 @@ async function reportMessage(messageId: string, text: string, username: string, 
   } catch { alert('Could not send report.') }
 }
 
-const ACCENT = '#7c3aed'
+const ACCENT = 'var(--accent)'
 const MAP_MAX = 700
 
 const MapCard = dynamic(
@@ -40,7 +40,7 @@ export function HomeTab({ user, onGoToMessages }: { user: User; onGoToMessages: 
   const { messages, toggleLike } = useMessages(user)
 
   return (
-    <div className="overflow-y-auto h-full" style={{ background: '#faf7f0' }}>
+    <div className="overflow-y-auto h-full" style={{ background: 'var(--bg)' }}>
       <div className="px-5 py-5">
 
         {/* Hug banner */}

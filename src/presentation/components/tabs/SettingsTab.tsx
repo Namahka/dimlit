@@ -2,9 +2,6 @@
 
 import { useState } from 'react'
 
-const BG = '#faf7f0'
-const ACCENT = '#7c3aed'
-
 interface Props {
   username: string
   email?: string
@@ -17,10 +14,8 @@ interface Props {
 export function SettingsTab({ username, email, onUpdateUsername, onSendPasswordReset, onDeleteAccount, onSignOut }: Props) {
   const [newUsername, setNewUsername] = useState(username)
   const [usernameSaved, setUsernameSaved] = useState(false)
-  const [passwordMsg, setPasswordMsg] = useState('')
   const [showDelete, setShowDelete] = useState(false)
   const [deleteEmailSent, setDeleteEmailSent] = useState(false)
-  const [deleteConfirm, setDeleteConfirm] = useState('')
 
   async function handleUsernameSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -30,77 +25,62 @@ export function SettingsTab({ username, email, onUpdateUsername, onSendPasswordR
     setTimeout(() => setUsernameSaved(false), 2000)
   }
 
-  async function handlePasswordReset() {
-    if (!email) return
-    setPasswordMsg('')
-    try {
-      await onSendPasswordReset(email)
-      setPasswordMsg('Email sent! Check your inbox to reset your password.')
-    } catch {
-      setPasswordMsg('Could not send email. Try again.')
-    }
-  }
-
   async function handleDelete() {
-    if (deleteConfirm !== 'DELETE') return
     await onDeleteAccount()
   }
 
-  return (
-    <div className="overflow-y-auto h-full" style={{ background: BG }}>
-      <div className="px-5 pt-6 pb-4 border-b border-stone-200">
-        <h2 className="text-xl font-bold text-stone-800">Settings</h2>
-      </div>
+  const cardStyle = { background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 16 }
+  const inputStyle = { background: 'var(--surface-2)', color: 'var(--text)', border: '1px solid var(--border)', borderRadius: 12, padding: '8px 12px', fontSize: 14, outline: 'none', width: '100%' }
 
+  return (
+    <div className="overflow-y-auto h-full" style={{ background: 'var(--bg)' }}>
+      <div className="px-5 pt-6 pb-4" style={{ borderBottom: '1px solid var(--border)' }}>
+        <h2 className="text-xl font-bold" style={{ color: 'var(--text)' }}>Settings</h2>
+      </div>
       <div className="px-5 py-4 space-y-4 pb-12">
 
-        {/* Change username */}
-        <div className="bg-white rounded-2xl border border-stone-100 shadow-sm px-5 py-4">
-          <h3 className="font-semibold text-stone-800 text-sm mb-3">Change username</h3>
+        {/* Username */}
+        <div className="px-5 py-4" style={cardStyle}>
+          <h3 className="font-semibold text-sm mb-3" style={{ color: 'var(--text)' }}>Change username</h3>
           <form onSubmit={handleUsernameSubmit} className="flex gap-2">
             <input type="text" value={newUsername} onChange={(e) => setNewUsername(e.target.value)}
-              minLength={2} maxLength={24} required
-              className="flex-1 px-3 py-2 rounded-xl text-sm border border-stone-200 outline-none text-stone-800" />
-            <button type="submit" className="px-4 py-2 rounded-xl text-sm text-white font-medium"
-              style={{ background: ACCENT }}>
+              minLength={2} maxLength={24} required style={{ ...inputStyle, flex: 1 }} />
+            <button type="submit" className="px-4 py-2 rounded-xl text-sm text-white font-medium" style={{ background: 'var(--accent)' }}>
               {usernameSaved ? 'Saved!' : 'Save'}
             </button>
           </form>
         </div>
 
-
         {/* Privacy */}
-        <div className="bg-white rounded-2xl border border-stone-100 shadow-sm px-5 py-4">
-          <h3 className="font-semibold text-stone-800 text-sm mb-2">Privacy</h3>
-          <p className="text-sm text-stone-500 leading-relaxed">
+        <div className="px-5 py-4" style={cardStyle}>
+          <h3 className="font-semibold text-sm mb-2" style={{ color: 'var(--text)' }}>Privacy</h3>
+          <p className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>
             Your exact location is never stored. Coordinates are rounded to ~10 km. You appear on the map only while the app is open.
           </p>
         </div>
 
         {/* Sign out */}
-        <div className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
-          <button onClick={onSignOut}
-            className="w-full text-left px-5 py-4 text-sm font-medium text-stone-600 hover:bg-stone-50 transition-colors">
+        <div style={cardStyle} className="overflow-hidden">
+          <button onClick={onSignOut} className="w-full text-left px-5 py-4 text-sm font-medium transition-colors"
+            style={{ color: 'var(--text-muted)' }}>
             Sign out
           </button>
         </div>
 
-        {/* Delete account */}
-        <div className="bg-white rounded-2xl border border-red-100 shadow-sm px-5 py-4">
-          <h3 className="font-semibold text-red-500 text-sm mb-2">Delete account</h3>
+        {/* Delete */}
+        <div className="px-5 py-4" style={{ ...cardStyle, borderColor: 'rgba(239,68,68,0.3)' }}>
+          <h3 className="font-semibold text-sm mb-2" style={{ color: '#ef4444' }}>Delete account</h3>
           {!showDelete ? (
-            <button onClick={() => setShowDelete(true)} className="text-sm text-red-400 hover:text-red-600">
+            <button onClick={() => setShowDelete(true)} className="text-sm" style={{ color: '#ef4444' }}>
               I want to delete my account
             </button>
           ) : (
             <div className="space-y-2">
-              <p className="text-xs text-stone-500">Are you sure? This cannot be undone.</p>
-              <button onClick={handleDelete}
-                className="w-full py-2.5 rounded-xl text-sm text-white font-medium bg-red-500">
+              <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Are you sure? This cannot be undone.</p>
+              <button onClick={handleDelete} className="w-full py-2.5 rounded-xl text-sm text-white font-medium bg-red-500">
                 Yes, delete my account
               </button>
-              <button onClick={() => setShowDelete(false)}
-                className="text-xs text-stone-400 w-full text-center">Cancel</button>
+              <button onClick={() => setShowDelete(false)} className="text-xs w-full text-center" style={{ color: '#555' }}>Cancel</button>
             </div>
           )}
         </div>

@@ -1,32 +1,22 @@
 'use client'
 
-const BG = '#faf7f0'
-const ACCENT = '#7c3aed'
-
-interface Props {
-  onGoogle: () => void
-  error: string | null
-}
-
-export function LoginScreen({ onGoogle, error }: Props) {
+export function LoginScreen({ onGoogle, error }: { onGoogle: () => void; error: string | null }) {
   return (
-    <div className="flex flex-col items-center justify-center h-full px-6" style={{ background: BG }}>
+    <div className="flex flex-col items-center justify-center h-full px-6" style={{ background: 'var(--bg)' }}>
       <div className="w-full max-w-sm space-y-8 text-center">
         <div className="space-y-3">
           <img src="/icon-512.png" alt="dimlit" style={{ width: 160, height: 160, borderRadius: 36, display: 'block', margin: '0 auto 12px' }} />
-          <h1 className="text-6xl font-love" style={{ color: ACCENT }}>dimlit</h1>
-          <p className="text-sm text-stone-400">You&apos;re not alone.</p>
+          <h1 className="text-6xl font-dimlit" style={{ color: 'var(--accent)' }}>dimlit</h1>
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>You&apos;re not alone.</p>
         </div>
-
         <div className="space-y-3">
           <button onClick={onGoogle}
-            className="w-full flex items-center justify-center gap-3 font-medium py-3.5 rounded-2xl bg-white border border-stone-200 text-stone-800 hover:bg-stone-50 transition-colors shadow-sm">
+            className="w-full flex items-center justify-center gap-3 font-medium py-3.5 rounded-2xl transition-colors"
+            style={{ background: 'var(--surface)', color: 'var(--text)', border: '1px solid var(--border)' }}>
             <GoogleIcon />
             Continue with Google
           </button>
-
-          {error && <p className="text-red-500 text-xs text-center">{error}</p>}
-
+          {error && <p className="text-red-400 text-xs text-center">{error}</p>}
         </div>
       </div>
     </div>

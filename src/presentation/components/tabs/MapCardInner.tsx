@@ -66,7 +66,7 @@ export function MapCardInner({ presences, userId, userCoords, isReady, onSendHug
               center={[p.latitude, p.longitude]}
               radius={p.userId === userId ? 10 : 8}
               pathOptions={{
-                color: p.userId === userId ? '#a78bfa' : '#7c3aed',
+                color: p.userId === userId ? '#a78bfa' : 'var(--accent)',
                 fillColor: p.userId === userId ? '#c4b5fd' : '#a78bfa',
                 fillOpacity: 0.9,
                 weight: 2,
@@ -84,7 +84,7 @@ export function MapCardInner({ presences, userId, userCoords, isReady, onSendHug
                         onClick={(e) => { e.stopPropagation(); handleHug(p.userId) }}
                         disabled={sentTo.has(p.userId)}
                         className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs text-white font-medium disabled:opacity-60"
-                        style={{ background: sentTo.has(p.userId) ? '#a78bfa' : '#7c3aed' }}>
+                        style={{ background: sentTo.has(p.userId) ? '#a78bfa' : 'var(--accent)' }}>
                         {sentTo.has(p.userId) ? '✓ Hug sent' : '🤗 Send a hug'}
                       </button>
                     </>

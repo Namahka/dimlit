@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react'
 import { collection, getDocs, deleteDoc, doc, query, orderBy, where } from 'firebase/firestore'
 import { db } from '../../../infrastructure/firebase/firebaseApp'
 
-const BG = '#faf7f0'
-const ACCENT = '#7c3aed'
+const BG = 'var(--bg)'
+const ACCENT = 'var(--accent)'
 
 interface UserRecord { id: string; username: string; email?: string }
 interface MessageRecord { id: string; username: string; userId: string; text: string; createdAt: Date }

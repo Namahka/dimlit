@@ -16,7 +16,7 @@ export function DotMarker({ presence, isCurrentUser, onSendHug }: Props) {
       center={[presence.latitude, presence.longitude]}
       radius={isCurrentUser ? 10 : 7}
       pathOptions={{
-        color: isCurrentUser ? '#a78bfa' : '#7c3aed',
+        color: isCurrentUser ? '#a78bfa' : 'var(--accent)',
         fillColor: isCurrentUser ? '#c4b5fd' : '#a78bfa',
         fillOpacity: 0.9,
         weight: isCurrentUser ? 2.5 : 1.5,

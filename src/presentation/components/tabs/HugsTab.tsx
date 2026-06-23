@@ -3,8 +3,8 @@
 import { useHugs } from '../../hooks/useHugs'
 import type { User } from '../../../domain/entities/User'
 
-const BG = '#faf7f0'
-const ACCENT = '#7c3aed'
+const BG = 'var(--bg)'
+const ACCENT = 'var(--accent)'
 
 function timeAgo(date: Date): string {
   const diff = (Date.now() - date.getTime()) / 1000

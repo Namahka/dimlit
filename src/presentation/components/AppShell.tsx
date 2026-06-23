@@ -73,36 +73,36 @@ export function AppShell() {
   // Only show loading while auth is resolving (undefined)
   // If user is null (not logged in), skip straight to login screen
   if (user === undefined) {
-    return <div className="flex items-center justify-center h-full text-sm text-stone-400" style={{ background: '#faf7f0' }}>Loading…</div>
+    return <div className="flex items-center justify-center h-full text-sm text-stone-400" style={{ background: 'var(--bg)' }}>Loading…</div>
   }
   if (user === null) {
     return <LoginScreen onGoogle={signInWithGoogle} error={authError} />
   }
   // User is logged in but onboarding check still running — show app skeleton briefly
   if (onboardingDone === null) {
-    return <div className="flex items-center justify-center h-full text-sm text-stone-400" style={{ background: '#faf7f0' }}>Loading…</div>
+    return <div className="flex items-center justify-center h-full text-sm text-stone-400" style={{ background: 'var(--bg)' }}>Loading…</div>
   }
   if (!onboardingDone) {
     return <OnboardingFlow user={user} onUpdateUsername={updateUsername} onComplete={() => setOnboardingDone(true)} />
   }
 
   return (
-    <div className="flex flex-col h-full" style={{ background: '#faf7f0' }}>
+    <div className="flex flex-col h-full" style={{ background: 'var(--bg)' }}>
       {/* Header */}
-      <div className="flex-shrink-0 flex items-center justify-between px-5 py-3 border-b border-stone-200">
-        <button onClick={() => setActiveTab('home')} className="text-3xl font-love" style={{ color: '#7c3aed' }}>
+      <div className="flex-shrink-0 flex items-center justify-between px-5 py-3" style={{ borderBottom: '1px solid var(--border)', background: 'var(--surface)' }}>
+        <button onClick={() => setActiveTab('home')} className="text-3xl font-dimlit" style={{ color: 'var(--accent)' }}>
           dimlit
         </button>
         <div className="flex items-center gap-1">
           <button onClick={() => setActiveTab('help')}
             className="p-2 rounded-xl transition-colors"
-            style={{ color: activeTab === 'help' ? '#7c3aed' : '#c4bfb8' }}
+            style={{ color: activeTab === 'help' ? 'var(--accent)' : '#555' }}
             title="I need help">
             <HelpIcon />
           </button>
           <button onClick={() => setActiveTab('settings')}
             className="p-2 rounded-xl transition-colors"
-            style={{ color: activeTab === 'settings' ? '#7c3aed' : '#c4bfb8' }}
+            style={{ color: activeTab === 'settings' ? 'var(--accent)' : '#555' }}
             title="Settings">
             <SettingsIcon />
           </button>

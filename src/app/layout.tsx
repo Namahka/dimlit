@@ -5,11 +5,11 @@ export const metadata: Metadata = {
   title: 'dimlit',
   description: "You're not alone.",
   manifest: '/manifest.json',
-  appleWebApp: { capable: true, statusBarStyle: 'default', title: 'dimlit' },
+  appleWebApp: { capable: true, statusBarStyle: 'black-translucent', title: 'dimlit' },
 }
 
 export const viewport: Viewport = {
-  themeColor: '#faf7f0',
+  themeColor: '#131313',
   width: 'device-width',
   initialScale: 1,
 }
@@ -17,7 +17,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="h-full">
-      <body className="h-full" style={{ background: '#faf7f0' }}>{children}</body>
+      <body className="h-full" style={{ background: '#131313' }}>{children}</body>
     </html>
   )
 }

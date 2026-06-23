@@ -1,26 +1,38 @@
 @import "tailwindcss";
 
 @font-face {
-  font-family: 'Love';
-  src: url('/Love.ttf') format('truetype');
+  font-family: 'DKLemonYellowSun';
+  src: url('/DK Lemon Yellow Sun.otf') format('opentype');
   font-weight: normal;
   font-style: normal;
 }
 
-.font-love {
-  font-family: 'Love', sans-serif;
+:root {
+  --bg: #131313;
+  --surface: #1e1e1e;
+  --surface-2: #262626;
+  --border: rgba(255,255,255,0.09);
+  --text: #dedede;
+  --text-muted: #888888;
+  --accent: #e87c28;
+  --accent-hover: #f08a38;
 }
 
 body {
-  background: #faf7f0;
-  color: #1c1917;
+  background: var(--bg);
+  color: var(--text);
   font-family: system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
+.font-dimlit {
+  font-family: 'DKLemonYellowSun', sans-serif;
+}
+
+/* Leaflet attribution stays small */
 .leaflet-control-attribution {
   font-size: 8px !important;
-  opacity: 0.4 !important;
+  opacity: 0.3 !important;
   background: transparent !important;
   box-shadow: none !important;
 }

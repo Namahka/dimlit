@@ -2,8 +2,8 @@
 
 import { useState } from 'react'
 
-const BG = '#faf7f0'
-const ACCENT = '#7c3aed'
+const BG = 'var(--bg)'
+const ACCENT = 'var(--accent)'
 
 const moods = [
   { value: 1, emoji: '😰', label: 'Very anxious' },

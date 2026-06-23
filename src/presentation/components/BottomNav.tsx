@@ -17,30 +17,22 @@ const adminTab: TabDef = {
   icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" /></svg>
 }
 
-interface Props {
-  active: Tab
-  onChange: (t: Tab) => void
-  isAdmin: boolean
-  hugCount?: number
-  reportCount?: number
-}
-
-export function BottomNav({ active, onChange, isAdmin, hugCount = 0, reportCount = 0 }: Props) {
+export function BottomNav({ active, onChange, isAdmin, hugCount = 0, reportCount = 0 }: { active: Tab; onChange: (t: Tab) => void; isAdmin: boolean; hugCount?: number; reportCount?: number }) {
   const tabs = isAdmin ? [...baseTabs, adminTab] : baseTabs
-
   return (
-    <nav className="flex-shrink-0 h-14 flex items-center justify-around px-1" style={{ background: '#faf7f0', borderTop: '1px solid #e7e5e4' }}>
+    <nav className="flex-shrink-0 h-14 flex items-center justify-around px-1"
+      style={{ background: 'var(--surface)', borderTop: '1px solid var(--border)' }}>
       {tabs.map((tab) => {
         const badge = tab.id === 'hugs' ? hugCount : tab.id === 'admin' ? reportCount : 0
         return (
           <button key={tab.id} onClick={() => onChange(tab.id)}
             className="flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition-all flex-shrink-0 relative"
-            style={{ color: active === tab.id ? '#7c3aed' : '#c4bfb8' }}>
+            style={{ color: active === tab.id ? 'var(--accent)' : '#555' }}>
             <div className="relative">
               {tab.icon}
               {badge > 0 && (
                 <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full text-white flex items-center justify-center"
-                  style={{ background: tab.id === 'admin' ? '#ef4444' : '#7c3aed', fontSize: 9, fontWeight: 700, lineHeight: 1 }}>
+                  style={{ background: tab.id === 'admin' ? '#ef4444' : 'var(--accent)', fontSize: 9, fontWeight: 700 }}>
                   {badge > 9 ? '9+' : badge}
                 </span>
               )}
