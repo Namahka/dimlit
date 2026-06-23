@@ -133,7 +133,10 @@ export function AdminTab() {
             <p className="text-xs mb-3" style={{ color: 'var(--text-muted)' }}>{r.reportedAt.toLocaleString()}</p>
             <div className="flex gap-2">
               <button onClick={async () => {
-                if (r.messageId) await deleteDoc(doc(db, 'messages', r.messageId)).catch(() => {})
+                if (r.messageId) {
+                  const res = await deleteDoc(doc(db, 'messages', r.messageId)).catch(e => e)
+                  if (res instanceof Error) { alert('Could not delete: ' + res.message); return }
+                }
                 await deleteDoc(doc(db, 'reports', r.id)).catch(() => {})
                 setReports(prev => prev.filter(x => x.id !== r.id))
                 setMessages(prev => prev.filter(m => m.id !== r.messageId))
@@ -141,7 +144,8 @@ export function AdminTab() {
                 Delete message
               </button>
               <button onClick={async () => {
-                await deleteDoc(doc(db, 'reports', r.id)).catch(() => {})
+                const res = await deleteDoc(doc(db, 'reports', r.id)).catch(e => e)
+                if (res instanceof Error) { alert('Could not dismiss: check Firestore rules'); return }
                 setReports(prev => prev.filter(x => x.id !== r.id))
               }} className="text-xs px-3 py-1.5 rounded-full font-medium" style={{ background: 'var(--surface-2)', color: 'var(--text-muted)' }}>
                 Dismiss
