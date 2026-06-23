@@ -1,8 +1,13 @@
 'use client'
 
+import { useState } from 'react'
+import { PrivacyModal } from './PrivacyModal'
+
 export function LoginScreen({ onGoogle, error }: { onGoogle: () => void; error: string | null }) {
+  const [showPrivacy, setShowPrivacy] = useState(false)
   return (
     <div className="flex flex-col items-center justify-center h-full px-6" style={{ background: 'var(--bg)' }}>
+      {showPrivacy && <PrivacyModal onClose={() => setShowPrivacy(false)} />}
       <div className="w-full max-w-sm space-y-8 text-center">
         <div className="space-y-3">
           <img src="/icon-512.png" alt="dimlit" style={{ width: 160, height: 160, borderRadius: 36, display: 'block', margin: '0 auto 12px' }} />
@@ -17,6 +22,9 @@ export function LoginScreen({ onGoogle, error }: { onGoogle: () => void; error: 
             Continue with Google
           </button>
           {error && <p className="text-red-400 text-xs text-center">{error}</p>}
+          <button onClick={() => setShowPrivacy(true)} className="text-xs" style={{ color: 'var(--text-muted)' }}>
+            Privacy Policy
+          </button>
         </div>
       </div>
     </div>

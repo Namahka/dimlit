@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { PrivacyModal } from '../PrivacyModal'
 
 interface Props {
   username: string
@@ -18,6 +19,7 @@ export function SettingsTab({ username, email, locationEnabled, onToggleLocation
   const [usernameSaved, setUsernameSaved] = useState(false)
   const [showDelete, setShowDelete] = useState(false)
   const [deleteEmailSent, setDeleteEmailSent] = useState(false)
+  const [showPrivacy, setShowPrivacy] = useState(false)
 
   async function handleUsernameSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -36,6 +38,7 @@ export function SettingsTab({ username, email, locationEnabled, onToggleLocation
 
   return (
     <div className="overflow-y-auto h-full" style={{ background: 'var(--bg)' }}>
+      {showPrivacy && <PrivacyModal onClose={() => setShowPrivacy(false)} />}
       <div className="px-5 pt-6 pb-4" style={{ borderBottom: '1px solid var(--border)' }}>
         <h2 className="text-xl font-bold" style={{ color: 'var(--text)' }}>Settings</h2>
       </div>
@@ -76,6 +79,12 @@ export function SettingsTab({ username, email, locationEnabled, onToggleLocation
             </button>
           </form>
         </div>
+
+        {/* Privacy */}
+        <button onClick={() => setShowPrivacy(true)} className="w-full text-left px-5 py-4 rounded-2xl text-sm font-medium"
+          style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
+          Privacy Policy
+        </button>
 
         {/* Sign out */}
         <div className="px-5 py-4" style={cardStyle}>
