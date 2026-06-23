@@ -49,6 +49,11 @@ export function AppShell() {
   const lastSeenTs = lastSeenKey ? Number(localStorage.getItem(lastSeenKey) ?? 0) : 0
   const hugCount = receivedHugs.filter(h => h.sentAt.getTime() > lastSeenTs).length
 
+  // When user logs in, always go to home
+  useEffect(() => {
+    if (user && user !== null) setActiveTab('home')
+  }, [user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+
   // When user opens Hugs tab, save current timestamp
   useEffect(() => {
     if (activeTab === 'hugs' && lastSeenKey) {

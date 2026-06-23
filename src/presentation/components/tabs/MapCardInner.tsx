@@ -79,7 +79,6 @@ export function MapCardInner({ presences, userId, userCoords, isReady, onSendHug
                   ) : (
                     <>
                       <span className="font-semibold text-xs" style={{ color: '#1a1a1a' }}>{p.username}</span>
-                      <span className="text-xs" style={{ color: '#666' }}>{p.city ?? p.country}</span>
                       <button
                         onClick={(e) => { e.stopPropagation(); handleHug(p.userId) }}
                         disabled={sentTo.has(p.userId)}

@@ -205,7 +205,7 @@ export function OnboardingFlow({ user, onUpdateUsername, onComplete }: Props) {
             <img src="/icon-512.png" alt="dimlit" className="w-20 h-20 rounded-3xl mx-auto mb-2 shadow-md" />
             <h1 className="text-3xl font-bold text-neutral-200">dimlit</h1>
             <p className="text-neutral-500 text-sm leading-relaxed max-w-xs">
-              Built for everyone who has ever felt alone in the hardest hours.
+              Built for everyone who has ever felt alone.
             </p>
           </div>
         )}
