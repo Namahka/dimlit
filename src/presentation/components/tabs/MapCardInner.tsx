@@ -64,7 +64,7 @@ export function MapCardInner({ presences, userId, userCoords, isReady, onSendHug
             <CircleMarker
               key={p.userId}
               center={[p.latitude, p.longitude]}
-              radius={p.userId === userId ? 10 : 8}
+              radius={p.userId === userId ? 6 : 5}
               pathOptions={{
                 color: p.userId === userId ? '#e87c28' : '#e87c28',
                 fillColor: p.userId === userId ? '#fbbf7a' : '#e87c28',
