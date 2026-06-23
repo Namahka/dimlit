@@ -42,11 +42,23 @@ export function usePresence(user: User | null) {
     cleanupRef.current = () => presenceService.markInactive(user.id)
   }
 
+  async function markAnonymous() {
+    if (!user || markedRef.current) return
+    markedRef.current = true
+    // Random position spread across the globe
+    const lat = (Math.random() * 140) - 70
+    const lng = (Math.random() * 360) - 180
+    const fallback = { latitude: lat, longitude: lng, accuracy: 0 } as GeolocationCoordinates
+    await presenceService.markActive(user.id, 'Anonymous', fallback, 'Unknown', undefined, true)
+    setIsReady(true)
+    cleanupRef.current = () => presenceService.markInactive(user.id)
+  }
+
   function requestLocation() {
     setLocationDenied(false)
     navigator.geolocation.getCurrentPosition(
       (pos) => markActive(pos.coords),
-      () => setLocationDenied(true),
+      () => { setLocationDenied(true); markAnonymous() },
       { timeout: 10000 }
     )
   }

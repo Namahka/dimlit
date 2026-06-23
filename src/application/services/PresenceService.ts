@@ -35,7 +35,8 @@ export class PresenceService {
     username: string,
     coords: GeolocationCoordinates,
     country: string,
-    city?: string
+    city?: string,
+    isAnonymous = false
   ): Promise<void> {
     const presence: Presence = {
       id: userId,
@@ -43,9 +44,10 @@ export class PresenceService {
       username,
       country,
       city,
-      latitude: obscure(coords.latitude, userId, 1),
-      longitude: obscure(coords.longitude, userId, 2),
+      latitude: isAnonymous ? coords.latitude : obscure(coords.latitude, userId, 1),
+      longitude: isAnonymous ? coords.longitude : obscure(coords.longitude, userId, 2),
       isActive: true,
+      isAnonymous,
       lastSeen: new Date(),
     }
     await this.setActive.execute(presence)

@@ -7,5 +7,6 @@ export interface Presence {
   latitude: number
   longitude: number
   isActive: boolean
+  isAnonymous?: boolean
   lastSeen: Date
 }

@@ -145,10 +145,13 @@ export function OnboardingFlow({ user, onUpdateUsername, onComplete }: Props) {
             </div>
             <h1 className="text-3xl font-bold text-neutral-200">Allow location?</h1>
             <p className="text-neutral-500 text-sm leading-relaxed">
-              Your location is only used to place a dot on the map so others can see you're there too.
+              To appear on the map near your actual position and be able to receive hugs from others nearby, we need access to your location.
             </p>
             <p className="text-neutral-500 text-xs leading-relaxed">
-              Your exact position is never stored. It's rounded to approximately 1 km.
+              Your exact position is never stored — it's offset by up to 5 km.
+            </p>
+            <p className="text-neutral-400 text-xs leading-relaxed">
+              If you don't allow location, a random position will be assigned and your name will appear as Anonymous on the map.
             </p>
 
             {locationStatus === 'granted' && (

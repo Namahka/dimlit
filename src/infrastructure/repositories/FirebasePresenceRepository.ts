@@ -30,6 +30,7 @@ function toPresence(id: string, data: Record<string, unknown>): Presence {
     latitude: data.latitude as number,
     longitude: data.longitude as number,
     isActive: data.isActive as boolean,
+    isAnonymous: (data.isAnonymous as boolean | undefined) ?? false,
     lastSeen,
   }
 }
@@ -46,6 +47,7 @@ export class FirebasePresenceRepository implements IPresenceRepository {
       latitude: presence.latitude,
       longitude: presence.longitude,
       isActive: true,
+      isAnonymous: presence.isAnonymous ?? false,
       lastSeen: serverTimestamp(),
     })
 

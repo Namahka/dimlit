@@ -77,8 +77,8 @@ export function MapCardInner({ presences, userId, userCoords, isReady, onSendHug
               center={[p.latitude, p.longitude]}
               radius={p.userId === userId ? 6 : 5}
               pathOptions={{
-                color: p.userId === userId ? '#e87c28' : '#e87c28',
-                fillColor: p.userId === userId ? '#fbbf7a' : '#e87c28',
+                color: p.isAnonymous ? '#4ade80' : p.userId === userId ? '#e87c28' : '#e87c28',
+                fillColor: p.isAnonymous ? '#4ade80' : p.userId === userId ? '#fbbf7a' : '#e87c28',
                 fillOpacity: p.userId === userId ? 0.5 : 0.9,
                 weight: p.userId === userId ? 3 : 2,
               }}
