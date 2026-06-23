@@ -11,6 +11,7 @@ import { TipsTab } from './tabs/TipsTab'
 import { HelpTab } from './tabs/HelpTab'
 import { SettingsTab } from './tabs/SettingsTab'
 import { AdminTab } from './tabs/AdminTab'
+import { DistractTab } from './tabs/DistractTab'
 import { useAuth } from '../hooks/useAuth'
 import { usePresence } from '../hooks/usePresence'
 import { useHugs } from '../hooks/useHugs'
@@ -112,6 +113,9 @@ export function AppShell() {
         </div>
         <div className={`absolute inset-0 overflow-y-auto ${activeTab === 'hugs' ? 'block' : 'hidden'}`}>
           <HugsTab user={user} country={country} />
+        </div>
+        <div className={`absolute inset-0 ${activeTab === 'distract' ? 'block' : 'hidden'}`}>
+          <DistractTab />
         </div>
         <div className={`absolute inset-0 overflow-y-auto ${activeTab === 'tips' ? 'block' : 'hidden'}`}>
           <TipsTab />
