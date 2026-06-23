@@ -45,17 +45,16 @@ export function HomeTab({ user, onGoToMessages }: { user: User; onGoToMessages: 
 
         {/* Hug banner */}
         {latestHug && (
-          <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-violet-50 border border-violet-200 mb-4">
-            <span className="text-xl">🤗</span>
-            <p className="text-sm text-violet-800 flex-1">Someone from {latestHug.fromCountry} sent you a hug</p>
-            <button onClick={clearLatestHug} className="text-violet-300 text-xl">×</button>
+          <div className="flex items-center gap-3 px-4 py-3 rounded-2xl mb-4" style={{ background: 'rgba(232,124,40,0.12)', border: '1px solid rgba(232,124,40,0.3)' }}>
+            <p className="text-sm flex-1" style={{ color: 'var(--text)' }}>Someone sent you a hug</p>
+            <button onClick={clearLatestHug} className="text-xl" style={{ color: 'var(--text-muted)' }}>×</button>
           </div>
         )}
 
-        {/* Welcome — full width */}
+        {/* Welcome */}
         <div className="mb-5">
-          <p className="text-sm text-stone-400">Welcome back,</p>
-          <h1 className="text-3xl font-bold text-stone-800">{user.username}</h1>
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Welcome back,</p>
+          <h1 className="text-3xl font-bold" style={{ color: 'var(--text)' }}>{user.username}</h1>
         </div>
 
         {/* Map block — centered, max 700px */}
@@ -65,10 +64,10 @@ export function HomeTab({ user, onGoToMessages }: { user: User; onGoToMessages: 
           <div className="flex items-center gap-2 mb-3">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-stone-200 shadow-sm">
               <span className="w-2 h-2 rounded-full" style={{ background: ACCENT }} />
-              <span className="text-sm text-stone-700 font-medium">
+              <span className="text-sm font-medium" style={{ color: 'var(--text)' }}>
                 {presences.length === 0 ? "You're not alone"
                   : presences.length === 1 ? '1 person is here with you'
-                  : `${presences.length} people here to make you feel less alone`}
+                  : `${presences.length} people are here with you`}
               </span>
             </div>
           </div>
