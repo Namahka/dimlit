@@ -51,18 +51,10 @@ export function SettingsTab({ username, email, onUpdateUsername, onSendPasswordR
           </form>
         </div>
 
-        {/* Privacy */}
-        <div className="px-5 py-4" style={cardStyle}>
-          <h3 className="font-semibold text-sm mb-2" style={{ color: 'var(--text)' }}>Privacy</h3>
-          <p className="text-sm leading-relaxed" style={{ color: 'var(--text-muted)' }}>
-            Your exact location is never stored. Coordinates are rounded to ~10 km. You appear on the map only while the app is open.
-          </p>
-        </div>
-
         {/* Sign out */}
-        <div style={cardStyle} className="overflow-hidden">
-          <button onClick={onSignOut} className="w-full text-left px-5 py-4 text-sm font-medium transition-colors"
-            style={{ color: 'var(--text-muted)' }}>
+        <div className="px-5 py-4" style={cardStyle}>
+          <button onClick={onSignOut} className="w-full py-3 rounded-xl text-sm font-medium text-white"
+            style={{ background: 'var(--accent)' }}>
             Sign out
           </button>
         </div>
