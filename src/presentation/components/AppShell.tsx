@@ -15,7 +15,7 @@ import { DistractTab } from './tabs/DistractTab'
 import { useAuth } from '../hooks/useAuth'
 import { usePresence } from '../hooks/usePresence'
 import { useHugs } from '../hooks/useHugs'
-import { collection, query, orderBy, onSnapshot, doc, updateDoc } from 'firebase/firestore'
+import { collection, query, orderBy, onSnapshot, doc, updateDoc, setDoc, serverTimestamp } from 'firebase/firestore'
 import { db } from '../../infrastructure/firebase/firebaseApp'
 
 const ADMIN_EMAIL = 'namahka@hotmail.com'
@@ -156,9 +156,10 @@ export function AppShell() {
               if (!val) {
                 const anonLat = Math.round((Math.random() * 160 - 80) * 10) / 10
                 const anonLng = Math.round((Math.random() * 360 - 180) * 10) / 10
-                await updateDoc(doc(db, 'presences', user.id), {
-                  username: 'Anonymous', isAnonymous: true,
+                await setDoc(doc(db, 'presences', user.id), {
+                  userId: user.id, username: 'Anonymous', isAnonymous: true,
                   latitude: anonLat, longitude: anonLng,
+                  country: 'Unknown', isActive: true, lastSeen: serverTimestamp(),
                 }).catch(() => {})
               } else {
                 await updateDoc(doc(db, 'presences', user.id), {

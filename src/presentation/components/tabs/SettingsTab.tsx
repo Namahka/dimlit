@@ -48,9 +48,13 @@ export function SettingsTab({ username, email, locationEnabled, onToggleLocation
         <div className="px-5 py-4" style={cardStyle}>
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="font-semibold text-sm" style={{ color: 'var(--text)' }}>Show on map</h3>
-              <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
-                {locationEnabled ? 'You appear near your position' : 'You appear as Anonymous'}
+              <h3 className="font-semibold text-sm" style={{ color: 'var(--text)' }}>
+                {locationEnabled ? 'Visible on map' : 'Hidden — showing as Anonymous'}
+              </h3>
+              <p className="text-xs mt-0.5" style={{ color: locationEnabled ? 'var(--accent)' : 'var(--text-muted)' }}>
+                {locationEnabled
+                  ? 'Others can see your approximate position'
+                  : 'A green dot appears at a random location instead of you'}
               </p>
             </div>
             <button

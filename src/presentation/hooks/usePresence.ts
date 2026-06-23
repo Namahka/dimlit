@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { doc, updateDoc } from 'firebase/firestore'
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore'
 import { db } from '../../infrastructure/firebase/firebaseApp'
 import { FirebasePresenceRepository } from '../../infrastructure/repositories/FirebasePresenceRepository'
 import { PresenceService } from '../../application/services/PresenceService'
@@ -86,19 +86,18 @@ export function usePresence(user: User | null, locationEnabled = true) {
     if (locationEnabled) {
       requestLocation()
     } else {
-      // Anonymous mode on load — write anonymous presence directly
+      // Anonymous mode — use setDoc (creates or overwrites)
       const anonLat = Math.round((Math.random() * 160 - 80) * 10) / 10
       const anonLng = Math.round((Math.random() * 360 - 180) * 10) / 10
       markedRef.current = true
-      updateDoc(doc(db, 'presences', user.id), {
-        username: 'Anonymous', isAnonymous: true,
-        latitude: anonLat, longitude: anonLng, isActive: true,
-      }).catch(() => {
-        // Presence doc might not exist yet on first load — let the toggle handle it
-        markedRef.current = false
-      })
-      setIsReady(true)
-      cleanupRef.current = () => presenceService.markInactive(user.id)
+      setDoc(doc(db, 'presences', user.id), {
+        userId: user.id, username: 'Anonymous', isAnonymous: true,
+        latitude: anonLat, longitude: anonLng,
+        country: 'Unknown', isActive: true, lastSeen: serverTimestamp(),
+      }).then(() => {
+        setIsReady(true)
+        cleanupRef.current = () => presenceService.markInactive(user.id)
+      }).catch(() => { markedRef.current = false })
     }
     return () => {
       cleanupRef.current?.()
