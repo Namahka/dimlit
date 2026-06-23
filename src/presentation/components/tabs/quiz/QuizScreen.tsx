@@ -14,11 +14,11 @@ interface Props {
 
 function getScore(score: number, total: number) {
   const pct = score / total
-  if (pct >= 0.9) return { emoji: '🏆', label: 'Pop Culture Expert' }
-  if (pct >= 0.75) return { emoji: '⭐', label: 'Very Impressive' }
-  if (pct >= 0.5) return { emoji: '👍', label: 'Solid Knowledge' }
-  if (pct >= 0.25) return { emoji: '😄', label: 'Casual Fan' }
-  return { emoji: '📺', label: 'Time for a binge' }
+  if (pct >= 0.9) return { label: 'Pop Culture Expert' }
+  if (pct >= 0.75) return { label: 'Very Impressive' }
+  if (pct >= 0.5) return { label: 'Solid Knowledge' }
+  if (pct >= 0.25) return { label: 'Casual Fan' }
+  return { label: 'Time for a binge' }
 }
 
 export function QuizScreen({ title, questions, onBack }: Props) {
@@ -39,10 +39,9 @@ export function QuizScreen({ title, questions, onBack }: Props) {
 
   if (submitted) {
     const score = answers.filter((a, i) => a === questions[i].correctIndex).length
-    const { emoji, label } = getScore(score, questions.length)
+    const { label } = getScore(score, questions.length)
     return (
       <div className="flex flex-col items-center justify-center h-full px-6 text-center" style={{ background: '#faf7f0' }}>
-        <div className="text-6xl mb-4">{emoji}</div>
         <h2 className="text-3xl font-bold text-stone-800 mb-1">{score}/{questions.length}</h2>
         <p className="text-lg text-stone-500 mb-8">{label}</p>
 

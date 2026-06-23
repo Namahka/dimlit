@@ -10,10 +10,10 @@ const ACCENT = '#7c3aed'
 type View = 'home' | 'quiz-categories' | 'quiz-pop-culture'
 
 const quizCategories = [
-  { id: 'pop-culture', label: 'Pop Culture 🎬', description: 'Movies, music, social media & gaming', available: true },
-  { id: '90s', label: 'The 90s 📼', description: 'A decade of iconic pop culture', available: false },
-  { id: 'gaming', label: 'Gaming 🎮', description: 'Consoles, characters & franchises', available: false },
-  { id: 'celebrities', label: 'Celebrities ⭐', description: 'Famous faces and their stories', available: false },
+  { id: 'pop-culture', label: 'Pop Culture', description: 'Movies, music, social media & gaming', available: true },
+  { id: '90s', label: 'The 90s', description: 'A decade of iconic pop culture', available: false },
+  { id: 'gaming', label: 'Gaming', description: 'Consoles, characters & franchises', available: false },
+  { id: 'celebrities', label: 'Celebrities', description: 'Famous faces and their stories', available: false },
 ]
 
 export function DistractTab() {
@@ -53,45 +53,19 @@ export function DistractTab() {
     )
   }
 
-  // Home view
+  // Home view — just quiz for now
   return (
     <div className="flex flex-col h-full overflow-y-auto" style={{ background: BG }}>
       <div className="px-5 pt-6 pb-4 border-b border-stone-200">
         <h2 className="text-xl font-bold text-stone-800">Distract yourself</h2>
         <p className="text-sm text-stone-400 mt-0.5">Something to take your mind off things.</p>
       </div>
-      <div className="px-5 py-4 space-y-3 pb-10">
+      <div className="px-5 py-4 pb-10">
         <button onClick={() => setView('quiz-categories')}
           className="w-full text-left px-5 py-5 rounded-2xl bg-white border border-stone-100 shadow-sm hover:shadow-md transition-all">
-          <div className="flex items-center gap-4">
-            <span className="text-4xl">🧠</span>
-            <div>
-              <p className="font-semibold text-stone-800 text-base">Quiz</p>
-              <p className="text-sm text-stone-400 mt-0.5">Test your knowledge across fun categories</p>
-            </div>
-          </div>
+          <p className="font-semibold text-stone-800 text-base">Quiz</p>
+          <p className="text-sm text-stone-400 mt-0.5">Test your knowledge across different categories</p>
         </button>
-
-        {/* Coming soon */}
-        <div className="px-5 py-5 rounded-2xl bg-white border border-stone-100 opacity-50">
-          <div className="flex items-center gap-4">
-            <span className="text-4xl">🎲</span>
-            <div>
-              <p className="font-semibold text-stone-800 text-base">This or That</p>
-              <p className="text-sm text-stone-400 mt-0.5">Quick choices, no wrong answers — coming soon</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="px-5 py-5 rounded-2xl bg-white border border-stone-100 opacity-50">
-          <div className="flex items-center gap-4">
-            <span className="text-4xl">🤔</span>
-            <div>
-              <p className="font-semibold text-stone-800 text-base">Would You Rather</p>
-              <p className="text-sm text-stone-400 mt-0.5">Impossible choices — coming soon</p>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   )
