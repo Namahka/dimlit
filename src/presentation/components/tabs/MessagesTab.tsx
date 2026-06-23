@@ -18,9 +18,7 @@ function timeAgo(date: Date): string {
 async function reportMessage(messageId: string, text: string, username: string, reporterUserId: string) {
   try {
     await addDoc(collection(db, 'reports'), { messageId, text, username, reporterUserId, reportedAt: serverTimestamp() })
-  } catch { alert('Could not send report.'); return }
-  // Send email notification in background (non-blocking)
-  fetch('/api/report', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, text, messageId }) }).catch(() => {})
+  } catch { alert('Could not send report.') }
 }
 
 export function MessagesTab({ user, country }: { user: User; country: string }) {
