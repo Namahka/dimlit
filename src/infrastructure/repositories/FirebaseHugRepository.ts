@@ -15,7 +15,9 @@ function toHug(id: string, data: Record<string, unknown>): Hug {
   const sentAt =
     data.sentAt instanceof Timestamp
       ? data.sentAt.toDate()
-      : new Date(data.sentAt as string | number)
+      : data.sentAt
+      ? new Date(data.sentAt as string | number)
+      : new Date() // serverTimestamp() is null on optimistic write — treat as now
 
   return {
     id,

@@ -28,7 +28,7 @@ export function useHugs(userId: string | null) {
       for (const hug of hugs) {
         if (!seenIds.current.has(hug.id)) {
           seenIds.current.add(hug.id)
-          if (Date.now() - hug.sentAt.getTime() < 30_000) {
+          if (Date.now() - hug.sentAt.getTime() < 5 * 60 * 1000) {
             setLatestHug(hug)
           }
         }
