@@ -14,6 +14,7 @@ export function AdminTab() {
   const [reports, setReports] = useState<ReportRecord[]>([])
   const [reportedMessageIds, setReportedMessageIds] = useState<Set<string>>(new Set())
   const [reportedUserIds, setReportedUserIds] = useState<Set<string>>(new Set())
+  const [solvedUserIds, setSolvedUserIds] = useState<Set<string>>(new Set())
   const [activeSection, setActiveSection] = useState<'users' | 'messages' | 'reports'>('users')
   const [selectedUser, setSelectedUser] = useState<UserRecord | null>(null)
   const [userMessages, setUserMessages] = useState<MessageRecord[]>([])
@@ -111,7 +112,10 @@ export function AdminTab() {
                 <p className="text-sm font-medium" style={{ color: 'var(--text)' }}>{u.username}</p>
                 <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{u.email ?? 'Google user'}</p>
               </div>
-              {reportedUserIds.has(u.id) && <span className="text-xs text-red-400 font-medium">Reported</span>}
+              {solvedUserIds.has(u.id)
+                ? <span className="text-xs text-green-500 font-medium">Solved</span>
+                : reportedUserIds.has(u.id) && <span className="text-xs text-red-400 font-medium">Reported</span>
+              }
             </div>
           </button>
         ))}
@@ -138,15 +142,21 @@ export function AdminTab() {
                   if (res instanceof Error) { alert('Could not delete: ' + res.message); return }
                 }
                 await deleteDoc(doc(db, 'reports', r.id)).catch(() => {})
+                const userId = messages.find(m => m.id === r.messageId)?.userId
+                if (userId) setSolvedUserIds(p => new Set(p).add(userId))
                 setReports(prev => prev.filter(x => x.id !== r.id))
                 setMessages(prev => prev.filter(m => m.id !== r.messageId))
+                setReportedMessageIds(prev => { const s = new Set(prev); s.delete(r.messageId); return s })
               }} className="text-xs px-3 py-1.5 rounded-full text-white bg-red-500 font-medium">
                 Delete message
               </button>
               <button onClick={async () => {
                 const res = await deleteDoc(doc(db, 'reports', r.id)).catch(e => e)
                 if (res instanceof Error) { alert('Could not dismiss: check Firestore rules'); return }
+                const userId = messages.find(m => m.id === r.messageId)?.userId
+                if (userId) setSolvedUserIds(p => new Set(p).add(userId))
                 setReports(prev => prev.filter(x => x.id !== r.id))
+                setReportedMessageIds(prev => { const s = new Set(prev); s.delete(r.messageId); return s })
               }} className="text-xs px-3 py-1.5 rounded-full font-medium" style={{ background: 'var(--surface-2)', color: 'var(--text-muted)' }}>
                 Dismiss
               </button>
