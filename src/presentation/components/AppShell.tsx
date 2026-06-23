@@ -39,17 +39,22 @@ export function AppShell() {
   const [activeTab, setActiveTab] = useState<Tab>('home')
   const [onboardingDone, setOnboardingDone] = useState<boolean | null>(null)
   const [reportCount, setReportCount] = useState(0)
-  const [seenHugCount, setSeenHugCount] = useState(0)
   const { country } = usePresence(user ?? null)
   const { receivedHugs } = useHugs(user?.id ?? null)
 
   const isAdmin = user?.email === ADMIN_EMAIL
-  const hugCount = Math.max(0, receivedHugs.length - seenHugCount)
 
-  // Clear badge when user opens Hugs tab
+  // Badge: count hugs newer than last time user viewed Hugs tab
+  const lastSeenKey = user ? `dimlit_hugs_seen_${user.id}` : null
+  const lastSeenTs = lastSeenKey ? Number(localStorage.getItem(lastSeenKey) ?? 0) : 0
+  const hugCount = receivedHugs.filter(h => h.sentAt.getTime() > lastSeenTs).length
+
+  // When user opens Hugs tab, save current timestamp
   useEffect(() => {
-    if (activeTab === 'hugs') setSeenHugCount(receivedHugs.length)
-  }, [activeTab, receivedHugs.length])
+    if (activeTab === 'hugs' && lastSeenKey) {
+      localStorage.setItem(lastSeenKey, String(Date.now()))
+    }
+  }, [activeTab, lastSeenKey])
 
   useEffect(() => {
     if (!user) return
