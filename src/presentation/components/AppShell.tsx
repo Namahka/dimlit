@@ -15,7 +15,7 @@ import { DistractTab } from './tabs/DistractTab'
 import { useAuth } from '../hooks/useAuth'
 import { usePresence } from '../hooks/usePresence'
 import { useHugs } from '../hooks/useHugs'
-import { collection, query, orderBy, onSnapshot } from 'firebase/firestore'
+import { collection, query, orderBy, onSnapshot, doc, updateDoc } from 'firebase/firestore'
 import { db } from '../../infrastructure/firebase/firebaseApp'
 
 const ADMIN_EMAIL = 'namahka@hotmail.com'
@@ -151,7 +151,21 @@ export function AppShell() {
         <div className={`absolute inset-0 overflow-y-auto ${activeTab === 'settings' ? 'block' : 'hidden'}`}>
           <SettingsTab username={user.username} email={user.email}
             locationEnabled={locationEnabled}
-            onToggleLocation={(val) => setLocationEnabled(val)}
+            onToggleLocation={async (val) => {
+              setLocationEnabled(val)
+              if (!val) {
+                const anonLat = Math.round((Math.random() * 160 - 80) * 10) / 10
+                const anonLng = Math.round((Math.random() * 360 - 180) * 10) / 10
+                await updateDoc(doc(db, 'presences', user.id), {
+                  username: 'Anonymous', isAnonymous: true,
+                  latitude: anonLat, longitude: anonLng,
+                }).catch(() => {})
+              } else {
+                await updateDoc(doc(db, 'presences', user.id), {
+                  username: user.username, isAnonymous: false,
+                }).catch(() => {})
+              }
+            }}
             onUpdateUsername={updateUsername}
             onSendPasswordReset={sendPasswordReset} onDeleteAccount={deleteAccount} onSignOut={signOut} />
         </div>

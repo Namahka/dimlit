@@ -8,19 +8,16 @@ import type { Presence } from '../../domain/entities/Presence'
 const presenceRepo = new FirebasePresenceRepository()
 const presenceService = new PresenceService(presenceRepo)
 
-const DEMO_PRESENCES: Presence[] = []
-
 export function useActiveUsers(userId: string | null) {
-  const [realPresences, setRealPresences] = useState<Presence[]>([])
+  const [presences, setPresences] = useState<Presence[]>([])
 
   useEffect(() => {
     if (!userId) return
-    return presenceService.listenToActivePresences(setRealPresences)
+    return presenceService.listenToActivePresences((all) => {
+      const cutoff = Date.now() - 5 * 60 * 1000 // only show presences updated in last 5 min
+      setPresences(all.filter(p => p.lastSeen.getTime() > cutoff))
+    })
   }, [userId])
 
-  // Merge real presences with demo ones, excluding demo slots taken by real users
-  const realIds = new Set(realPresences.map((p) => p.userId))
-  const filteredDemo = DEMO_PRESENCES.filter((d) => !realIds.has(d.userId))
-
-  return [...realPresences, ...filteredDemo]
+  return presences
 }
