@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { doc, updateDoc } from 'firebase/firestore'
+import { db } from '../../infrastructure/firebase/firebaseApp'
 import { FirebasePresenceRepository } from '../../infrastructure/repositories/FirebasePresenceRepository'
 import { PresenceService } from '../../application/services/PresenceService'
 import type { User } from '../../domain/entities/User'
@@ -10,9 +12,7 @@ const presenceService = new PresenceService(presenceRepo)
 
 async function reverseGeocode(lat: number, lng: number): Promise<{ country: string; city?: string }> {
   try {
-    const res = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
-    )
+    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`)
     const data = await res.json()
     return {
       country: data.address?.country_code?.toUpperCase() ?? 'Unknown',
@@ -30,18 +30,21 @@ export function usePresence(user: User | null, locationEnabled = true) {
   const [locationDenied, setLocationDenied] = useState(false)
   const cleanupRef = useRef<(() => void) | null>(null)
   const markedRef = useRef(false)
-  const userCoordsRef = useRef<[number, number] | null>(null)
+  const realCoordsRef = useRef<[number, number] | null>(null)
+  const userRef = useRef(user)
+  userRef.current = user
 
   async function markActive(geoCoords: GeolocationCoordinates) {
-    if (!user || markedRef.current) return
+    const u = userRef.current
+    if (!u || markedRef.current) return
     markedRef.current = true
     const { country: c, city } = await reverseGeocode(geoCoords.latitude, geoCoords.longitude)
     setCountry(c)
+    realCoordsRef.current = [geoCoords.latitude, geoCoords.longitude]
     setUserCoords([geoCoords.latitude, geoCoords.longitude])
-    userCoordsRef.current = [geoCoords.latitude, geoCoords.longitude]
-    await presenceService.markActive(user.id, user.username, geoCoords, c, city)
+    await presenceService.markActive(u.id, u.username, geoCoords, c, city)
     setIsReady(true)
-    cleanupRef.current = () => presenceService.markInactive(user.id)
+    cleanupRef.current = () => presenceService.markInactive(u.id)
   }
 
   function requestLocation() {
@@ -53,30 +56,28 @@ export function usePresence(user: User | null, locationEnabled = true) {
     )
   }
 
-  // When locationEnabled changes, patch the presence doc
+  // React immediately when toggle changes
   useEffect(() => {
-    if (!user || !markedRef.current) return
-    import('firebase/firestore').then(({ doc, updateDoc }) => {
-      import('../../infrastructure/firebase/firebaseApp').then(({ db }) => {
-        if (!locationEnabled) {
-          // Fully random position anywhere on Earth
-          const anonLat = Math.round((Math.random() * 160 - 80) * 10) / 10
-          const anonLng = Math.round((Math.random() * 360 - 180) * 10) / 10
-          updateDoc(doc(db, 'presences', user.id), {
-            username: 'Anonymous', isAnonymous: true,
-            latitude: anonLat, longitude: anonLng,
-          }).catch(() => {})
-          setUserCoords([anonLat, anonLng])
-        } else {
-          const lat = userCoordsRef.current?.[0] ?? 0
-          const lng = userCoordsRef.current?.[1] ?? 0
-          updateDoc(doc(db, 'presences', user.id), {
-            username: user.username, isAnonymous: false,
-            latitude: lat, longitude: lng,
-          }).catch(() => {})
-        }
-      })
-    })
+    const u = userRef.current
+    if (!u) return
+
+    if (!locationEnabled) {
+      // Random position anywhere on Earth
+      const anonLat = Math.round((Math.random() * 160 - 80) * 10) / 10
+      const anonLng = Math.round((Math.random() * 360 - 180) * 10) / 10
+      setUserCoords([anonLat, anonLng])
+      updateDoc(doc(db, 'presences', u.id), {
+        username: 'Anonymous', isAnonymous: true,
+        latitude: anonLat, longitude: anonLng,
+      }).catch(() => {})
+    } else if (markedRef.current && realCoordsRef.current) {
+      const [lat, lng] = realCoordsRef.current
+      setUserCoords([lat, lng])
+      updateDoc(doc(db, 'presences', u.id), {
+        username: u.username, isAnonymous: false,
+        latitude: lat, longitude: lng,
+      }).catch(() => {})
+    }
   }, [locationEnabled]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
