@@ -60,14 +60,24 @@ export function HomeTab({ user, onGoToMessages }: { user: User; onGoToMessages: 
 
           {/* Count pill — above the map */}
           <div className="flex items-center gap-2 mb-3">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
-              <span className="w-2 h-2 rounded-full" style={{ background: ACCENT }} />
-              <span className="text-sm font-medium" style={{ color: 'var(--text)' }}>
-                {presences.length === 0 ? "You're not alone"
-                  : presences.length === 1 ? '1 person is here with you'
-                  : `${presences.length} people are here with you`}
-              </span>
-            </div>
+            {(() => {
+              const others = presences.filter(p => p.userId !== user.id)
+              if (others.length === 0) {
+                return (
+                  <div className="px-4 py-3 rounded-2xl text-sm leading-relaxed" style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
+                    You&apos;re the only one here at the moment. Try the quizzes in <span style={{ color: ACCENT }}>Distract</span> if you need to think of something else for a while.
+                  </div>
+                )
+              }
+              return (
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
+                  <span className="w-2 h-2 rounded-full" style={{ background: ACCENT }} />
+                  <span className="text-sm font-medium" style={{ color: 'var(--text)' }}>
+                    {others.length === 1 ? '1 person is here with you' : `${others.length} people are here with you`}
+                  </span>
+                </div>
+              )
+            })()}
           </div>
 
           {locationDenied && (
