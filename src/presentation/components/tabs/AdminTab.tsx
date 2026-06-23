@@ -4,9 +4,6 @@ import { useState, useEffect } from 'react'
 import { collection, getDocs, deleteDoc, doc, query, orderBy, where } from 'firebase/firestore'
 import { db } from '../../../infrastructure/firebase/firebaseApp'
 
-const BG = 'var(--bg)'
-const ACCENT = 'var(--accent)'
-
 interface UserRecord { id: string; username: string; email?: string }
 interface MessageRecord { id: string; username: string; userId: string; text: string; createdAt: Date }
 interface ReportRecord { id: string; username: string; text: string; messageId: string; reportedAt: Date }
@@ -15,19 +12,37 @@ export function AdminTab() {
   const [users, setUsers] = useState<UserRecord[]>([])
   const [messages, setMessages] = useState<MessageRecord[]>([])
   const [reports, setReports] = useState<ReportRecord[]>([])
-  const [activeSection, setActiveSection] = useState<'messages' | 'users' | 'reports'>('messages')
+  const [reportedMessageIds, setReportedMessageIds] = useState<Set<string>>(new Set())
+  const [reportedUserIds, setReportedUserIds] = useState<Set<string>>(new Set())
+  const [activeSection, setActiveSection] = useState<'users' | 'messages' | 'reports'>('users')
   const [selectedUser, setSelectedUser] = useState<UserRecord | null>(null)
   const [userMessages, setUserMessages] = useState<MessageRecord[]>([])
+  const [loading, setLoading] = useState(true)
 
   async function loadAll() {
-    const [uSnap, mSnap, rSnap] = await Promise.all([
-      getDocs(collection(db, 'users')),
-      getDocs(query(collection(db, 'messages'), orderBy('createdAt', 'desc'))),
-      getDocs(query(collection(db, 'reports'), orderBy('reportedAt', 'desc'))),
-    ])
-    setUsers(uSnap.docs.map(d => ({ id: d.id, username: d.data().username, email: d.data().email })))
-    setMessages(mSnap.docs.map(d => ({ id: d.id, username: d.data().username ?? 'Unknown', userId: d.data().userId, text: d.data().text, createdAt: d.data().createdAt?.toDate() ?? new Date() })))
-    setReports(rSnap.docs.map(d => ({ id: d.id, username: d.data().username ?? 'Unknown', text: d.data().text, messageId: d.data().messageId, reportedAt: d.data().reportedAt?.toDate() ?? new Date() })))
+    setLoading(true)
+    try {
+      const [uSnap, mSnap, rSnap] = await Promise.all([
+        getDocs(collection(db, 'users')),
+        getDocs(query(collection(db, 'messages'), orderBy('createdAt', 'desc'))),
+        getDocs(query(collection(db, 'reports'), orderBy('reportedAt', 'desc'))),
+      ])
+      const userList = uSnap.docs.map(d => ({ id: d.id, username: d.data().username ?? 'Unknown', email: d.data().email }))
+      const msgList = mSnap.docs.map(d => ({ id: d.id, username: d.data().username ?? 'Unknown', userId: d.data().userId ?? '', text: d.data().text ?? '', createdAt: d.data().createdAt?.toDate() ?? new Date() }))
+      const repList = rSnap.docs.map(d => ({ id: d.id, username: d.data().username ?? 'Unknown', text: d.data().text ?? '', messageId: d.data().messageId ?? '', reportedAt: d.data().reportedAt?.toDate() ?? new Date() }))
+      setUsers(userList)
+      setMessages(msgList)
+      setReports(repList)
+      const repMsgIds = new Set(repList.map(r => r.messageId))
+      setReportedMessageIds(repMsgIds)
+      const repUserIds = new Set<string>()
+      repList.forEach(r => {
+        const m = msgList.find(x => x.id === r.messageId)
+        if (m) repUserIds.add(m.userId)
+      })
+      setReportedUserIds(repUserIds)
+    } catch (e) { console.error('Admin load error:', e) }
+    setLoading(false)
   }
 
   useEffect(() => { loadAll() }, [])
@@ -42,28 +57,31 @@ export function AdminTab() {
   async function viewUser(u: UserRecord) {
     setSelectedUser(u)
     const snap = await getDocs(query(collection(db, 'messages'), where('userId', '==', u.id), orderBy('createdAt', 'desc')))
-    setUserMessages(snap.docs.map(d => ({ id: d.id, username: d.data().username ?? 'Unknown', userId: d.data().userId, text: d.data().text, createdAt: d.data().createdAt?.toDate() ?? new Date() })))
+    setUserMessages(snap.docs.map(d => ({ id: d.id, username: d.data().username ?? 'Unknown', userId: d.data().userId ?? '', text: d.data().text ?? '', createdAt: d.data().createdAt?.toDate() ?? new Date() })))
   }
+
+  const card = { background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 16 }
 
   if (selectedUser) {
     return (
-      <div className="flex flex-col h-full overflow-y-auto" style={{ background: BG }}>
-        <div className="px-5 pt-5 pb-4 border-b border-neutral-700">
-          <button onClick={() => setSelectedUser(null)} className="text-sm mb-2" style={{ color: ACCENT }}>← Back</button>
-          <h2 className="text-lg font-bold text-neutral-200">{selectedUser.username}</h2>
-          <p className="text-xs text-neutral-500">{selectedUser.email ?? 'Google user'}</p>
-          <p className="text-xs text-neutral-600">{selectedUser.id}</p>
+      <div className="flex flex-col h-full overflow-y-auto" style={{ background: 'var(--bg)' }}>
+        <div className="px-5 pt-5 pb-4" style={{ borderBottom: '1px solid var(--border)' }}>
+          <button onClick={() => setSelectedUser(null)} className="text-sm mb-2" style={{ color: 'var(--accent)' }}>Back</button>
+          <h2 className="text-lg font-bold" style={{ color: 'var(--text)' }}>{selectedUser.username}</h2>
+          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{selectedUser.email ?? 'Google user'}</p>
         </div>
         <div className="px-5 py-4 space-y-2 pb-10">
-          <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wide mb-2">All messages by this user</p>
-          {userMessages.length === 0 && <p className="text-sm text-neutral-600">No messages.</p>}
+          {userMessages.length === 0 && <p className="text-sm" style={{ color: 'var(--text-muted)' }}>No messages.</p>}
           {userMessages.map(m => (
-            <div key={m.id} className="bg-neutral-800 rounded-2xl border border-neutral-700 shadow-sm px-4 py-3">
+            <div key={m.id} className="px-4 py-3 rounded-2xl" style={{ ...card, borderColor: reportedMessageIds.has(m.id) ? 'rgba(239,68,68,0.5)' : 'var(--border)' }}>
               <div className="flex items-start justify-between gap-2">
-                <p className="text-sm text-neutral-300 flex-1">{m.text}</p>
-                <button onClick={() => deleteMessage(m.id)} className="text-xs text-red-400 hover:text-red-600 flex-shrink-0">Delete</button>
+                <div className="flex-1">
+                  {reportedMessageIds.has(m.id) && <span className="text-xs text-red-400 font-medium block mb-1">Reported</span>}
+                  <p className="text-sm" style={{ color: 'var(--text)' }}>{m.text}</p>
+                  <p className="text-xs mt-1" style={{ color: 'var(--text-muted)' }}>{m.createdAt.toLocaleString()}</p>
+                </div>
+                <button onClick={() => deleteMessage(m.id)} className="text-xs text-red-400 flex-shrink-0">Delete</button>
               </div>
-              <p className="text-xs text-neutral-600 mt-1">{m.createdAt.toLocaleString()}</p>
             </div>
           ))}
         </div>
@@ -72,46 +90,48 @@ export function AdminTab() {
   }
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto" style={{ background: BG }}>
-      <div className="px-5 pt-6 pb-4 border-b border-neutral-700">
-        <h2 className="text-xl font-bold text-neutral-200">Admin</h2>
+    <div className="flex flex-col h-full overflow-y-auto" style={{ background: 'var(--bg)' }}>
+      <div className="px-5 pt-6 pb-4" style={{ borderBottom: '1px solid var(--border)' }}>
+        <h2 className="text-xl font-bold" style={{ color: 'var(--text)' }}>Admin</h2>
         <div className="flex gap-2 mt-3">
-          {(['messages', 'users', 'reports'] as const).map(s => (
-            <button key={s} onClick={() => setActiveSection(s)}
-              className="px-3 py-1.5 rounded-full text-xs font-medium capitalize"
-              style={{ background: activeSection === s ? ACCENT : '#e7e5e4', color: activeSection === s ? '#fff' : '#78716c' }}>
-              {s} ({s === 'messages' ? messages.length : s === 'users' ? users.length : reports.length})
+          {(['users', 'messages', 'reports'] as const).map(s => (
+            <button key={s} onClick={() => setActiveSection(s)} className="px-3 py-1.5 rounded-full text-xs font-medium capitalize"
+              style={{ background: activeSection === s ? 'var(--accent)' : 'var(--surface-2)', color: activeSection === s ? '#fff' : 'var(--text-muted)' }}>
+              {s} ({s === 'users' ? users.length : s === 'messages' ? messages.length : reports.length})
             </button>
           ))}
         </div>
       </div>
-
       <div className="px-5 py-4 space-y-2 pb-10">
+        {loading && <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Loading...</p>}
+        {activeSection === 'users' && users.map(u => (
+          <button key={u.id} onClick={() => viewUser(u)} className="w-full text-left px-4 py-3 rounded-2xl"
+            style={{ ...card, borderColor: reportedUserIds.has(u.id) ? 'rgba(239,68,68,0.4)' : 'var(--border)' }}>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium" style={{ color: 'var(--text)' }}>{u.username}</p>
+                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{u.email ?? 'Google user'}</p>
+              </div>
+              {reportedUserIds.has(u.id) && <span className="text-xs text-red-400 font-medium">Reported</span>}
+            </div>
+          </button>
+        ))}
         {activeSection === 'messages' && messages.map(m => (
-          <div key={m.id} className="bg-neutral-800 rounded-2xl border border-neutral-700 shadow-sm px-4 py-3">
+          <div key={m.id} className="px-4 py-3 rounded-2xl" style={card}>
             <div className="flex items-start justify-between gap-2">
               <div className="flex-1">
-                <p className="text-xs text-neutral-500 mb-1">{m.username}</p>
-                <p className="text-sm text-neutral-300">{m.text}</p>
+                <p className="text-xs mb-1" style={{ color: 'var(--text-muted)' }}>{m.username}</p>
+                <p className="text-sm" style={{ color: 'var(--text)' }}>{m.text}</p>
               </div>
-              <button onClick={() => deleteMessage(m.id)} className="text-xs text-red-400 hover:text-red-600 flex-shrink-0">Delete</button>
+              <button onClick={() => deleteMessage(m.id)} className="text-xs text-red-400 flex-shrink-0">Delete</button>
             </div>
           </div>
         ))}
-
-        {activeSection === 'users' && users.map(u => (
-          <button key={u.id} onClick={() => viewUser(u)} className="w-full text-left bg-neutral-800 rounded-2xl border border-neutral-700 shadow-sm px-4 py-3">
-            <p className="text-sm font-medium text-neutral-300">{u.username}</p>
-            <p className="text-xs text-neutral-500">{u.email ?? 'Google user'}</p>
-            <p className="text-xs mt-1" style={{ color: ACCENT }}>View messages →</p>
-          </button>
-        ))}
-
         {activeSection === 'reports' && reports.map(r => (
-          <div key={r.id} className="bg-neutral-800 rounded-2xl border border-red-100 shadow-sm px-4 py-3">
-            <p className="text-xs text-neutral-500 mb-1">Reported: <span className="font-medium text-neutral-400">{r.username}</span></p>
-            <p className="text-sm text-neutral-300 mb-1">{r.text}</p>
-            <p className="text-xs text-neutral-600">{r.reportedAt.toLocaleString()}</p>
+          <div key={r.id} className="px-4 py-3 rounded-2xl" style={{ ...card, borderColor: 'rgba(239,68,68,0.4)' }}>
+            <p className="text-xs mb-1" style={{ color: 'var(--text-muted)' }}>Reported: <span style={{ color: 'var(--text)' }}>{r.username}</span></p>
+            <p className="text-sm mb-1" style={{ color: 'var(--text)' }}>{r.text}</p>
+            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{r.reportedAt.toLocaleString()}</p>
           </div>
         ))}
       </div>

@@ -1,5 +1,8 @@
 'use client'
 
+import { useState, useEffect } from 'react'
+import { doc, getDoc } from 'firebase/firestore'
+import { db } from '../../../infrastructure/firebase/firebaseApp'
 import { useHugs } from '../../hooks/useHugs'
 import type { User } from '../../../domain/entities/User'
 
@@ -13,6 +16,29 @@ function timeAgo(date: Date): string {
 
 export function HugsTab({ user, country }: { user: User; country: string }) {
   const { receivedHugs, sendHug, canSendHug } = useHugs(user.id)
+  const [usernameMap, setUsernameMap] = useState<Record<string, string>>({})
+
+  // Look up usernames for hugs that only have country code
+  useEffect(() => {
+    const toFetch = receivedHugs.filter(h =>
+      !h.fromUsername || h.fromUsername === h.fromCountry
+    )
+    if (toFetch.length === 0) return
+
+    Promise.all(
+      toFetch.map(async h => {
+        try {
+          const snap = await getDoc(doc(db, 'users', h.fromUserId))
+          if (snap.exists()) return [h.fromUserId, snap.data().username as string] as const
+        } catch { /* ignore */ }
+        return null
+      })
+    ).then(results => {
+      const map: Record<string, string> = {}
+      for (const r of results) { if (r) map[r[0]] = r[1] }
+      setUsernameMap(prev => ({ ...prev, ...map }))
+    })
+  }, [receivedHugs.length]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="flex flex-col h-full overflow-y-auto" style={{ background: 'var(--bg)' }}>
@@ -27,9 +53,9 @@ export function HugsTab({ user, country }: { user: User; country: string }) {
         )}
         {receivedHugs.map((hug) => {
           const canSend = canSendHug(hug.fromUserId)
-          const displayName = hug.fromUsername && hug.fromUsername !== hug.fromCountry
-            ? hug.fromUsername
-            : hug.fromCountry
+          const displayName = usernameMap[hug.fromUserId]
+            ?? (hug.fromUsername && hug.fromUsername !== hug.fromCountry ? hug.fromUsername : null)
+            ?? hug.fromCountry
           return (
             <div key={hug.id} className="px-4 py-3 rounded-2xl flex items-center justify-between gap-3"
               style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>

@@ -91,7 +91,7 @@ export function HomeTab({ user, onGoToMessages }: { user: User; onGoToMessages: 
                 style={{ background: ACCENT }}>+</button>
             </div>
             {messages.length === 0 ? (
-              <p className="text-sm text-neutral-500 px-5 pb-4">Be the first to share something right now.</p>
+              <p className="text-sm text-neutral-500 px-5 pb-4">Be the first to share something today.</p>
             ) : (
               <>
                 <div className="divide-y" style={{ borderColor: 'var(--border)' }}>
