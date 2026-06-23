@@ -72,11 +72,17 @@ export function AppShell() {
       .catch(() => {})
   }, [isAdmin])
 
-  if (user === undefined || onboardingDone === null) {
+  // Only show loading while auth is resolving (undefined)
+  // If user is null (not logged in), skip straight to login screen
+  if (user === undefined) {
     return <div className="flex items-center justify-center h-full text-sm text-stone-400" style={{ background: '#faf7f0' }}>Loading…</div>
   }
   if (user === null) {
     return <LoginScreen onGoogle={signInWithGoogle} error={authError} />
+  }
+  // User is logged in but onboarding check still running — show app skeleton briefly
+  if (onboardingDone === null) {
+    return <div className="flex items-center justify-center h-full text-sm text-stone-400" style={{ background: '#faf7f0' }}>Loading…</div>
   }
   if (!onboardingDone) {
     return <OnboardingFlow user={user} onUpdateUsername={updateUsername} onComplete={() => setOnboardingDone(true)} />
