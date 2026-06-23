@@ -50,6 +50,7 @@ export function MapCardInner({ presences, userId, userCoords, isReady, onSendHug
           style={{ background: '#1a1a2e' }}
           worldCopyJump
           zoomControl={false}
+          maxZoom={10}
         >
           <TileLayer
             url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
