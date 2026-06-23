@@ -71,11 +71,16 @@ export function usePresence(user: User | null, locationEnabled = true) {
       markAnonymous()
     }
 
-    // Mark inactive when browser/tab is closed
+    // Heartbeat: keep lastSeen fresh so 10-min filter works
+    const heartbeat = setInterval(() => {
+      updateDoc(doc(db, 'presences', user.id), { lastSeen: serverTimestamp() }).catch(() => {})
+    }, 2 * 60 * 1000)
+
     const handleUnload = () => presenceService.markInactive(user.id)
     window.addEventListener('beforeunload', handleUnload)
 
     return () => {
+      clearInterval(heartbeat)
       window.removeEventListener('beforeunload', handleUnload)
       cleanupRef.current?.()
       doneRef.current = false

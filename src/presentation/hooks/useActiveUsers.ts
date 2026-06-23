@@ -13,7 +13,10 @@ export function useActiveUsers(userId: string | null) {
 
   useEffect(() => {
     if (!userId) return
-    return presenceService.listenToActivePresences(setPresences)
+    return presenceService.listenToActivePresences((all) => {
+      const cutoff = Date.now() - 10 * 60 * 1000 // disappear after 10 min inactivity
+      setPresences(all.filter(p => p.lastSeen.getTime() > cutoff))
+    })
   }, [userId])
 
   return presences
