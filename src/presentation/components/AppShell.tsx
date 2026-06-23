@@ -46,21 +46,12 @@ export function AppShell() {
   const hugCount = receivedHugs.length
 
   useEffect(() => {
-    if (!user || user === undefined) return
-    // Check localStorage first (instant)
-    if (localStorage.getItem(`dimlit_onboarding_${user.id}`)) { setOnboardingDone(true); return }
-    // Firestore check — timeout defaults to TRUE (skip onboarding) for existing users
-    const isNewAccount = (Date.now() - user.createdAt.getTime()) < 10 * 60 * 1000 // < 10 min old
-    const timeoutDefault = isNewAccount ? false : true
-    const timeout = setTimeout(() => setOnboardingDone(timeoutDefault), 3000)
+    if (!user) return
     import('firebase/firestore').then(({ doc, getDoc }) => {
       import('../../infrastructure/firebase/firebaseApp').then(({ db }) => {
-        getDoc(doc(db, 'users', user.id)).then((snap) => {
-          clearTimeout(timeout)
-          const done = !!(snap.exists() && snap.data().onboardingDone)
-          if (done) localStorage.setItem(`dimlit_onboarding_${user.id}`, '1')
-          setOnboardingDone(done)
-        }).catch(() => { clearTimeout(timeout); setOnboardingDone(timeoutDefault) })
+        getDoc(doc(db, 'users', user.id))
+          .then(snap => setOnboardingDone(!!(snap.exists() && snap.data().onboardingDone)))
+          .catch(() => setOnboardingDone(true)) // on error, skip onboarding
       })
     })
   }, [user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
