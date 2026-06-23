@@ -30,6 +30,7 @@ export function usePresence(user: User | null, locationEnabled = true) {
   const [locationDenied, setLocationDenied] = useState(false)
   const cleanupRef = useRef<(() => void) | null>(null)
   const markedRef = useRef(false)
+  const userCoordsRef = useRef<[number, number] | null>(null)
 
   async function markActive(geoCoords: GeolocationCoordinates) {
     if (!user || markedRef.current) return
@@ -37,19 +38,8 @@ export function usePresence(user: User | null, locationEnabled = true) {
     const { country: c, city } = await reverseGeocode(geoCoords.latitude, geoCoords.longitude)
     setCountry(c)
     setUserCoords([geoCoords.latitude, geoCoords.longitude])
+    userCoordsRef.current = [geoCoords.latitude, geoCoords.longitude]
     await presenceService.markActive(user.id, user.username, geoCoords, c, city)
-    setIsReady(true)
-    cleanupRef.current = () => presenceService.markInactive(user.id)
-  }
-
-  async function markAnonymous(knownCoords?: GeolocationCoordinates) {
-    if (!user || markedRef.current) return
-    markedRef.current = true
-    // If we have real coords, use them with offset. Otherwise random nearby Europe.
-    const baseLat = knownCoords?.latitude ?? 52 + (Math.random() * 10 - 5)
-    const baseLng = knownCoords?.longitude ?? 10 + (Math.random() * 20 - 10)
-    const fallback = { latitude: baseLat, longitude: baseLng, accuracy: 0 } as GeolocationCoordinates
-    await presenceService.markActive(user.id, 'Anonymous', fallback, 'Unknown', undefined, true)
     setIsReady(true)
     cleanupRef.current = () => presenceService.markInactive(user.id)
   }
@@ -58,29 +48,48 @@ export function usePresence(user: User | null, locationEnabled = true) {
     setLocationDenied(false)
     navigator.geolocation.getCurrentPosition(
       (pos) => markActive(pos.coords),
-      () => { setLocationDenied(true); markAnonymous() },
+      () => setLocationDenied(true),
       { timeout: 10000 }
     )
   }
 
+  // When locationEnabled changes, patch the presence doc
+  useEffect(() => {
+    if (!user || !markedRef.current) return
+    import('firebase/firestore').then(({ doc, updateDoc }) => {
+      import('../../infrastructure/firebase/firebaseApp').then(({ db }) => {
+        if (!locationEnabled) {
+          // Generate random offset from real position (±0.05°, ~5km)
+          const realLat = userCoordsRef.current?.[0] ?? 0
+          const realLng = userCoordsRef.current?.[1] ?? 0
+          const anonLat = Math.round((realLat + (Math.random() * 0.1 - 0.05)) * 100) / 100
+          const anonLng = Math.round((realLng + (Math.random() * 0.1 - 0.05)) * 100) / 100
+          updateDoc(doc(db, 'presences', user.id), {
+            username: 'Anonymous', isAnonymous: true,
+            latitude: anonLat, longitude: anonLng,
+          }).catch(() => {})
+          setUserCoords([anonLat, anonLng])
+        } else {
+          const lat = userCoordsRef.current?.[0] ?? 0
+          const lng = userCoordsRef.current?.[1] ?? 0
+          updateDoc(doc(db, 'presences', user.id), {
+            username: user.username, isAnonymous: false,
+            latitude: lat, longitude: lng,
+          }).catch(() => {})
+        }
+      })
+    })
+  }, [locationEnabled]) // eslint-disable-line react-hooks/exhaustive-deps
+
   useEffect(() => {
     if (!user) return
     markedRef.current = false
-    if (locationEnabled) {
-      requestLocation()
-    } else {
-      // If we already have real coords from a previous session, use them as base for anonymous placement
-      navigator.geolocation.getCurrentPosition(
-        (pos) => markAnonymous(pos.coords),
-        () => markAnonymous(),
-        { timeout: 5000, maximumAge: 60000 }
-      )
-    }
+    requestLocation()
     return () => {
       cleanupRef.current?.()
       markedRef.current = false
     }
-  }, [user?.id, locationEnabled]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return { country, userCoords, isReady, locationDenied, requestLocation }
 }
