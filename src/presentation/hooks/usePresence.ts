@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore'
+import { doc, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore'
 import { db } from '../../infrastructure/firebase/firebaseApp'
 import { FirebasePresenceRepository } from '../../infrastructure/repositories/FirebasePresenceRepository'
 import { PresenceService } from '../../application/services/PresenceService'
@@ -70,7 +70,14 @@ export function usePresence(user: User | null, locationEnabled = true) {
     } else {
       markAnonymous()
     }
+
+    // Keep lastSeen fresh every 2 minutes so the 30-min filter works
+    const interval = setInterval(() => {
+      updateDoc(doc(db, 'presences', user.id), { lastSeen: serverTimestamp() }).catch(() => {})
+    }, 2 * 60 * 1000)
+
     return () => {
+      clearInterval(interval)
       cleanupRef.current?.()
       doneRef.current = false
     }

@@ -14,7 +14,7 @@ export function useActiveUsers(userId: string | null) {
   useEffect(() => {
     if (!userId) return
     return presenceService.listenToActivePresences((all) => {
-      const cutoff = Date.now() - 5 * 60 * 1000 // only show presences updated in last 5 min
+      const cutoff = Date.now() - 30 * 60 * 1000 // 30 min
       setPresences(all.filter(p => p.lastSeen.getTime() > cutoff))
     })
   }, [userId])
