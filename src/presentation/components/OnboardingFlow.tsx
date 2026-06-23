@@ -104,10 +104,10 @@ export function OnboardingFlow({ user, onUpdateUsername, onComplete }: Props) {
               </div>
             )}
             <div className="space-y-5 mb-14">
-              <h1 className="text-4xl font-bold text-stone-800 leading-tight whitespace-pre-line">
+              <h1 className="text-4xl font-bold text-neutral-200 leading-tight whitespace-pre-line">
                 {slide.title}
               </h1>
-              <p className="text-stone-500 text-base leading-relaxed whitespace-pre-line">
+              <p className="text-neutral-500 text-base leading-relaxed whitespace-pre-line">
                 {slide.body}
               </p>
             </div>
@@ -117,8 +117,8 @@ export function OnboardingFlow({ user, onUpdateUsername, onComplete }: Props) {
         {isUsernameSlide && (
           <div className="space-y-6 mb-10 w-full max-w-xs">
             <div className="text-center space-y-2">
-              <h1 className="text-3xl font-bold text-stone-800">What should we call you?</h1>
-              <p className="text-stone-400 text-sm">This is how others will see you.</p>
+              <h1 className="text-3xl font-bold text-neutral-200">What should we call you?</h1>
+              <p className="text-neutral-500 text-sm">This is how others will see you.</p>
             </div>
             <input
               type="text"
@@ -127,10 +127,10 @@ export function OnboardingFlow({ user, onUpdateUsername, onComplete }: Props) {
               placeholder="Your name"
               minLength={2}
               maxLength={24}
-              className="w-full px-4 py-3 rounded-2xl text-sm outline-none bg-white border border-stone-200 text-stone-800 text-center text-lg"
+              className="w-full px-4 py-3 rounded-2xl text-sm outline-none bg-neutral-800 border border-neutral-700 text-neutral-200 text-center text-lg"
               style={{ borderColor: username.trim().length >= 2 ? ACCENT : '#e7e5e4' }}
             />
-            <p className="text-xs text-stone-300 text-center">2–24 characters</p>
+            <p className="text-xs text-neutral-600 text-center">2–24 characters</p>
           </div>
         )}
 
@@ -143,11 +143,11 @@ export function OnboardingFlow({ user, onUpdateUsername, onComplete }: Props) {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
               </svg>
             </div>
-            <h1 className="text-3xl font-bold text-stone-800">Allow location?</h1>
-            <p className="text-stone-500 text-sm leading-relaxed">
+            <h1 className="text-3xl font-bold text-neutral-200">Allow location?</h1>
+            <p className="text-neutral-500 text-sm leading-relaxed">
               Your location is only used to place a dot on the map so others can see you're there too.
             </p>
-            <p className="text-stone-400 text-xs leading-relaxed">
+            <p className="text-neutral-500 text-xs leading-relaxed">
               Your exact position is never stored. It's rounded to approximately 1 km.
             </p>
 
@@ -155,7 +155,7 @@ export function OnboardingFlow({ user, onUpdateUsername, onComplete }: Props) {
               <p className="text-green-600 text-sm font-medium">Location allowed</p>
             )}
             {locationStatus === 'denied' && (
-              <p className="text-stone-400 text-sm">No worries — you can allow it later in your browser settings.</p>
+              <p className="text-neutral-500 text-sm">No worries — you can allow it later in your browser settings.</p>
             )}
 
             {locationStatus === 'idle' && (
@@ -174,8 +174,8 @@ export function OnboardingFlow({ user, onUpdateUsername, onComplete }: Props) {
               style={{ background: `${ACCENT}12` }}>
               <span className="text-3xl">🕯️</span>
             </div>
-            <h1 className="text-3xl font-bold text-stone-800">Special Thanks</h1>
-            <p className="text-stone-600 text-sm leading-relaxed">
+            <h1 className="text-3xl font-bold text-neutral-200">Special Thanks</h1>
+            <p className="text-neutral-400 text-sm leading-relaxed">
               dimlit was inspired by{' '}
               <a href="https://beaconpostpartum.com/" target="_blank" rel="noopener noreferrer"
                 className="font-semibold underline" style={{ color: ACCENT }}>
@@ -183,17 +183,17 @@ export function OnboardingFlow({ user, onUpdateUsername, onComplete }: Props) {
               </a>
               , an app built for new mothers awake in the hardest hours.
             </p>
-            <p className="text-stone-500 text-sm leading-relaxed">
+            <p className="text-neutral-500 text-sm leading-relaxed">
               Beacon proved that just knowing someone else is awake can change how a hard night feels. dimlit takes that same idea further.
             </p>
-            <p className="text-stone-400 text-xs leading-relaxed">
+            <p className="text-neutral-500 text-xs leading-relaxed">
               Thank you to the Beacon team for building something that matters.
             </p>
             {SPECIAL_THANKS.length > 0 && (
               <div className="mt-2 space-y-1">
-                <p className="text-xs text-stone-400 uppercase tracking-widest mb-2">Also thanks to</p>
+                <p className="text-xs text-neutral-500 uppercase tracking-widest mb-2">Also thanks to</p>
                 {SPECIAL_THANKS.map((name) => (
-                  <p key={name} className="text-stone-600 text-sm">{name}</p>
+                  <p key={name} className="text-neutral-400 text-sm">{name}</p>
                 ))}
               </div>
             )}
@@ -203,8 +203,8 @@ export function OnboardingFlow({ user, onUpdateUsername, onComplete }: Props) {
         {isdimlitSlide && (
           <div className="space-y-4 mb-10">
             <img src="/icon-512.png" alt="dimlit" className="w-20 h-20 rounded-3xl mx-auto mb-2 shadow-md" />
-            <h1 className="text-3xl font-bold text-stone-800">dimlit</h1>
-            <p className="text-stone-500 text-sm leading-relaxed max-w-xs">
+            <h1 className="text-3xl font-bold text-neutral-200">dimlit</h1>
+            <p className="text-neutral-500 text-sm leading-relaxed max-w-xs">
               Built for everyone who has ever felt alone in the hardest hours.
             </p>
           </div>
@@ -221,13 +221,13 @@ export function OnboardingFlow({ user, onUpdateUsername, onComplete }: Props) {
         )}
         {isLocationSlide && locationStatus !== 'idle' && locationStatus !== 'granted' && (
           <button onClick={next}
-            className="w-full max-w-xs py-3 rounded-2xl text-sm font-medium text-stone-500 bg-stone-100">
+            className="w-full max-w-xs py-3 rounded-2xl text-sm font-medium text-neutral-500 bg-neutral-800">
             Skip for now
           </button>
         )}
         {isLocationSlide && locationStatus === 'denied' && (
           <button onClick={next}
-            className="w-full max-w-xs py-3 rounded-2xl text-sm font-medium text-stone-500 bg-stone-100 mt-2">
+            className="w-full max-w-xs py-3 rounded-2xl text-sm font-medium text-neutral-500 bg-neutral-800 mt-2">
             Continue without location
           </button>
         )}

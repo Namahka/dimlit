@@ -34,7 +34,7 @@ export function MapTab({ user, userCoords, country }: Props) {
   }
 
   return (
-    <div className="bg-white min-h-full">
+    <div className="bg-neutral-800 min-h-full">
       {/* Active count pill */}
       <div className="px-4 pt-5 pb-3">
         <div className="inline-flex items-center gap-2 bg-violet-50 border border-violet-100 text-violet-700 text-sm font-medium px-4 py-2 rounded-full">

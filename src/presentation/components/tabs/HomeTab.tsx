@@ -62,7 +62,7 @@ export function HomeTab({ user, onGoToMessages }: { user: User; onGoToMessages: 
 
           {/* Count pill — above the map */}
           <div className="flex items-center gap-2 mb-3">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-stone-200 shadow-sm">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neutral-800 border border-neutral-700 shadow-sm">
               <span className="w-2 h-2 rounded-full" style={{ background: ACCENT }} />
               <span className="text-sm font-medium" style={{ color: 'var(--text)' }}>
                 {presences.length === 0 ? "You're not alone"
@@ -84,30 +84,30 @@ export function HomeTab({ user, onGoToMessages }: { user: User; onGoToMessages: 
             onSendHug={async (id) => { await sendHug(id, country, user.username) }} />
 
           {/* Lift each other up — same width as map, directly below */}
-          <div className="mt-4 bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
+          <div className="mt-4 bg-neutral-800 rounded-2xl border border-neutral-700 shadow-sm overflow-hidden">
             <div className="flex items-center justify-between px-5 pt-4 pb-3">
-              <h2 className="font-semibold text-stone-800">Lift each other up</h2>
+              <h2 className="font-semibold text-neutral-200">Lift each other up</h2>
               <button onClick={onGoToMessages} className="w-7 h-7 rounded-full flex items-center justify-center text-white text-base leading-none"
                 style={{ background: ACCENT }}>+</button>
             </div>
             {messages.length === 0 ? (
-              <p className="text-sm text-stone-400 px-5 pb-4">Be the first to share something right now.</p>
+              <p className="text-sm text-neutral-500 px-5 pb-4">Be the first to share something right now.</p>
             ) : (
               <>
-                <div className="divide-y divide-stone-50">
+                <div className="divide-y" style={{ borderColor: 'var(--border)' }}>
                   {messages.slice(0, 3).map((msg) => {
                     const liked = msg.likes.includes(user.id)
                     return (
                       <div key={msg.id} className="px-5 py-3">
                         <div className="flex items-center justify-between mb-1">
                           <div className="flex items-center gap-2">
-                            <div className="w-6 h-6 rounded-full bg-violet-100 flex items-center justify-center text-xs font-bold text-violet-600">{msg.username.slice(0, 1).toUpperCase()}</div>
-                            <span className="text-xs text-stone-400">{msg.username} · {timeAgo(msg.createdAt)}</span>
+                            <div className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold" style={{ background: 'var(--surface-2)', color: 'var(--accent)' }}>{msg.username.slice(0, 1).toUpperCase()}</div>
+                            <span className="text-xs text-neutral-500">{msg.username} · {timeAgo(msg.createdAt)}</span>
                           </div>
                           <button onClick={() => reportMessage(msg.id, msg.text, msg.username, user.id)}
-                            className="text-xs text-stone-300 hover:text-red-400 transition-colors">Report</button>
+                            className="text-xs text-neutral-600 hover:text-red-400 transition-colors">Report</button>
                         </div>
-                        <p className="text-sm text-stone-700 leading-relaxed mb-1.5">{msg.text}</p>
+                        <p className="text-sm text-neutral-300 leading-relaxed mb-1.5">{msg.text}</p>
                         <button onClick={() => toggleLike(msg.id, user.id, liked)}
                           className="flex items-center gap-1 text-xs transition-colors"
                           style={{ color: liked ? ACCENT : '#c4bfb8' }}>
@@ -121,7 +121,7 @@ export function HomeTab({ user, onGoToMessages }: { user: User; onGoToMessages: 
                   })}
                 </div>
                 {messages.length > 3 && (
-                  <button onClick={onGoToMessages} className="w-full text-center text-sm py-3 border-t border-stone-50" style={{ color: ACCENT }}>
+                  <button onClick={onGoToMessages} className="w-full text-center text-sm py-3 border-t border-neutral-700" style={{ color: ACCENT }}>
                     See all {messages.length} →
                   </button>
                 )}

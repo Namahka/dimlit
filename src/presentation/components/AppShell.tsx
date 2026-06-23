@@ -73,14 +73,14 @@ export function AppShell() {
   // Only show loading while auth is resolving (undefined)
   // If user is null (not logged in), skip straight to login screen
   if (user === undefined) {
-    return <div className="flex items-center justify-center h-full text-sm text-stone-400" style={{ background: 'var(--bg)' }}>Loading…</div>
+    return <div className="flex items-center justify-center h-full text-sm text-neutral-500" style={{ background: 'var(--bg)' }}>Loading…</div>
   }
   if (user === null) {
     return <LoginScreen onGoogle={signInWithGoogle} error={authError} />
   }
   // User is logged in but onboarding check still running — show app skeleton briefly
   if (onboardingDone === null) {
-    return <div className="flex items-center justify-center h-full text-sm text-stone-400" style={{ background: 'var(--bg)' }}>Loading…</div>
+    return <div className="flex items-center justify-center h-full text-sm text-neutral-500" style={{ background: 'var(--bg)' }}>Loading…</div>
   }
   if (!onboardingDone) {
     return <OnboardingFlow user={user} onUpdateUsername={updateUsername} onComplete={() => setOnboardingDone(true)} />
@@ -140,7 +140,7 @@ export function AppShell() {
         )}
       </div>
 
-      <div className="flex-shrink-0 border-t border-stone-200">
+      <div className="flex-shrink-0 border-t border-neutral-700">
         <BottomNav active={activeTab} onChange={setActiveTab} isAdmin={isAdmin} hugCount={hugCount} reportCount={reportCount} />
       </div>
     </div>

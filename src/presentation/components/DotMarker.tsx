@@ -16,8 +16,8 @@ export function DotMarker({ presence, isCurrentUser, onSendHug }: Props) {
       center={[presence.latitude, presence.longitude]}
       radius={isCurrentUser ? 10 : 7}
       pathOptions={{
-        color: isCurrentUser ? '#a78bfa' : 'var(--accent)',
-        fillColor: isCurrentUser ? '#c4b5fd' : '#a78bfa',
+        color: isCurrentUser ? 'var(--accent)' : 'var(--accent)',
+        fillColor: isCurrentUser ? 'rgba(232,124,40,0.5)' : 'var(--accent)',
         fillOpacity: 0.9,
         weight: isCurrentUser ? 2.5 : 1.5,
       }}
@@ -25,8 +25,8 @@ export function DotMarker({ presence, isCurrentUser, onSendHug }: Props) {
       {!isCurrentUser && (
         <Popup>
           <div className="flex flex-col gap-2 items-center text-sm min-w-[130px]">
-            <span className="font-semibold text-gray-800">{presence.username}</span>
-            <span className="text-gray-400 text-xs">
+            <span className="font-semibold text-neutral-200">{presence.username}</span>
+            <span className="text-neutral-500 text-xs">
               {presence.city ? `${presence.city}, ${presence.country}` : presence.country}
             </span>
             <HugButton onSend={() => onSendHug(presence.userId)} />
@@ -35,7 +35,7 @@ export function DotMarker({ presence, isCurrentUser, onSendHug }: Props) {
       )}
       {isCurrentUser && (
         <Popup>
-          <span className="text-sm text-gray-600">You ({presence.username})</span>
+          <span className="text-sm text-neutral-300">You ({presence.username})</span>
         </Popup>
       )}
     </CircleMarker>

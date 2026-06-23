@@ -75,17 +75,17 @@ export function MapCardInner({ presences, userId, userCoords, isReady, onSendHug
               <Popup>
                 <div className="flex flex-col gap-2 items-center text-sm min-w-[120px]">
                   {p.userId === userId ? (
-                    <span className="text-gray-500 text-xs">You ({p.username})</span>
+                    <span className="text-xs" style={{ color: '#888' }}>You ({p.username})</span>
                   ) : (
                     <>
-                      <span className="font-semibold text-gray-800">{p.username}</span>
-                      <span className="text-gray-400 text-xs">{p.city ?? p.country}</span>
+                      <span className="font-semibold text-xs" style={{ color: '#1a1a1a' }}>{p.username}</span>
+                      <span className="text-xs" style={{ color: '#666' }}>{p.city ?? p.country}</span>
                       <button
                         onClick={(e) => { e.stopPropagation(); handleHug(p.userId) }}
                         disabled={sentTo.has(p.userId)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs text-white font-medium disabled:opacity-60"
-                        style={{ background: sentTo.has(p.userId) ? '#a78bfa' : 'var(--accent)' }}>
-                        {sentTo.has(p.userId) ? '✓ Hug sent' : '🤗 Send a hug'}
+                        className="px-3 py-1.5 rounded-full text-xs text-white font-medium disabled:opacity-60"
+                        style={{ background: '#e87c28' }}>
+                        {sentTo.has(p.userId) ? '✓ Hug sent' : 'Send a hug'}
                       </button>
                     </>
                   )}

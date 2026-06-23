@@ -24,8 +24,8 @@ export function CheckInTab() {
           <div className="absolute inset-0 rounded-full" style={{ background: `radial-gradient(circle, ${ACCENT}25 0%, transparent 70%)` }} />
           <div className="w-12 h-12 rounded-full text-2xl flex items-center justify-center" style={{ background: ACCENT }}>🌙</div>
         </div>
-        <h2 className="text-2xl font-bold text-stone-800">Thank you for checking in</h2>
-        <p className="text-stone-400 text-sm leading-relaxed max-w-xs">
+        <h2 className="text-2xl font-bold text-neutral-200">Thank you for checking in</h2>
+        <p className="text-neutral-500 text-sm leading-relaxed max-w-xs">
           Whatever you&apos;re feeling right now is valid. You&apos;re not alone — others are awake with you tonight.
         </p>
         <button onClick={() => { setSelected(null); setSubmitted(false) }} className="text-sm" style={{ color: ACCENT }}>
@@ -39,8 +39,8 @@ export function CheckInTab() {
     <div className="flex flex-col h-full px-6" style={{ background: BG }}>
       <div className="flex-1 flex flex-col justify-center space-y-10">
         <div className="text-center space-y-2">
-          <h2 className="text-2xl font-bold text-stone-800">How are you feeling?</h2>
-          <p className="text-sm text-stone-400">A gentle check-in, just for you.</p>
+          <h2 className="text-2xl font-bold text-neutral-200">How are you feeling?</h2>
+          <p className="text-sm text-neutral-500">A gentle check-in, just for you.</p>
         </div>
 
         <div className="flex justify-between gap-2">
@@ -63,7 +63,7 @@ export function CheckInTab() {
 
         {selected && (
           <div className="space-y-4">
-            <p className="text-sm text-center text-stone-400 leading-relaxed">
+            <p className="text-sm text-center text-neutral-500 leading-relaxed">
               {selected <= 2 ? "It's okay to have a hard night. You made it this far."
                 : selected === 3 ? "Somewhere between the dark and the light — that counts too."
                 : "Glad to hear you're doing a bit better."}

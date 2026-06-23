@@ -48,22 +48,22 @@ export function AdminTab() {
   if (selectedUser) {
     return (
       <div className="flex flex-col h-full overflow-y-auto" style={{ background: BG }}>
-        <div className="px-5 pt-5 pb-4 border-b border-stone-200">
+        <div className="px-5 pt-5 pb-4 border-b border-neutral-700">
           <button onClick={() => setSelectedUser(null)} className="text-sm mb-2" style={{ color: ACCENT }}>← Back</button>
-          <h2 className="text-lg font-bold text-stone-800">{selectedUser.username}</h2>
-          <p className="text-xs text-stone-400">{selectedUser.email ?? 'Google user'}</p>
-          <p className="text-xs text-stone-300">{selectedUser.id}</p>
+          <h2 className="text-lg font-bold text-neutral-200">{selectedUser.username}</h2>
+          <p className="text-xs text-neutral-500">{selectedUser.email ?? 'Google user'}</p>
+          <p className="text-xs text-neutral-600">{selectedUser.id}</p>
         </div>
         <div className="px-5 py-4 space-y-2 pb-10">
-          <p className="text-xs font-semibold text-stone-400 uppercase tracking-wide mb-2">All messages by this user</p>
-          {userMessages.length === 0 && <p className="text-sm text-stone-300">No messages.</p>}
+          <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wide mb-2">All messages by this user</p>
+          {userMessages.length === 0 && <p className="text-sm text-neutral-600">No messages.</p>}
           {userMessages.map(m => (
-            <div key={m.id} className="bg-white rounded-2xl border border-stone-100 shadow-sm px-4 py-3">
+            <div key={m.id} className="bg-neutral-800 rounded-2xl border border-neutral-700 shadow-sm px-4 py-3">
               <div className="flex items-start justify-between gap-2">
-                <p className="text-sm text-stone-700 flex-1">{m.text}</p>
+                <p className="text-sm text-neutral-300 flex-1">{m.text}</p>
                 <button onClick={() => deleteMessage(m.id)} className="text-xs text-red-400 hover:text-red-600 flex-shrink-0">Delete</button>
               </div>
-              <p className="text-xs text-stone-300 mt-1">{m.createdAt.toLocaleString()}</p>
+              <p className="text-xs text-neutral-600 mt-1">{m.createdAt.toLocaleString()}</p>
             </div>
           ))}
         </div>
@@ -73,8 +73,8 @@ export function AdminTab() {
 
   return (
     <div className="flex flex-col h-full overflow-y-auto" style={{ background: BG }}>
-      <div className="px-5 pt-6 pb-4 border-b border-stone-200">
-        <h2 className="text-xl font-bold text-stone-800">Admin</h2>
+      <div className="px-5 pt-6 pb-4 border-b border-neutral-700">
+        <h2 className="text-xl font-bold text-neutral-200">Admin</h2>
         <div className="flex gap-2 mt-3">
           {(['messages', 'users', 'reports'] as const).map(s => (
             <button key={s} onClick={() => setActiveSection(s)}
@@ -88,11 +88,11 @@ export function AdminTab() {
 
       <div className="px-5 py-4 space-y-2 pb-10">
         {activeSection === 'messages' && messages.map(m => (
-          <div key={m.id} className="bg-white rounded-2xl border border-stone-100 shadow-sm px-4 py-3">
+          <div key={m.id} className="bg-neutral-800 rounded-2xl border border-neutral-700 shadow-sm px-4 py-3">
             <div className="flex items-start justify-between gap-2">
               <div className="flex-1">
-                <p className="text-xs text-stone-400 mb-1">{m.username}</p>
-                <p className="text-sm text-stone-700">{m.text}</p>
+                <p className="text-xs text-neutral-500 mb-1">{m.username}</p>
+                <p className="text-sm text-neutral-300">{m.text}</p>
               </div>
               <button onClick={() => deleteMessage(m.id)} className="text-xs text-red-400 hover:text-red-600 flex-shrink-0">Delete</button>
             </div>
@@ -100,18 +100,18 @@ export function AdminTab() {
         ))}
 
         {activeSection === 'users' && users.map(u => (
-          <button key={u.id} onClick={() => viewUser(u)} className="w-full text-left bg-white rounded-2xl border border-stone-100 shadow-sm px-4 py-3">
-            <p className="text-sm font-medium text-stone-700">{u.username}</p>
-            <p className="text-xs text-stone-400">{u.email ?? 'Google user'}</p>
+          <button key={u.id} onClick={() => viewUser(u)} className="w-full text-left bg-neutral-800 rounded-2xl border border-neutral-700 shadow-sm px-4 py-3">
+            <p className="text-sm font-medium text-neutral-300">{u.username}</p>
+            <p className="text-xs text-neutral-500">{u.email ?? 'Google user'}</p>
             <p className="text-xs mt-1" style={{ color: ACCENT }}>View messages →</p>
           </button>
         ))}
 
         {activeSection === 'reports' && reports.map(r => (
-          <div key={r.id} className="bg-white rounded-2xl border border-red-100 shadow-sm px-4 py-3">
-            <p className="text-xs text-stone-400 mb-1">Reported: <span className="font-medium text-stone-600">{r.username}</span></p>
-            <p className="text-sm text-stone-700 mb-1">{r.text}</p>
-            <p className="text-xs text-stone-300">{r.reportedAt.toLocaleString()}</p>
+          <div key={r.id} className="bg-neutral-800 rounded-2xl border border-red-100 shadow-sm px-4 py-3">
+            <p className="text-xs text-neutral-500 mb-1">Reported: <span className="font-medium text-neutral-400">{r.username}</span></p>
+            <p className="text-sm text-neutral-300 mb-1">{r.text}</p>
+            <p className="text-xs text-neutral-600">{r.reportedAt.toLocaleString()}</p>
           </div>
         ))}
       </div>
