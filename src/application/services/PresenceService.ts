@@ -11,7 +11,7 @@ function hashOffset(userId: string, seed: number): number {
   for (let i = 0; i < userId.length; i++) {
     h = Math.imul(h ^ userId.charCodeAt(i), 0x9e3779b9)
   }
-  return ((h >>> 0) % 81 - 40) / 1000 // range: -0.040 to +0.040
+  return ((h >>> 0) % 301 - 150) / 1000 // range: -0.150 to +0.150 (~15km)
 }
 
 function obscure(val: number, userId: string, axis: number): number {
