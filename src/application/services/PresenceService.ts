@@ -4,10 +4,19 @@ import { GetActivePresences } from '../../domain/usecases/GetActivePresences'
 import type { IPresenceRepository } from '../../domain/repositories/IPresenceRepository'
 import type { Presence } from '../../domain/entities/Presence'
 
-const COORD_PRECISION = 2 // rounds to ~1 km
+// Round to 1 decimal (~11km) for privacy, then add a small consistent
+// per-user offset (±0.04°, ~4km) so nearby users don't stack on the same dot.
+function hashOffset(userId: string, seed: number): number {
+  let h = seed * 31
+  for (let i = 0; i < userId.length; i++) {
+    h = Math.imul(h ^ userId.charCodeAt(i), 0x9e3779b9)
+  }
+  return ((h >>> 0) % 81 - 40) / 1000 // range: -0.040 to +0.040
+}
 
-function round(val: number, precision: number): number {
-  return Math.round(val * Math.pow(10, precision)) / Math.pow(10, precision)
+function obscure(val: number, userId: string, axis: number): number {
+  const rounded = Math.round(val * 10) / 10
+  return Math.round((rounded + hashOffset(userId, axis)) * 100) / 100
 }
 
 export class PresenceService {
@@ -34,8 +43,8 @@ export class PresenceService {
       username,
       country,
       city,
-      latitude: round(coords.latitude, COORD_PRECISION),
-      longitude: round(coords.longitude, COORD_PRECISION),
+      latitude: obscure(coords.latitude, userId, 1),
+      longitude: obscure(coords.longitude, userId, 2),
       isActive: true,
       lastSeen: new Date(),
     }
