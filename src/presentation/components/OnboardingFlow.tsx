@@ -38,15 +38,17 @@ const infoSlides = [
 ]
 
 // 0..infoSlides.length-1 = info slides
-// infoSlides.length = username slide
-// infoSlides.length + 1 = Beacon thanks slide
-// infoSlides.length + 2 = dimlit special thanks (last)
-const TOTAL = infoSlides.length + 3
+// infoSlides.length     = username slide
+// infoSlides.length + 1 = location slide
+// infoSlides.length + 2 = Beacon thanks slide
+// infoSlides.length + 3 = dimlit special thanks (last)
+const TOTAL = infoSlides.length + 4
 
 export function OnboardingFlow({ user, onUpdateUsername, onComplete }: Props) {
   const [step, setStep] = useState(0)
   const [username, setUsername] = useState(user.username)
   const [saving, setSaving] = useState(false)
+  const [locationStatus, setLocationStatus] = useState<'idle' | 'granted' | 'denied'>('idle')
 
   async function next() {
     if (isUsernameSlide) {
@@ -69,9 +71,18 @@ export function OnboardingFlow({ user, onUpdateUsername, onComplete }: Props) {
   }
 
   const isUsernameSlide = step === infoSlides.length
+  const isLocationSlide = step === infoSlides.length + 1
   const isBeaconSlide = step === TOTAL - 2
   const isdimlitSlide = step === TOTAL - 1
-  const slide = (!isUsernameSlide && !isBeaconSlide && !isdimlitSlide) ? infoSlides[step] : null
+  const slide = (!isUsernameSlide && !isLocationSlide && !isBeaconSlide && !isdimlitSlide) ? infoSlides[step] : null
+
+  function requestLocation() {
+    navigator.geolocation.getCurrentPosition(
+      () => { setLocationStatus('granted'); setTimeout(() => setStep(s => s + 1), 800) },
+      () => setLocationStatus('denied'),
+      { timeout: 10000 }
+    )
+  }
 
   return (
     <div className="h-full flex flex-col" style={{ background: BG }}>
@@ -123,6 +134,40 @@ export function OnboardingFlow({ user, onUpdateUsername, onComplete }: Props) {
           </div>
         )}
 
+        {isLocationSlide && (
+          <div className="space-y-6 mb-10 w-full max-w-xs text-center">
+            <div className="w-16 h-16 rounded-full mx-auto flex items-center justify-center"
+              style={{ background: `${ACCENT}12` }}>
+              <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke={ACCENT} strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+              </svg>
+            </div>
+            <h1 className="text-3xl font-bold text-stone-800">Allow location?</h1>
+            <p className="text-stone-500 text-sm leading-relaxed">
+              Your location is only used to place a dot on the map so others can see you're there too.
+            </p>
+            <p className="text-stone-400 text-xs leading-relaxed">
+              Your exact position is never stored. It's rounded to approximately 1 km.
+            </p>
+
+            {locationStatus === 'granted' && (
+              <p className="text-green-600 text-sm font-medium">Location allowed</p>
+            )}
+            {locationStatus === 'denied' && (
+              <p className="text-stone-400 text-sm">No worries — you can allow it later in your browser settings.</p>
+            )}
+
+            {locationStatus === 'idle' && (
+              <button onClick={requestLocation}
+                className="w-full py-3.5 rounded-2xl text-white font-medium text-sm"
+                style={{ background: ACCENT }}>
+                Allow location
+              </button>
+            )}
+          </div>
+        )}
+
         {isBeaconSlide && (
           <div className="space-y-5 mb-10 max-w-xs">
             <div className="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center mb-2"
@@ -165,13 +210,27 @@ export function OnboardingFlow({ user, onUpdateUsername, onComplete }: Props) {
           </div>
         )}
 
-        <button
-          onClick={next}
-          disabled={isUsernameSlide ? username.trim().length < 2 || saving : false}
-          className="w-full max-w-xs py-4 rounded-2xl text-white font-medium text-base disabled:opacity-50"
-          style={{ background: ACCENT }}>
-          {saving ? 'Saving…' : isdimlitSlide ? "I'm ready" : 'Continue'}
-        </button>
+        {!isLocationSlide && (
+          <button
+            onClick={next}
+            disabled={isUsernameSlide ? username.trim().length < 2 || saving : false}
+            className="w-full max-w-xs py-4 rounded-2xl text-white font-medium text-base disabled:opacity-50"
+            style={{ background: ACCENT }}>
+            {saving ? 'Saving…' : isdimlitSlide ? "I'm ready" : 'Continue'}
+          </button>
+        )}
+        {isLocationSlide && locationStatus !== 'idle' && locationStatus !== 'granted' && (
+          <button onClick={next}
+            className="w-full max-w-xs py-3 rounded-2xl text-sm font-medium text-stone-500 bg-stone-100">
+            Skip for now
+          </button>
+        )}
+        {isLocationSlide && locationStatus === 'denied' && (
+          <button onClick={next}
+            className="w-full max-w-xs py-3 rounded-2xl text-sm font-medium text-stone-500 bg-stone-100 mt-2">
+            Continue without location
+          </button>
+        )}
       </div>
     </div>
   )
