@@ -41,12 +41,17 @@ export function useHugs(userId: string | null) {
     if (!userId) return
     const lastSent = sentMap[toUserId]
     if (lastSent && Date.now() - lastSent < COOLDOWN_MS) return
-    await hugService.send(userId, toUserId, fromCountry, fromUsername)
-    setSentMap(prev => {
-      const next = { ...prev, [toUserId]: Date.now() }
-      if (storageKey) localStorage.setItem(storageKey, JSON.stringify(next))
-      return next
-    })
+    try {
+      await hugService.send(userId, toUserId, fromCountry, fromUsername)
+      setSentMap(prev => {
+        const next = { ...prev, [toUserId]: Date.now() }
+        if (storageKey) localStorage.setItem(storageKey, JSON.stringify(next))
+        return next
+      })
+    } catch (e) {
+      console.error('sendHug failed:', e)
+      alert('Could not send hug: ' + (e instanceof Error ? e.message : String(e)))
+    }
   }
 
   function canSendHug(toUserId: string): boolean {
