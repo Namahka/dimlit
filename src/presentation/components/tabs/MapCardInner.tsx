@@ -11,6 +11,16 @@ function SetView({ coords }: { coords: [number, number] }) {
   return null
 }
 
+function InvalidateSize() {
+  const map = useMap()
+  useEffect(() => {
+    // Tiles don't load when map is hidden at mount — force recalculate
+    const t = setTimeout(() => map.invalidateSize(), 100)
+    return () => clearTimeout(t)
+  }, [map])
+  return null
+}
+
 function AutoClose({ trigger }: { trigger: boolean }) {
   const map = useMap()
   useEffect(() => {
@@ -58,6 +68,7 @@ export function MapCardInner({ presences, userId, userCoords, isReady, onSendHug
             subdomains="abcd"
             maxZoom={19}
           />
+          <InvalidateSize />
           {userCoords && <SetView coords={userCoords} />}
           <AutoClose trigger={sentTo.size > 0} />
           {presences.map((p) => (
