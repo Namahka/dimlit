@@ -11,8 +11,20 @@ export function useAuth() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    const unsubscribe = userRepo.onAuthStateChanged(setUser)
-    return unsubscribe
+    // Timeout: if auth doesn't resolve in 5s, show login screen
+    const timeout = setTimeout(() => {
+      setUser((current) => current === undefined ? null : current)
+    }, 5000)
+
+    const unsubscribe = userRepo.onAuthStateChanged((u) => {
+      clearTimeout(timeout)
+      setUser(u)
+    })
+
+    return () => {
+      clearTimeout(timeout)
+      unsubscribe()
+    }
   }, [])
 
   async function signInWithGoogle() {

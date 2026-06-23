@@ -47,7 +47,19 @@ export class FirebaseUserRepository implements IUserRepository {
   onAuthStateChanged(callback: (user: User | null) => void): () => void {
     return firebaseOnAuthStateChanged(auth, async (fu) => {
       if (!fu) { callback(null); return }
-      callback(await getOrCreateUserDoc(fu.uid, fu.displayName ?? fu.email?.split('@')[0] ?? 'Anonymous', fu.email ?? undefined, fu.emailVerified))
+      // Return basic user immediately so the app doesn't hang waiting for Firestore
+      callback({
+        id: fu.uid,
+        username: fu.displayName ?? fu.email?.split('@')[0] ?? 'Anonymous',
+        email: fu.email ?? undefined,
+        emailVerified: fu.emailVerified,
+        createdAt: new Date(fu.metadata.creationTime ?? Date.now()),
+      })
+      // Then update with Firestore data in background
+      try {
+        const fullUser = await getOrCreateUserDoc(fu.uid, fu.displayName ?? fu.email?.split('@')[0] ?? 'Anonymous', fu.email ?? undefined, fu.emailVerified)
+        callback(fullUser)
+      } catch { /* keep basic user */ }
     })
   }
 
