@@ -42,9 +42,15 @@ export class FirebaseHugRepository implements IHugRepository {
 
   listenToHugsReceived(userId: string, callback: (hugs: Hug[]) => void): () => void {
     const q = query(collection(db, 'hugs'), where('toUserId', '==', userId))
-    return onSnapshot(q, (snapshot) => {
-      const hugs = snapshot.docs.map((d) => toHug(d.id, d.data() as Record<string, unknown>))
-      callback(hugs)
-    })
+    return onSnapshot(
+      q,
+      (snapshot) => {
+        const hugs = snapshot.docs.map((d) => toHug(d.id, d.data() as Record<string, unknown>))
+        callback(hugs)
+      },
+      (error) => {
+        console.error('Hugs listener error:', error.code, error.message)
+      }
+    )
   }
 }
