@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore'
+import { doc, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore'
 import { db } from '../../infrastructure/firebase/firebaseApp'
 import { FirebasePresenceRepository } from '../../infrastructure/repositories/FirebasePresenceRepository'
 import { PresenceService } from '../../application/services/PresenceService'
