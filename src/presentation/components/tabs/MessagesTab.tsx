@@ -16,9 +16,7 @@ function timeAgo(date: Date): string {
 }
 
 async function reportMessage(messageId: string, text: string, username: string, reporterUserId: string) {
-  try {
-    await addDoc(collection(db, 'reports'), { messageId, text, username, reporterUserId, reportedAt: serverTimestamp() })
-  } catch { alert('Could not send report.') }
+  await addDoc(collection(db, 'reports'), { messageId, text, username, reporterUserId, reportedAt: serverTimestamp() }).catch(() => {})
 }
 
 export function MessagesTab({ user, country }: { user: User; country: string }) {

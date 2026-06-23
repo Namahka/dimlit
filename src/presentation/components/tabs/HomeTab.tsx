@@ -1,6 +1,7 @@
 'use client'
 
 import dynamic from 'next/dynamic'
+import { useState } from 'react'
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore'
 import { db } from '../../../infrastructure/firebase/firebaseApp'
 import { useActiveUsers } from '../../hooks/useActiveUsers'
@@ -34,6 +35,7 @@ function timeAgo(date: Date): string {
 }
 
 export function HomeTab({ user, onGoToMessages }: { user: User; onGoToMessages: () => void }) {
+  const [reportedIds, setReportedIds] = useState<Set<string>>(new Set())
   const presences = useActiveUsers(user.id)
   const { country, userCoords, isReady, locationDenied, requestLocation } = usePresence(user)
   const { latestHug, sendHug, clearLatestHug } = useHugs(user.id)
@@ -104,8 +106,12 @@ export function HomeTab({ user, onGoToMessages }: { user: User; onGoToMessages: 
                             <span className="text-xs font-medium" style={{ color: 'var(--accent)' }}>{msg.username}</span>
                             <span className="text-xs" style={{ color: 'var(--text-muted)' }}>· {timeAgo(msg.createdAt)}</span>
                           </div>
-                          <button onClick={() => reportMessage(msg.id, msg.text, msg.username, user.id)}
-                            className="text-xs text-neutral-600 hover:text-red-400 transition-colors">Report</button>
+                          {reportedIds.has(msg.id) ? (
+                            <span className="text-xs" style={{ color: '#555' }}>Reported</span>
+                          ) : (
+                            <button onClick={async () => { await reportMessage(msg.id, msg.text, msg.username, user.id); setReportedIds(p => new Set(p).add(msg.id)) }}
+                              className="text-xs" style={{ color: '#555' }}>Report</button>
+                          )}
                         </div>
                         <p className="text-sm text-neutral-300 leading-relaxed mb-1.5">{msg.text}</p>
                         <button onClick={() => toggleLike(msg.id, user.id, liked)}
