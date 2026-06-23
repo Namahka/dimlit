@@ -12,10 +12,13 @@ import type { IHugRepository } from '../../domain/repositories/IHugRepository'
 import type { Hug } from '../../domain/entities/Hug'
 
 function toHug(id: string, data: Record<string, unknown>): Hug {
+  // serverTimestamp() is null on the first optimistic write — fall back to now
   const sentAt =
     data.sentAt instanceof Timestamp
       ? data.sentAt.toDate()
-      : new Date(data.sentAt as string | number)
+      : data.sentAt
+      ? new Date(data.sentAt as string | number)
+      : new Date()
 
   return {
     id,
