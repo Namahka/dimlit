@@ -20,7 +20,7 @@ export function DistractTab() {
   const [view, setView] = useState<View>('home')
 
   if (view === 'quiz-pop-culture') {
-    return <QuizScreen title="Pop Culture Quiz 🎬" questions={popCultureQuestions} onBack={() => setView('quiz-categories')} />
+    return <QuizScreen title="Pop Culture Quiz" questions={popCultureQuestions} onBack={() => setView('quiz-categories')} />
   }
 
   if (view === 'quiz-categories') {
