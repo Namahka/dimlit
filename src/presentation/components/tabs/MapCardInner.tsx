@@ -14,9 +14,9 @@ function SetView({ coords }: { coords: [number, number] }) {
 function InvalidateSize() {
   const map = useMap()
   useEffect(() => {
-    // Tiles don't load when map is hidden at mount — force recalculate
-    const t = setTimeout(() => map.invalidateSize(), 100)
-    return () => clearTimeout(t)
+    const t1 = setTimeout(() => map.invalidateSize(), 100)
+    const t2 = setTimeout(() => map.invalidateSize(), 500)
+    return () => { clearTimeout(t1); clearTimeout(t2) }
   }, [map])
   return null
 }

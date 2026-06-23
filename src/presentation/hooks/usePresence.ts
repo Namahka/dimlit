@@ -23,7 +23,7 @@ async function reverseGeocode(lat: number, lng: number): Promise<{ country: stri
   }
 }
 
-export function usePresence(user: User | null) {
+export function usePresence(user: User | null, locationEnabled = true) {
   const [country, setCountry] = useState<string>('Unknown')
   const [userCoords, setUserCoords] = useState<[number, number] | null>(null)
   const [isReady, setIsReady] = useState(false)
@@ -66,7 +66,6 @@ export function usePresence(user: User | null) {
   useEffect(() => {
     if (!user) return
     markedRef.current = false
-    const locationEnabled = localStorage.getItem('dimlit_location_enabled') !== '0'
     if (locationEnabled) {
       requestLocation()
     } else {
@@ -76,7 +75,7 @@ export function usePresence(user: User | null) {
       cleanupRef.current?.()
       markedRef.current = false
     }
-  }, [user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [user?.id, locationEnabled]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return { country, userCoords, isReady, locationDenied, requestLocation }
 }

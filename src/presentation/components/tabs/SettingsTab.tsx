@@ -5,18 +5,19 @@ import { useState } from 'react'
 interface Props {
   username: string
   email?: string
+  locationEnabled: boolean
+  onToggleLocation: (val: boolean) => void
   onUpdateUsername: (u: string) => Promise<void>
   onSendPasswordReset: (email: string) => Promise<void>
   onDeleteAccount: () => Promise<void>
   onSignOut: () => void
 }
 
-export function SettingsTab({ username, email, onUpdateUsername, onSendPasswordReset, onDeleteAccount, onSignOut }: Props) {
+export function SettingsTab({ username, email, locationEnabled, onToggleLocation, onUpdateUsername, onSendPasswordReset, onDeleteAccount, onSignOut }: Props) {
   const [newUsername, setNewUsername] = useState(username)
   const [usernameSaved, setUsernameSaved] = useState(false)
   const [showDelete, setShowDelete] = useState(false)
   const [deleteEmailSent, setDeleteEmailSent] = useState(false)
-  const [locationEnabled, setLocationEnabled] = useState(() => localStorage.getItem('dimlit_location_enabled') !== '0')
 
   async function handleUsernameSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -52,8 +53,8 @@ export function SettingsTab({ username, email, onUpdateUsername, onSendPasswordR
             <button
               onClick={() => {
                 const next = !locationEnabled
-                setLocationEnabled(next)
                 localStorage.setItem('dimlit_location_enabled', next ? '1' : '0')
+                onToggleLocation(next)
               }}
               className="w-11 h-6 rounded-full transition-colors relative flex-shrink-0"
               style={{ background: locationEnabled ? 'var(--accent)' : '#444' }}

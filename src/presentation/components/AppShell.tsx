@@ -39,27 +39,35 @@ export function AppShell() {
   const [activeTab, setActiveTab] = useState<Tab>('home')
   const [onboardingDone, setOnboardingDone] = useState<boolean | null>(null)
   const [reportCount, setReportCount] = useState(0)
-  const { country } = usePresence(user ?? null)
+  const [seenHugTs, setSeenHugTs] = useState(() => {
+    if (typeof window === 'undefined') return 0
+    return Number(localStorage.getItem(`dimlit_hugs_seen_${user?.id ?? ''}`) ?? 0)
+  })
+  const [locationEnabled, setLocationEnabled] = useState(() =>
+    typeof window !== 'undefined' ? localStorage.getItem('dimlit_location_enabled') !== '0' : true
+  )
+  const { country } = usePresence(user ?? null, locationEnabled)
   const { receivedHugs } = useHugs(user?.id ?? null)
 
   const isAdmin = user?.email === ADMIN_EMAIL
-
-  // Badge: count hugs newer than last time user viewed Hugs tab
-  const lastSeenKey = user ? `dimlit_hugs_seen_${user.id}` : null
-  const lastSeenTs = lastSeenKey ? Number(localStorage.getItem(lastSeenKey) ?? 0) : 0
-  const hugCount = receivedHugs.filter(h => h.sentAt.getTime() > lastSeenTs).length
+  const hugCount = receivedHugs.filter(h => h.sentAt.getTime() > seenHugTs).length
 
   // When user logs in, always go to home
   useEffect(() => {
-    if (user && user !== null) setActiveTab('home')
+    if (user && user !== null) {
+      setActiveTab('home')
+      setSeenHugTs(Number(localStorage.getItem(`dimlit_hugs_seen_${user.id}`) ?? 0))
+    }
   }, [user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // When user opens Hugs tab, save current timestamp
+  // When user opens Hugs tab, save timestamp
   useEffect(() => {
-    if (activeTab === 'hugs' && lastSeenKey) {
-      localStorage.setItem(lastSeenKey, String(Date.now()))
+    if (activeTab === 'hugs' && user) {
+      const ts = Date.now()
+      localStorage.setItem(`dimlit_hugs_seen_${user.id}`, String(ts))
+      setSeenHugTs(ts)
     }
-  }, [activeTab, lastSeenKey])
+  }, [activeTab, user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!user) return
@@ -141,7 +149,10 @@ export function AppShell() {
           <HelpTab />
         </div>
         <div className={`absolute inset-0 overflow-y-auto ${activeTab === 'settings' ? 'block' : 'hidden'}`}>
-          <SettingsTab username={user.username} email={user.email} onUpdateUsername={updateUsername}
+          <SettingsTab username={user.username} email={user.email}
+            locationEnabled={locationEnabled}
+            onToggleLocation={(val) => setLocationEnabled(val)}
+            onUpdateUsername={updateUsername}
             onSendPasswordReset={sendPasswordReset} onDeleteAccount={deleteAccount} onSignOut={signOut} />
         </div>
         {isAdmin && (
