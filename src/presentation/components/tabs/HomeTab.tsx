@@ -101,8 +101,8 @@ export function HomeTab({ user, onGoToMessages }: { user: User; onGoToMessages: 
                       <div key={msg.id} className="px-5 py-3">
                         <div className="flex items-center justify-between mb-1">
                           <div className="flex items-center gap-2">
-                            <div className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold" style={{ background: 'var(--surface-2)', color: 'var(--accent)' }}>{msg.username.slice(0, 1).toUpperCase()}</div>
-                            <span className="text-xs text-neutral-500">{msg.username} · {timeAgo(msg.createdAt)}</span>
+                            <span className="text-xs font-medium" style={{ color: 'var(--accent)' }}>{msg.username}</span>
+                            <span className="text-xs" style={{ color: 'var(--text-muted)' }}>· {timeAgo(msg.createdAt)}</span>
                           </div>
                           <button onClick={() => reportMessage(msg.id, msg.text, msg.username, user.id)}
                             className="text-xs text-neutral-600 hover:text-red-400 transition-colors">Report</button>

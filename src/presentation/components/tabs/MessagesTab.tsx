@@ -54,10 +54,8 @@ export function MessagesTab({ user, country }: { user: User; country: string }) 
             <div key={msg.id} className="px-4 py-3.5 rounded-2xl" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
               <div className="flex items-center justify-between mb-1.5">
                 <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold" style={{ background: 'var(--surface-2)', color: 'var(--accent)' }}>
-                    {msg.username.slice(0, 1).toUpperCase()}
-                  </div>
-                  <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{msg.username} · {timeAgo(msg.createdAt)}</span>
+                  <span className="text-xs font-medium" style={{ color: 'var(--accent)' }}>{msg.username}</span>
+                  <span className="text-xs" style={{ color: 'var(--text-muted)' }}>· {timeAgo(msg.createdAt)}</span>
                 </div>
                 <button onClick={() => reportMessage(msg.id, msg.text, msg.username, user.id)}
                   className="text-xs transition-colors" style={{ color: '#444' }}>Report</button>
