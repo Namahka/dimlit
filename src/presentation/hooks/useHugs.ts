@@ -13,7 +13,11 @@ const COOLDOWN_MS = 24 * 60 * 60 * 1000 // 24 hours
 export function useHugs(userId: string | null) {
   const [latestHug, setLatestHug] = useState<Hug | null>(null)
   const [receivedHugs, setReceivedHugs] = useState<Hug[]>([])
-  const [sentMap, setSentMap] = useState<Record<string, number>>({}) // toUserId -> sentAt timestamp
+  const storageKey = userId ? `dimlit_sent_hugs_${userId}` : null
+  const [sentMap, setSentMap] = useState<Record<string, number>>(() => {
+    if (!storageKey) return {}
+    try { return JSON.parse(localStorage.getItem(storageKey) ?? '{}') } catch { return {} }
+  })
   const seenIds = useRef<Set<string>>(new Set())
 
   useEffect(() => {
@@ -38,7 +42,11 @@ export function useHugs(userId: string | null) {
     const lastSent = sentMap[toUserId]
     if (lastSent && Date.now() - lastSent < COOLDOWN_MS) return
     await hugService.send(userId, toUserId, fromCountry, fromUsername)
-    setSentMap(prev => ({ ...prev, [toUserId]: Date.now() }))
+    setSentMap(prev => {
+      const next = { ...prev, [toUserId]: Date.now() }
+      if (storageKey) localStorage.setItem(storageKey, JSON.stringify(next))
+      return next
+    })
   }
 
   function canSendHug(toUserId: string): boolean {
