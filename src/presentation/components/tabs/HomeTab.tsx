@@ -11,11 +11,7 @@ import { useMessages } from '../../hooks/useMessages'
 import type { User } from '../../../domain/entities/User'
 
 async function reportMessage(messageId: string, text: string, username: string, reporterUserId: string) {
-  try {
-    await addDoc(collection(db, 'reports'), { messageId, text, username, reporterUserId, reportedAt: serverTimestamp() })
-    await fetch('/api/report', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, text, messageId }) })
-    alert('Report sent.')
-  } catch { alert('Could not send report.') }
+  await addDoc(collection(db, 'reports'), { messageId, text, username, reporterUserId, reportedAt: serverTimestamp() }).catch(() => {})
 }
 
 const ACCENT = 'var(--accent)'

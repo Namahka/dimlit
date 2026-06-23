@@ -129,8 +129,24 @@ export function AdminTab() {
         {activeSection === 'reports' && reports.map(r => (
           <div key={r.id} className="px-4 py-3 rounded-2xl" style={{ ...card, borderColor: 'rgba(239,68,68,0.4)' }}>
             <p className="text-xs mb-1" style={{ color: 'var(--text-muted)' }}>Reported: <span style={{ color: 'var(--text)' }}>{r.username}</span></p>
-            <p className="text-sm mb-1" style={{ color: 'var(--text)' }}>{r.text}</p>
-            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{r.reportedAt.toLocaleString()}</p>
+            <p className="text-sm mb-2" style={{ color: 'var(--text)' }}>{r.text}</p>
+            <p className="text-xs mb-3" style={{ color: 'var(--text-muted)' }}>{r.reportedAt.toLocaleString()}</p>
+            <div className="flex gap-2">
+              <button onClick={async () => {
+                if (r.messageId) await deleteDoc(doc(db, 'messages', r.messageId)).catch(() => {})
+                await deleteDoc(doc(db, 'reports', r.id)).catch(() => {})
+                setReports(prev => prev.filter(x => x.id !== r.id))
+                setMessages(prev => prev.filter(m => m.id !== r.messageId))
+              }} className="text-xs px-3 py-1.5 rounded-full text-white bg-red-500 font-medium">
+                Delete message
+              </button>
+              <button onClick={async () => {
+                await deleteDoc(doc(db, 'reports', r.id)).catch(() => {})
+                setReports(prev => prev.filter(x => x.id !== r.id))
+              }} className="text-xs px-3 py-1.5 rounded-full font-medium" style={{ background: 'var(--surface-2)', color: 'var(--text-muted)' }}>
+                Dismiss
+              </button>
+            </div>
           </div>
         ))}
       </div>
