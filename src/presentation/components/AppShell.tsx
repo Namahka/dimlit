@@ -39,11 +39,17 @@ export function AppShell() {
   const [activeTab, setActiveTab] = useState<Tab>('home')
   const [onboardingDone, setOnboardingDone] = useState<boolean | null>(null)
   const [reportCount, setReportCount] = useState(0)
+  const [seenHugCount, setSeenHugCount] = useState(0)
   const { country } = usePresence(user ?? null)
   const { receivedHugs } = useHugs(user?.id ?? null)
 
   const isAdmin = user?.email === ADMIN_EMAIL
-  const hugCount = receivedHugs.length
+  const hugCount = Math.max(0, receivedHugs.length - seenHugCount)
+
+  // Clear badge when user opens Hugs tab
+  useEffect(() => {
+    if (activeTab === 'hugs') setSeenHugCount(receivedHugs.length)
+  }, [activeTab, receivedHugs.length])
 
   useEffect(() => {
     if (!user) return

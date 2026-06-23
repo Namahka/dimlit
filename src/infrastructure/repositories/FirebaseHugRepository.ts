@@ -21,6 +21,7 @@ function toHug(id: string, data: Record<string, unknown>): Hug {
     id,
     fromUserId: data.fromUserId as string,
     toUserId: data.toUserId as string,
+    fromUsername: (data.fromUsername as string | undefined) ?? data.fromCountry as string,
     fromCountry: data.fromCountry as string,
     sentAt,
   }
@@ -31,6 +32,7 @@ export class FirebaseHugRepository implements IHugRepository {
     await addDoc(collection(db, 'hugs'), {
       fromUserId: hug.fromUserId,
       toUserId: hug.toUserId,
+      fromUsername: hug.fromUsername,
       fromCountry: hug.fromCountry,
       sentAt: serverTimestamp(),
     })

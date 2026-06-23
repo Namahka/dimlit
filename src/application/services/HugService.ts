@@ -12,10 +12,11 @@ export class HugService {
     this.listenToHugs = new ListenToHugs(hugRepo)
   }
 
-  async send(fromUserId: string, toUserId: string, fromCountry: string): Promise<void> {
+  async send(fromUserId: string, toUserId: string, fromCountry: string, fromUsername = ''): Promise<void> {
     await this.sendHug.execute({
       fromUserId,
       toUserId,
+      fromUsername,
       fromCountry,
       sentAt: new Date(),
     })

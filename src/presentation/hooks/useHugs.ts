@@ -8,14 +8,16 @@ import type { Hug } from '../../domain/entities/Hug'
 const hugRepo = new FirebaseHugRepository()
 const hugService = new HugService(hugRepo)
 
+const COOLDOWN_MS = 24 * 60 * 60 * 1000 // 24 hours
+
 export function useHugs(userId: string | null) {
   const [latestHug, setLatestHug] = useState<Hug | null>(null)
   const [receivedHugs, setReceivedHugs] = useState<Hug[]>([])
+  const [sentMap, setSentMap] = useState<Record<string, number>>({}) // toUserId -> sentAt timestamp
   const seenIds = useRef<Set<string>>(new Set())
 
   useEffect(() => {
     if (!userId) return
-
     const unsubscribe = hugService.listen(userId, (hugs) => {
       setReceivedHugs(hugs.sort((a, b) => b.sentAt.getTime() - a.sentAt.getTime()))
       for (const hug of hugs) {
@@ -27,16 +29,23 @@ export function useHugs(userId: string | null) {
         }
       }
     })
-
     return unsubscribe
   }, [userId])
 
-  async function sendHug(toUserId: string, fromCountry: string) {
+  async function sendHug(toUserId: string, fromCountry: string, fromUsername = '') {
     if (!userId) return
-    await hugService.send(userId, toUserId, fromCountry)
+    const lastSent = sentMap[toUserId]
+    if (lastSent && Date.now() - lastSent < COOLDOWN_MS) return
+    await hugService.send(userId, toUserId, fromCountry, fromUsername)
+    setSentMap(prev => ({ ...prev, [toUserId]: Date.now() }))
+  }
+
+  function canSendHug(toUserId: string): boolean {
+    const lastSent = sentMap[toUserId]
+    return !lastSent || Date.now() - lastSent >= COOLDOWN_MS
   }
 
   function clearLatestHug() { setLatestHug(null) }
 
-  return { latestHug, receivedHugs, sendHug, clearLatestHug }
+  return { latestHug, receivedHugs, sendHug, canSendHug, clearLatestHug }
 }

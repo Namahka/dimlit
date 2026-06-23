@@ -15,7 +15,7 @@ function timeAgo(date: Date): string {
 }
 
 export function HugsTab({ user, country }: { user: User; country: string }) {
-  const { receivedHugs, sendHug } = useHugs(user.id)
+  const { receivedHugs, sendHug, canSendHug } = useHugs(user.id)
 
   return (
     <div className="flex flex-col h-full overflow-y-auto" style={{ background: BG }}>
@@ -28,19 +28,26 @@ export function HugsTab({ user, country }: { user: User; country: string }) {
         {receivedHugs.length === 0 && (
           <p className="text-sm text-stone-300 text-center mt-8">No hugs yet — tap a dot on the map to send one.</p>
         )}
-        {receivedHugs.map((hug) => (
-          <div key={hug.id} className="bg-white rounded-2xl border border-stone-100 shadow-sm px-4 py-3 flex items-center justify-between gap-3">
-            <div>
-              <p className="text-sm text-stone-700">🤗 From <span className="font-medium">{hug.fromCountry}</span></p>
-              <p className="text-xs text-stone-400 mt-0.5">{timeAgo(hug.sentAt)}</p>
+        {receivedHugs.map((hug) => {
+          const canSend = canSendHug(hug.fromUserId)
+          return (
+            <div key={hug.id} className="bg-white rounded-2xl border border-stone-100 shadow-sm px-4 py-3 flex items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-medium text-stone-700">{hug.fromUsername || hug.fromCountry}</p>
+                <p className="text-xs text-stone-400 mt-0.5">{timeAgo(hug.sentAt)}</p>
+              </div>
+              {canSend ? (
+                <button onClick={() => sendHug(hug.fromUserId, country, user.username)}
+                  className="text-xs px-3 py-1.5 rounded-full text-white font-medium flex-shrink-0"
+                  style={{ background: ACCENT }}>
+                  Hug back
+                </button>
+              ) : (
+                <span className="text-xs text-stone-300 flex-shrink-0">Hugged</span>
+              )}
             </div>
-            <button onClick={() => sendHug(hug.fromUserId, country)}
-              className="text-xs px-3 py-1.5 rounded-full text-white font-medium flex-shrink-0"
-              style={{ background: ACCENT }}>
-              Hug back
-            </button>
-          </div>
-        ))}
+          )
+        })}
       </div>
     </div>
   )
