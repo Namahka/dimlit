@@ -21,27 +21,27 @@ export function AdminTab() {
 
   async function loadAll() {
     setLoading(true)
-    try {
-      const [uSnap, mSnap, rSnap] = await Promise.all([
-        getDocs(collection(db, 'users')),
-        getDocs(query(collection(db, 'messages'), orderBy('createdAt', 'desc'))),
-        getDocs(query(collection(db, 'reports'), orderBy('reportedAt', 'desc'))),
-      ])
-      const userList = uSnap.docs.map(d => ({ id: d.id, username: d.data().username ?? 'Unknown', email: d.data().email }))
-      const msgList = mSnap.docs.map(d => ({ id: d.id, username: d.data().username ?? 'Unknown', userId: d.data().userId ?? '', text: d.data().text ?? '', createdAt: d.data().createdAt?.toDate() ?? new Date() }))
-      const repList = rSnap.docs.map(d => ({ id: d.id, username: d.data().username ?? 'Unknown', text: d.data().text ?? '', messageId: d.data().messageId ?? '', reportedAt: d.data().reportedAt?.toDate() ?? new Date() }))
-      setUsers(userList)
-      setMessages(msgList)
-      setReports(repList)
-      const repMsgIds = new Set(repList.map(r => r.messageId))
-      setReportedMessageIds(repMsgIds)
-      const repUserIds = new Set<string>()
-      repList.forEach(r => {
-        const m = msgList.find(x => x.id === r.messageId)
-        if (m) repUserIds.add(m.userId)
-      })
-      setReportedUserIds(repUserIds)
-    } catch (e) { console.error('Admin load error:', e) }
+
+    const uSnap = await getDocs(collection(db, 'users')).catch(() => null)
+    const mSnap = await getDocs(query(collection(db, 'messages'), orderBy('createdAt', 'desc'))).catch(() => null)
+    const rSnap = await getDocs(query(collection(db, 'reports'), orderBy('reportedAt', 'desc'))).catch(() => null)
+
+    const userList = uSnap?.docs.map(d => ({ id: d.id, username: d.data().username ?? 'Unknown', email: d.data().email })) ?? []
+    const msgList = mSnap?.docs.map(d => ({ id: d.id, username: d.data().username ?? 'Unknown', userId: d.data().userId ?? '', text: d.data().text ?? '', createdAt: d.data().createdAt?.toDate() ?? new Date() })) ?? []
+    const repList = rSnap?.docs.map(d => ({ id: d.id, username: d.data().username ?? 'Unknown', text: d.data().text ?? '', messageId: d.data().messageId ?? '', reportedAt: d.data().reportedAt?.toDate() ?? new Date() })) ?? []
+
+    setUsers(userList)
+    setMessages(msgList)
+    setReports(repList)
+
+    const repMsgIds = new Set(repList.map(r => r.messageId))
+    setReportedMessageIds(repMsgIds)
+    const repUserIds = new Set<string>()
+    repList.forEach(r => {
+      const m = msgList.find(x => x.id === r.messageId)
+      if (m) repUserIds.add(m.userId)
+    })
+    setReportedUserIds(repUserIds)
     setLoading(false)
   }
 
