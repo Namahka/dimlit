@@ -83,12 +83,28 @@ export function usePresence(user: User | null, locationEnabled = true) {
   useEffect(() => {
     if (!user) return
     markedRef.current = false
-    requestLocation()
+    if (locationEnabled) {
+      requestLocation()
+    } else {
+      // Anonymous mode on load — write anonymous presence directly
+      const anonLat = Math.round((Math.random() * 160 - 80) * 10) / 10
+      const anonLng = Math.round((Math.random() * 360 - 180) * 10) / 10
+      markedRef.current = true
+      updateDoc(doc(db, 'presences', user.id), {
+        username: 'Anonymous', isAnonymous: true,
+        latitude: anonLat, longitude: anonLng, isActive: true,
+      }).catch(() => {
+        // Presence doc might not exist yet on first load — let the toggle handle it
+        markedRef.current = false
+      })
+      setIsReady(true)
+      cleanupRef.current = () => presenceService.markInactive(user.id)
+    }
     return () => {
       cleanupRef.current?.()
       markedRef.current = false
     }
-  }, [user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [user?.id, locationEnabled]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return { country, userCoords, isReady, locationDenied, requestLocation }
 }
