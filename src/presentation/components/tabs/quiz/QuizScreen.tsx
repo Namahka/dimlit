@@ -102,10 +102,6 @@ export function QuizScreen({ title, questions, onBack }: { title: string; questi
       </div>
 
       <div className="px-5 pb-5 pt-3 flex gap-3" style={{ borderTop: '1px solid var(--border)' }}>
-        {currentQ > 0 && (
-          <button onClick={() => setCurrentQ(currentQ - 1)} className="px-4 py-2.5 rounded-2xl text-sm font-medium"
-            style={{ background: 'var(--surface)', color: 'var(--text-muted)' }}>← Prev</button>
-        )}
         {currentQ < questions.length - 1 ? (
           <button onClick={() => setCurrentQ(currentQ + 1)} className="flex-1 py-2.5 rounded-2xl text-sm font-medium text-white"
             style={{ background: 'var(--accent)' }}>Next →</button>
