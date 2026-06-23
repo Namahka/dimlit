@@ -3,49 +3,49 @@
 import { useState } from 'react'
 import { QuizScreen } from './quiz/QuizScreen'
 import { popCultureQuestions } from './quiz/popCultureQuiz'
+import { tvSeriesQuestions } from './quiz/tvSeriesQuiz'
+import { movieQuestions } from './quiz/movieQuiz'
+import { celebrityQuestions } from './quiz/celebrityQuiz'
+import { gamingQuestions } from './quiz/gamingQuiz'
+import { ninetiesQuestions } from './quiz/ninetiesQuiz'
 
 const BG = '#faf7f0'
 const ACCENT = '#7c3aed'
 
-type View = 'home' | 'quiz-categories' | 'quiz-pop-culture'
+type View = 'home' | 'quiz-categories' | string
 
 const quizCategories = [
-  { id: 'pop-culture', label: 'Pop Culture', description: 'Movies, music, social media & gaming', available: true },
-  { id: '90s', label: 'The 90s', description: 'A decade of iconic pop culture', available: false },
-  { id: 'gaming', label: 'Gaming', description: 'Consoles, characters & franchises', available: false },
-  { id: 'celebrities', label: 'Celebrities', description: 'Famous faces and their stories', available: false },
+  { id: 'pop-culture', label: 'Pop Culture', description: 'Movies, music, social media & gaming', questions: popCultureQuestions },
+  { id: 'tv-series', label: 'TV Series', description: 'Classic and modern television', questions: tvSeriesQuestions },
+  { id: 'movies', label: 'Movies', description: 'Cinema from all decades', questions: movieQuestions },
+  { id: 'celebrities', label: 'Celebrities', description: 'Famous faces and their stories', questions: celebrityQuestions },
+  { id: 'gaming', label: 'Gaming', description: 'Consoles, characters & franchises', questions: gamingQuestions },
+  { id: '90s', label: 'The 90s', description: 'A decade of iconic pop culture', questions: ninetiesQuestions },
 ]
 
 export function DistractTab() {
   const [view, setView] = useState<View>('home')
 
-  if (view === 'quiz-pop-culture') {
-    return <QuizScreen title="Pop Culture Quiz" questions={popCultureQuestions} onBack={() => setView('quiz-categories')} />
+  const activeQuiz = quizCategories.find(c => c.id === view)
+
+  if (activeQuiz) {
+    return <QuizScreen title={activeQuiz.label} questions={activeQuiz.questions} onBack={() => setView('quiz-categories')} />
   }
 
   if (view === 'quiz-categories') {
     return (
       <div className="flex flex-col h-full overflow-y-auto" style={{ background: BG }}>
         <div className="px-5 pt-5 pb-4 border-b border-stone-200">
-          <button onClick={() => setView('home')} className="text-sm mb-2" style={{ color: ACCENT }}>← Back</button>
+          <button onClick={() => setView('home')} className="text-sm mb-2" style={{ color: ACCENT }}>Back</button>
           <h2 className="text-xl font-bold text-stone-800">Quiz</h2>
-          <p className="text-sm text-stone-400 mt-0.5">Pick a category</p>
+          <p className="text-sm text-stone-400 mt-0.5">Pick a category — 20 questions each</p>
         </div>
         <div className="px-5 py-4 space-y-3 pb-10">
           {quizCategories.map((cat) => (
-            <button key={cat.id} disabled={!cat.available}
-              onClick={() => cat.id === 'pop-culture' && setView('quiz-pop-culture')}
-              className="w-full text-left px-5 py-4 rounded-2xl bg-white border border-stone-100 shadow-sm transition-all hover:shadow-md disabled:opacity-50 disabled:cursor-default">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-semibold text-stone-800">{cat.label}</p>
-                  <p className="text-xs text-stone-400 mt-0.5">{cat.description}</p>
-                </div>
-                {cat.available
-                  ? <span className="text-xs text-white px-2 py-1 rounded-full" style={{ background: ACCENT }}>20 Qs</span>
-                  : <span className="text-xs text-stone-400 bg-stone-100 px-2 py-1 rounded-full">Soon</span>
-                }
-              </div>
+            <button key={cat.id} onClick={() => setView(cat.id)}
+              className="w-full text-left px-5 py-4 rounded-2xl bg-white border border-stone-100 shadow-sm hover:shadow-md transition-all">
+              <p className="font-semibold text-stone-800">{cat.label}</p>
+              <p className="text-xs text-stone-400 mt-0.5">{cat.description}</p>
             </button>
           ))}
         </div>
@@ -53,7 +53,6 @@ export function DistractTab() {
     )
   }
 
-  // Home view — just quiz for now
   return (
     <div className="flex flex-col h-full overflow-y-auto" style={{ background: BG }}>
       <div className="px-5 pt-6 pb-4 border-b border-stone-200">
@@ -64,7 +63,7 @@ export function DistractTab() {
         <button onClick={() => setView('quiz-categories')}
           className="w-full text-left px-5 py-5 rounded-2xl bg-white border border-stone-100 shadow-sm hover:shadow-md transition-all">
           <p className="font-semibold text-stone-800 text-base">Quiz</p>
-          <p className="text-sm text-stone-400 mt-0.5">Test your knowledge across different categories</p>
+          <p className="text-sm text-stone-400 mt-0.5">6 categories — 20 questions each</p>
         </button>
       </div>
     </div>
