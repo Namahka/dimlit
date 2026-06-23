@@ -54,10 +54,9 @@ export function AdminTab() {
     setUserMessages(prev => prev.filter(m => m.id !== id))
   }
 
-  async function viewUser(u: UserRecord) {
+  function viewUser(u: UserRecord) {
     setSelectedUser(u)
-    const snap = await getDocs(query(collection(db, 'messages'), where('userId', '==', u.id), orderBy('createdAt', 'desc')))
-    setUserMessages(snap.docs.map(d => ({ id: d.id, username: d.data().username ?? 'Unknown', userId: d.data().userId ?? '', text: d.data().text ?? '', createdAt: d.data().createdAt?.toDate() ?? new Date() })))
+    setUserMessages(messages.filter(m => m.userId === u.id).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()))
   }
 
   const card = { background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 16 }
