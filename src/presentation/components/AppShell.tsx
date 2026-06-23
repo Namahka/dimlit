@@ -15,7 +15,7 @@ import { DistractTab } from './tabs/DistractTab'
 import { useAuth } from '../hooks/useAuth'
 import { usePresence } from '../hooks/usePresence'
 import { useHugs } from '../hooks/useHugs'
-import { getDocs, collection, query, orderBy } from 'firebase/firestore'
+import { collection, query, orderBy, onSnapshot } from 'firebase/firestore'
 import { db } from '../../infrastructure/firebase/firebaseApp'
 
 const ADMIN_EMAIL = 'namahka@hotmail.com'
@@ -72,12 +72,13 @@ export function AppShell() {
     })
   }, [user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Load report count for admin badge
+  // Live report count for admin badge
   useEffect(() => {
     if (!isAdmin) return
-    getDocs(query(collection(db, 'reports'), orderBy('reportedAt', 'desc')))
-      .then(snap => setReportCount(snap.size))
-      .catch(() => {})
+    const unsub = onSnapshot(collection(db, 'reports'), snap => {
+      setReportCount(snap.size)
+    }, () => {})
+    return unsub
   }, [isAdmin])
 
   // Only show loading while auth is resolving (undefined)

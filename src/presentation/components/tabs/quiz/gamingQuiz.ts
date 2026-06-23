@@ -18,7 +18,7 @@ export const gamingQuestions: Question[] = [
   { question: 'Which 2011 game begins with the line: "Hey, you. You\'re finally awake."?', options: ['Fallout: New Vegas', 'Dark Souls', 'Dragon Age: Origins', 'The Elder Scrolls V: Skyrim'], correctIndex: 3, category: 'Gaming' },
   { question: 'What type of creature is Yoshi in the Mario franchise?', options: ['Dragon', 'Yoshi', 'Dinosaur', 'Turtle'], correctIndex: 2, category: 'Gaming' },
   { question: 'Which company created the Pokémon franchise?', options: ['Nintendo', 'Sega', 'Sony', 'Capcom'], correctIndex: 0, category: 'Gaming' },
-  { question: 'Which company owns the Steam platform?', options: ['Microsoft', 'Valve', 'EA', 'Epic Games'], correctIndex: 1, category: 'Gaming' },
+  { question: 'What is the name of the glowing green mineral in Subnautica that powers late-game technology?', options: ['Lithium', 'Uraninite Crystal', 'Kyanite', 'Magnetite'], correctIndex: 1, category: 'Gaming' },
   { question: 'What is the name of the organization in Portal?', options: ['Black Mesa', 'Vault-Tec', 'Umbrella Corporation', 'Aperture Science'], correctIndex: 3, category: 'Gaming' },
   { question: 'Which weapon is the iconic alien melee weapon in the Halo series?', options: ['Plasma Pistol', 'Energy Sword', 'Needler', 'Gravity Hammer'], correctIndex: 1, category: 'Gaming' },
 ]

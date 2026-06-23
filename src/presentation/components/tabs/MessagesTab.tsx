@@ -18,15 +18,21 @@ function timeAgo(date: Date): string {
 async function reportMessage(messageId: string, text: string, username: string, reporterUserId: string) {
   try {
     await addDoc(collection(db, 'reports'), { messageId, text, username, reporterUserId, reportedAt: serverTimestamp() })
-    await fetch('/api/report', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, text, messageId }) })
-    alert('Report sent.')
-  } catch { alert('Could not send report.') }
+  } catch { alert('Could not send report.'); return }
+  // Send email notification in background (non-blocking)
+  fetch('/api/report', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, text, messageId }) }).catch(() => {})
 }
 
 export function MessagesTab({ user, country }: { user: User; country: string }) {
   const { messages, sending, sendError, addMessage, toggleLike } = useMessages(user)
   const { sendHug, canSendHug } = useHugs(user.id)
   const [text, setText] = useState('')
+  const [reportedIds, setReportedIds] = useState<Set<string>>(new Set())
+
+  async function handleReport(messageId: string, text: string, username: string) {
+    await reportMessage(messageId, text, username, user.id)
+    setReportedIds(prev => new Set(prev).add(messageId))
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -57,8 +63,12 @@ export function MessagesTab({ user, country }: { user: User; country: string }) 
                   <span className="text-xs font-medium" style={{ color: 'var(--accent)' }}>{msg.username}</span>
                   <span className="text-xs" style={{ color: 'var(--text-muted)' }}>· {timeAgo(msg.createdAt)}</span>
                 </div>
-                <button onClick={() => reportMessage(msg.id, msg.text, msg.username, user.id)}
-                  className="text-xs transition-colors" style={{ color: '#444' }}>Report</button>
+                {reportedIds.has(msg.id) ? (
+                  <span className="text-xs" style={{ color: '#555' }}>Reported</span>
+                ) : (
+                  <button onClick={() => handleReport(msg.id, msg.text, msg.username)}
+                    className="text-xs transition-colors" style={{ color: '#444' }}>Report</button>
+                )}
               </div>
               <p className="text-sm leading-relaxed mb-2" style={{ color: 'var(--text)' }}>{msg.text}</p>
               <div className="flex items-center gap-3">
