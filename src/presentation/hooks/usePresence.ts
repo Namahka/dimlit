@@ -59,11 +59,9 @@ export function usePresence(user: User | null, locationEnabled = true) {
     import('firebase/firestore').then(({ doc, updateDoc }) => {
       import('../../infrastructure/firebase/firebaseApp').then(({ db }) => {
         if (!locationEnabled) {
-          // Generate random offset from real position (±0.05°, ~5km)
-          const realLat = userCoordsRef.current?.[0] ?? 0
-          const realLng = userCoordsRef.current?.[1] ?? 0
-          const anonLat = Math.round((realLat + (Math.random() * 0.1 - 0.05)) * 100) / 100
-          const anonLng = Math.round((realLng + (Math.random() * 0.1 - 0.05)) * 100) / 100
+          // Fully random position anywhere on Earth
+          const anonLat = Math.round((Math.random() * 160 - 80) * 10) / 10
+          const anonLng = Math.round((Math.random() * 360 - 180) * 10) / 10
           updateDoc(doc(db, 'presences', user.id), {
             username: 'Anonymous', isAnonymous: true,
             latitude: anonLat, longitude: anonLng,
