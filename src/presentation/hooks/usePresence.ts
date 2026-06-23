@@ -71,13 +71,12 @@ export function usePresence(user: User | null, locationEnabled = true) {
       markAnonymous()
     }
 
-    // Keep lastSeen fresh every 2 minutes so the 30-min filter works
-    const interval = setInterval(() => {
-      updateDoc(doc(db, 'presences', user.id), { lastSeen: serverTimestamp() }).catch(() => {})
-    }, 2 * 60 * 1000)
+    // Mark inactive when browser/tab is closed
+    const handleUnload = () => presenceService.markInactive(user.id)
+    window.addEventListener('beforeunload', handleUnload)
 
     return () => {
-      clearInterval(interval)
+      window.removeEventListener('beforeunload', handleUnload)
       cleanupRef.current?.()
       doneRef.current = false
     }
