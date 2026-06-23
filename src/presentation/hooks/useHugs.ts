@@ -19,7 +19,8 @@ export function useHugs(userId: string | null) {
   useEffect(() => {
     if (!userId) return
     const unsubscribe = hugService.listen(userId, (hugs) => {
-      setReceivedHugs(hugs.sort((a, b) => b.sentAt.getTime() - a.sentAt.getTime()))
+      const cutoff = Date.now() - 24 * 60 * 60 * 1000
+      setReceivedHugs(hugs.filter(h => h.sentAt.getTime() > cutoff).sort((a, b) => b.sentAt.getTime() - a.sentAt.getTime()))
       for (const hug of hugs) {
         if (!seenIds.current.has(hug.id)) {
           seenIds.current.add(hug.id)

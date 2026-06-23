@@ -62,7 +62,7 @@ export function HomeTab({ user, onGoToMessages }: { user: User; onGoToMessages: 
 
           {/* Count pill — above the map */}
           <div className="flex items-center gap-2 mb-3">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-neutral-800 border border-neutral-700 shadow-sm">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
               <span className="w-2 h-2 rounded-full" style={{ background: ACCENT }} />
               <span className="text-sm font-medium" style={{ color: 'var(--text)' }}>
                 {presences.length === 0 ? "You're not alone"
