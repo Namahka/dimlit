@@ -66,7 +66,12 @@ export function usePresence(user: User | null) {
   useEffect(() => {
     if (!user) return
     markedRef.current = false
-    requestLocation()
+    const locationEnabled = localStorage.getItem('dimlit_location_enabled') !== '0'
+    if (locationEnabled) {
+      requestLocation()
+    } else {
+      markAnonymous()
+    }
     return () => {
       cleanupRef.current?.()
       markedRef.current = false

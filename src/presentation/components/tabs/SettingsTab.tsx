@@ -16,6 +16,7 @@ export function SettingsTab({ username, email, onUpdateUsername, onSendPasswordR
   const [usernameSaved, setUsernameSaved] = useState(false)
   const [showDelete, setShowDelete] = useState(false)
   const [deleteEmailSent, setDeleteEmailSent] = useState(false)
+  const [locationEnabled, setLocationEnabled] = useState(() => localStorage.getItem('dimlit_location_enabled') !== '0')
 
   async function handleUsernameSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -38,6 +39,30 @@ export function SettingsTab({ username, email, onUpdateUsername, onSendPasswordR
         <h2 className="text-xl font-bold" style={{ color: 'var(--text)' }}>Settings</h2>
       </div>
       <div className="px-5 py-4 space-y-4 pb-12">
+
+        {/* Location toggle */}
+        <div className="px-5 py-4" style={cardStyle}>
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-semibold text-sm" style={{ color: 'var(--text)' }}>Show on map</h3>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                {locationEnabled ? 'You appear near your position' : 'You appear as Anonymous'}
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                const next = !locationEnabled
+                setLocationEnabled(next)
+                localStorage.setItem('dimlit_location_enabled', next ? '1' : '0')
+              }}
+              className="w-11 h-6 rounded-full transition-colors relative flex-shrink-0"
+              style={{ background: locationEnabled ? 'var(--accent)' : '#444' }}
+            >
+              <span className="absolute top-0.5 w-5 h-5 rounded-full bg-white transition-all"
+                style={{ left: locationEnabled ? '22px' : '2px' }} />
+            </button>
+          </div>
+        </div>
 
         {/* Username */}
         <div className="px-5 py-4" style={cardStyle}>
