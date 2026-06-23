@@ -42,13 +42,13 @@ export function usePresence(user: User | null, locationEnabled = true) {
     cleanupRef.current = () => presenceService.markInactive(user.id)
   }
 
-  async function markAnonymous() {
+  async function markAnonymous(knownCoords?: GeolocationCoordinates) {
     if (!user || markedRef.current) return
     markedRef.current = true
-    // Random position spread across the globe
-    const lat = (Math.random() * 140) - 70
-    const lng = (Math.random() * 360) - 180
-    const fallback = { latitude: lat, longitude: lng, accuracy: 0 } as GeolocationCoordinates
+    // If we have real coords, use them with offset. Otherwise random nearby Europe.
+    const baseLat = knownCoords?.latitude ?? 52 + (Math.random() * 10 - 5)
+    const baseLng = knownCoords?.longitude ?? 10 + (Math.random() * 20 - 10)
+    const fallback = { latitude: baseLat, longitude: baseLng, accuracy: 0 } as GeolocationCoordinates
     await presenceService.markActive(user.id, 'Anonymous', fallback, 'Unknown', undefined, true)
     setIsReady(true)
     cleanupRef.current = () => presenceService.markInactive(user.id)
@@ -69,7 +69,12 @@ export function usePresence(user: User | null, locationEnabled = true) {
     if (locationEnabled) {
       requestLocation()
     } else {
-      markAnonymous()
+      // If we already have real coords from a previous session, use them as base for anonymous placement
+      navigator.geolocation.getCurrentPosition(
+        (pos) => markAnonymous(pos.coords),
+        () => markAnonymous(),
+        { timeout: 5000, maximumAge: 60000 }
+      )
     }
     return () => {
       cleanupRef.current?.()
