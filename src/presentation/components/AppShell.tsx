@@ -47,17 +47,19 @@ export function AppShell() {
 
   useEffect(() => {
     if (!user || user === undefined) return
-    // Check Firestore first, fall back to localStorage
+    // Check localStorage first (instant, works in PWA)
+    const localDone = !!localStorage.getItem(`dimlit_onboarding_${user.id}`)
+    if (localDone) { setOnboardingDone(true); return }
+    // Fall back to Firestore with timeout
+    const timeout = setTimeout(() => setOnboardingDone(false), 3000)
     import('firebase/firestore').then(({ doc, getDoc }) => {
       import('../../infrastructure/firebase/firebaseApp').then(({ db }) => {
         getDoc(doc(db, 'users', user.id)).then((snap) => {
-          if (snap.exists() && snap.data().onboardingDone) {
-            setOnboardingDone(true)
-          } else {
-            // legacy: check localStorage
-            setOnboardingDone(!!localStorage.getItem(`dimlit_onboarding_${user.id}`))
-          }
-        })
+          clearTimeout(timeout)
+          const done = !!(snap.exists() && snap.data().onboardingDone)
+          if (done) localStorage.setItem(`dimlit_onboarding_${user.id}`, '1')
+          setOnboardingDone(done)
+        }).catch(() => { clearTimeout(timeout); setOnboardingDone(false) })
       })
     })
   }, [user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
