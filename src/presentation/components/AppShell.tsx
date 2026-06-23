@@ -47,11 +47,12 @@ export function AppShell() {
 
   useEffect(() => {
     if (!user || user === undefined) return
-    // Check localStorage first (instant, works in PWA)
-    const localDone = !!localStorage.getItem(`dimlit_onboarding_${user.id}`)
-    if (localDone) { setOnboardingDone(true); return }
-    // Fall back to Firestore with timeout
-    const timeout = setTimeout(() => setOnboardingDone(false), 3000)
+    // Check localStorage first (instant)
+    if (localStorage.getItem(`dimlit_onboarding_${user.id}`)) { setOnboardingDone(true); return }
+    // Firestore check — timeout defaults to TRUE (skip onboarding) for existing users
+    const isNewAccount = (Date.now() - user.createdAt.getTime()) < 10 * 60 * 1000 // < 10 min old
+    const timeoutDefault = isNewAccount ? false : true
+    const timeout = setTimeout(() => setOnboardingDone(timeoutDefault), 3000)
     import('firebase/firestore').then(({ doc, getDoc }) => {
       import('../../infrastructure/firebase/firebaseApp').then(({ db }) => {
         getDoc(doc(db, 'users', user.id)).then((snap) => {
@@ -59,7 +60,7 @@ export function AppShell() {
           const done = !!(snap.exists() && snap.data().onboardingDone)
           if (done) localStorage.setItem(`dimlit_onboarding_${user.id}`, '1')
           setOnboardingDone(done)
-        }).catch(() => { clearTimeout(timeout); setOnboardingDone(false) })
+        }).catch(() => { clearTimeout(timeout); setOnboardingDone(timeoutDefault) })
       })
     })
   }, [user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
