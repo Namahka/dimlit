@@ -14,7 +14,7 @@ export function useActiveUsers(userId: string | null) {
   useEffect(() => {
     if (!userId) return
     return presenceService.listenToActivePresences((all) => {
-      const cutoff = Date.now() - 10 * 60 * 1000
+      const cutoff = Date.now() - 5 * 60 * 1000
       setPresences(all.filter(p => p.userId === userId || p.lastSeen.getTime() > cutoff))
     })
   }, [userId])
