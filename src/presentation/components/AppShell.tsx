@@ -39,10 +39,7 @@ export function AppShell() {
   const [activeTab, setActiveTab] = useState<Tab>('home')
   const [onboardingDone, setOnboardingDone] = useState<boolean | null>(null)
   const [reportCount, setReportCount] = useState(0)
-  const [seenHugTs, setSeenHugTs] = useState(() => {
-    if (typeof window === 'undefined') return 0
-    return Number(localStorage.getItem(`dimlit_hugs_seen_${user?.id ?? ''}`) ?? 0)
-  })
+  const [seenHugTs, setSeenHugTs] = useState(0)
   const [locationEnabled, setLocationEnabled] = useState(() =>
     typeof window !== 'undefined' ? localStorage.getItem('dimlit_location_enabled') !== '0' : true
   )
@@ -52,12 +49,11 @@ export function AppShell() {
   const isAdmin = user?.email === ADMIN_EMAIL
   const hugCount = receivedHugs.filter(h => h.sentAt.getTime() > seenHugTs).length
 
-  // When user logs in, always go to home
+  // When user is known, load seenHugTs from localStorage with correct key
   useEffect(() => {
-    if (user && user !== null) {
-      setActiveTab('home')
-      setSeenHugTs(Number(localStorage.getItem(`dimlit_hugs_seen_${user.id}`) ?? 0))
-    }
+    if (!user) return
+    setSeenHugTs(Number(localStorage.getItem(`dimlit_hugs_seen_${user.id}`) ?? 0))
+    setActiveTab('home')
   }, [user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // When user opens Hugs tab, save timestamp
