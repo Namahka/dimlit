@@ -42,12 +42,6 @@ export function HomeTab({ user, onGoToMessages }: { user: User; onGoToMessages: 
       <div className="px-5 py-5">
 
         {/* Hug banner */}
-        {latestHug && (
-          <div className="flex items-center gap-3 px-4 py-3 rounded-2xl mb-4" style={{ background: 'rgba(232,124,40,0.12)', border: '1px solid rgba(232,124,40,0.3)' }}>
-            <p className="text-sm flex-1" style={{ color: 'var(--text)' }}>Someone sent you a hug</p>
-            <button onClick={clearLatestHug} className="text-xl" style={{ color: 'var(--text-muted)' }}>×</button>
-          </div>
-        )}
 
         {/* Welcome */}
         <div className="mb-5">
