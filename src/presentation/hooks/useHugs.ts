@@ -57,6 +57,14 @@ export function useHugs(userId: string | null) {
   }
 
   function canSendHug(toUserId: string): boolean {
+    // Read from localStorage directly so it's always up to date across hook instances
+    if (storageKey) {
+      try {
+        const stored = JSON.parse(localStorage.getItem(storageKey) ?? '{}')
+        const last = stored[toUserId]
+        if (last && Date.now() - last < COOLDOWN_MS) return false
+      } catch {}
+    }
     const lastSent = sentMap[toUserId]
     return !lastSent || Date.now() - lastSent >= COOLDOWN_MS
   }
