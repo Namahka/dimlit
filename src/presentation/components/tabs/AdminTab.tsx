@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { collection, getDocs, deleteDoc, doc, query, orderBy, where } from 'firebase/firestore'
+import { collection, getDocs, onSnapshot, deleteDoc, doc, query, orderBy, where } from 'firebase/firestore'
 import { db } from '../../../infrastructure/firebase/firebaseApp'
 
 interface UserRecord { id: string; username: string; email?: string }
@@ -46,13 +46,33 @@ export function AdminTab() {
     setLoading(false)
   }
 
-  useEffect(() => { loadAll() }, [])
+  useEffect(() => {
+    loadAll()
+    // Live reports listener
+    const unsub = onSnapshot(
+      query(collection(db, 'reports'), orderBy('reportedAt', 'desc')),
+      (snap) => {
+        const repList = snap.docs.map(d => ({
+          id: d.id, username: d.data().username ?? 'Unknown',
+          text: d.data().text ?? '', messageId: d.data().messageId ?? '',
+          reportedAt: d.data().reportedAt?.toDate() ?? new Date(),
+        }))
+        setReports(repList)
+        const repMsgIds = new Set(repList.map(r => r.messageId))
+        setReportedMessageIds(repMsgIds)
+      },
+      () => {}
+    )
+    return unsub
+  }, [])
 
   async function deleteMessage(id: string) {
-    if (!confirm('Delete this message?')) return
-    await deleteDoc(doc(db, 'messages', id))
+    await deleteDoc(doc(db, 'messages', id)).catch(e => { alert('Error: ' + e.message); return })
     setMessages(prev => prev.filter(m => m.id !== id))
     setUserMessages(prev => prev.filter(m => m.id !== id))
+    // Also delete all reports for this message
+    const linkedReports = reports.filter(r => r.messageId === id)
+    await Promise.all(linkedReports.map(r => deleteDoc(doc(db, 'reports', r.id)).catch(() => {})))
   }
 
   function viewUser(u: UserRecord) {

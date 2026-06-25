@@ -59,12 +59,12 @@ export function MessagesTab({ user, country }: { user: User; country: string }) 
                   <span className="text-xs font-medium" style={{ color: 'var(--accent)' }}>{msg.username}</span>
                   <span className="text-xs" style={{ color: 'var(--text-muted)' }}>· {timeAgo(msg.createdAt)}</span>
                 </div>
-                {reportedIds.has(msg.id) ? (
+                {msg.userId !== user.id && (reportedIds.has(msg.id) ? (
                   <span className="text-xs" style={{ color: '#555' }}>Reported</span>
                 ) : (
                   <button onClick={() => handleReport(msg.id, msg.text, msg.username)}
                     className="text-xs transition-colors" style={{ color: '#444' }}>Report</button>
-                )}
+                ))}
               </div>
               <p className="text-sm leading-relaxed mb-2" style={{ color: 'var(--text)' }}>{msg.text}</p>
               <button onClick={() => toggleLike(msg.id, user.id, liked)}

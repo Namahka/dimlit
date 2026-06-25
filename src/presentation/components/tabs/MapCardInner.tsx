@@ -7,7 +7,7 @@ import type { Presence } from '../../../domain/entities/Presence'
 
 function SetView({ coords }: { coords: [number, number] }) {
   const map = useMap()
-  useEffect(() => { map.setView(coords, 11) }, [coords, map])
+  useEffect(() => { map.setView(coords, 10) }, [coords[0], coords[1], map]) // eslint-disable-line react-hooks/exhaustive-deps
   return null
 }
 
@@ -58,9 +58,11 @@ export function MapCardInner({ presences, userId, userCoords, isReady, onSendHug
           minZoom={2}
           className="w-full h-full"
           style={{ background: '#1a1a2e' }}
-          worldCopyJump
+          worldCopyJump={false}
           zoomControl={false}
           maxZoom={10}
+          maxBounds={[[-85, -180], [85, 180]]}
+          maxBoundsViscosity={1.0}
         >
           <TileLayer
             url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
