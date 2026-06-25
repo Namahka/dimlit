@@ -168,20 +168,20 @@ export function AdminTab() {
               <button onClick={async () => {
                 const res = await deleteDoc(doc(db, 'messages', item.messageId)).catch(e => e)
                 if (res instanceof Error) { alert('Error: ' + res.message); return }
-                if (item.isReport) await deleteDoc(doc(db, 'reports', item.reportId)).catch(() => {})
                 const linked = reports.filter(r => r.messageId === item.messageId)
                 await Promise.all(linked.map(r => deleteDoc(doc(db, 'reports', r.id)).catch(() => {})))
               }} className="text-xs px-3 py-1.5 rounded-full text-white font-medium" style={{ background: '#ef4444' }}>
                 Delete
               </button>
-              {item.isReport && (
-                <button onClick={async () => {
-                  const res = await deleteDoc(doc(db, 'reports', item.reportId)).catch(e => e)
-                  if (res instanceof Error) { alert('Error: ' + res.message); return }
-                }} className="text-xs px-3 py-1.5 rounded-full font-medium" style={{ background: 'var(--surface-2)', color: 'var(--text-muted)' }}>
-                  Dismiss
-                </button>
-              )}
+              <button onClick={async () => {
+                // Dismiss = keep message, just remove report if any
+                if (item.isReport) {
+                  await deleteDoc(doc(db, 'reports', item.reportId)).catch(() => {})
+                }
+                // For messages: just mark as reviewed (no action)
+              }} className="text-xs px-3 py-1.5 rounded-full font-medium" style={{ background: 'var(--surface-2)', color: 'var(--text-muted)' }}>
+                Dismiss
+              </button>
             </div>
           </div>
         ))}
