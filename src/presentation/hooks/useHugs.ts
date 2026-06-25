@@ -22,10 +22,11 @@ export function useHugs(userId: string | null) {
 
   useEffect(() => {
     if (!userId) return
-    const unsubscribe = hugService.listen(userId, (hugs) => {
+    const process = (hugs: import('../../domain/entities/Hug').Hug[]) => {
       const cutoff = Date.now() - 24 * 60 * 60 * 1000
-      setReceivedHugs(hugs.filter(h => h.sentAt.getTime() > cutoff).sort((a, b) => b.sentAt.getTime() - a.sentAt.getTime()))
-      for (const hug of hugs) {
+      const recent = hugs.filter(h => h.sentAt.getTime() > cutoff).sort((a, b) => b.sentAt.getTime() - a.sentAt.getTime())
+      setReceivedHugs(recent)
+      for (const hug of recent) {
         if (!seenIds.current.has(hug.id)) {
           seenIds.current.add(hug.id)
           if (Date.now() - hug.sentAt.getTime() < 5 * 60 * 1000) {
@@ -33,7 +34,8 @@ export function useHugs(userId: string | null) {
           }
         }
       }
-    })
+    }
+    const unsubscribe = hugService.listen(userId, process)
     return unsubscribe
   }, [userId])
 
