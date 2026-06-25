@@ -162,21 +162,10 @@ export function AppShell() {
         <div className={`absolute inset-0 overflow-y-auto ${activeTab === 'settings' ? 'block' : 'hidden'}`}>
           <SettingsTab username={user.username} email={user.email}
             locationEnabled={locationEnabled}
-            onToggleLocation={async (val) => {
+            onToggleLocation={(val) => {
+              localStorage.setItem('dimlit_location_enabled', val ? '1' : '0')
               setLocationEnabled(val)
-              if (!val) {
-                const anonLat = Math.round((Math.random() * 160 - 80) * 10) / 10
-                const anonLng = Math.round((Math.random() * 360 - 180) * 10) / 10
-                await setDoc(doc(db, 'presences', user.id), {
-                  userId: user.id, username: 'Anonymous', isAnonymous: true,
-                  latitude: anonLat, longitude: anonLng,
-                  country: 'Unknown', isActive: true, lastSeen: serverTimestamp(),
-                }).catch(() => {})
-              } else {
-                await updateDoc(doc(db, 'presences', user.id), {
-                  username: user.username, isAnonymous: false,
-                }).catch(() => {})
-              }
+              // usePresence handles the actual Firestore update when locationEnabled changes
             }}
             onUpdateUsername={updateUsername}
             onSendPasswordReset={sendPasswordReset} onDeleteAccount={deleteAccount} onSignOut={signOut} />
