@@ -136,7 +136,6 @@ export function AdminTab() {
         </div>
       </div>
       <div className="px-5 py-4 space-y-2 pb-10">
-        {loading && <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Loading...</p>}
         {activeSection === 'users' && users.map(u => (
           <button key={u.id} onClick={() => viewUser(u)} className="w-full text-left px-4 py-3 rounded-2xl"
             style={{ ...card, borderColor: reportedUserIds.has(u.id) ? 'rgba(239,68,68,0.4)' : 'var(--border)' }}>
@@ -147,52 +146,42 @@ export function AdminTab() {
               </div>
               {solvedUserIds.has(u.id)
                 ? <span className="text-xs text-green-500 font-medium">Solved</span>
-                : reportedUserIds.has(u.id) && <span className="text-xs text-red-400 font-medium">Reported</span>
-              }
+                : reportedUserIds.has(u.id) && <span className="text-xs text-red-400 font-medium">Reported</span>}
             </div>
           </button>
         ))}
-        {activeSection === 'messages' && messages.map(m => (
-          <div key={m.id} className="px-4 py-3 rounded-2xl" style={card}>
-            <div className="flex items-start justify-between gap-2">
-              <div className="flex-1">
-                <p className="text-xs mb-1" style={{ color: 'var(--text-muted)' }}>{m.username}</p>
-                <p className="text-sm" style={{ color: 'var(--text)' }}>{m.text}</p>
-              </div>
-              <button onClick={() => deleteMessage(m.id)} className="text-xs text-red-400 flex-shrink-0">Delete</button>
+
+        {/* Messages and Reports use identical card layout */}
+        {(activeSection === 'messages' ? messages.map(m => ({ id: m.id, username: m.username, text: m.text, date: m.createdAt, isReport: false, reportId: '', messageId: m.id }))
+          : reports.map(r => ({ id: r.id, username: r.username, text: r.text, date: r.reportedAt, isReport: true, reportId: r.id, messageId: r.messageId }))
+        ).map(item => (
+          <div key={item.id} className="px-4 py-3 rounded-2xl"
+            style={{ ...card, borderColor: item.isReport ? 'rgba(239,68,68,0.4)' : 'var(--border)' }}>
+            <div className="flex items-start justify-between gap-2 mb-1">
+              <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                {item.isReport ? <span style={{ color: '#ef4444' }}>Reported</span> : null} <span style={{ color: 'var(--text)' }}>{item.username}</span>
+              </p>
+              <p className="text-xs flex-shrink-0" style={{ color: 'var(--text-muted)' }}>{item.date.toLocaleString()}</p>
             </div>
-          </div>
-        ))}
-        {activeSection === 'reports' && reports.map(r => (
-          <div key={r.id} className="px-4 py-3 rounded-2xl" style={{ ...card, borderColor: 'rgba(239,68,68,0.4)' }}>
-            <p className="text-xs mb-1" style={{ color: 'var(--text-muted)' }}>Reported: <span style={{ color: 'var(--text)' }}>{r.username}</span></p>
-            <p className="text-sm mb-2" style={{ color: 'var(--text)' }}>{r.text}</p>
-            <p className="text-xs mb-3" style={{ color: 'var(--text-muted)' }}>{r.reportedAt.toLocaleString()}</p>
+            <p className="text-sm mb-3" style={{ color: 'var(--text)' }}>{item.text}</p>
             <div className="flex gap-2">
               <button onClick={async () => {
-                if (r.messageId) {
-                  const res = await deleteDoc(doc(db, 'messages', r.messageId)).catch(e => e)
-                  if (res instanceof Error) { alert('Could not delete: ' + res.message); return }
-                }
-                await deleteDoc(doc(db, 'reports', r.id)).catch(() => {})
-                const userId = messages.find(m => m.id === r.messageId)?.userId
-                if (userId) setSolvedUserIds(p => new Set(p).add(userId))
-                setReports(prev => prev.filter(x => x.id !== r.id))
-                setMessages(prev => prev.filter(m => m.id !== r.messageId))
-                setReportedMessageIds(prev => { const s = new Set(prev); s.delete(r.messageId); return s })
-              }} className="text-xs px-3 py-1.5 rounded-full text-white bg-red-500 font-medium">
-                Delete message
+                const res = await deleteDoc(doc(db, 'messages', item.messageId)).catch(e => e)
+                if (res instanceof Error) { alert('Error: ' + res.message); return }
+                if (item.isReport) await deleteDoc(doc(db, 'reports', item.reportId)).catch(() => {})
+                const linked = reports.filter(r => r.messageId === item.messageId)
+                await Promise.all(linked.map(r => deleteDoc(doc(db, 'reports', r.id)).catch(() => {})))
+              }} className="text-xs px-3 py-1.5 rounded-full text-white font-medium" style={{ background: '#ef4444' }}>
+                Delete
               </button>
-              <button onClick={async () => {
-                const res = await deleteDoc(doc(db, 'reports', r.id)).catch(e => e)
-                if (res instanceof Error) { alert('Could not dismiss: check Firestore rules'); return }
-                const userId = messages.find(m => m.id === r.messageId)?.userId
-                if (userId) setSolvedUserIds(p => new Set(p).add(userId))
-                setReports(prev => prev.filter(x => x.id !== r.id))
-                setReportedMessageIds(prev => { const s = new Set(prev); s.delete(r.messageId); return s })
-              }} className="text-xs px-3 py-1.5 rounded-full font-medium" style={{ background: 'var(--surface-2)', color: 'var(--text-muted)' }}>
-                Dismiss
-              </button>
+              {item.isReport && (
+                <button onClick={async () => {
+                  const res = await deleteDoc(doc(db, 'reports', item.reportId)).catch(e => e)
+                  if (res instanceof Error) { alert('Error: ' + res.message); return }
+                }} className="text-xs px-3 py-1.5 rounded-full font-medium" style={{ background: 'var(--surface-2)', color: 'var(--text-muted)' }}>
+                  Dismiss
+                </button>
+              )}
             </div>
           </div>
         ))}
