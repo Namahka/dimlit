@@ -38,8 +38,10 @@ export function AppShell() {
     updateUsername, sendPasswordReset, deleteAccount, sendVerificationEmail, reloadUser } = useAuth()
   const [activeTab, setActiveTab] = useState<Tab>('home')
   const [onboardingDone, setOnboardingDone] = useState<boolean | null>(null)
-  const [reportCount, setReportCount] = useState(0)
+  const [totalReports, setTotalReports] = useState(0)
+  const [seenReportCount, setSeenReportCount] = useState(0)
   const [seenHugIds, setSeenHugIds] = useState<Set<string>>(new Set())
+  const reportCount = Math.max(0, totalReports - seenReportCount)
   const [locationEnabled, setLocationEnabled] = useState(() =>
     typeof window !== 'undefined' ? localStorage.getItem('dimlit_location_enabled') !== '0' : true
   )
@@ -59,17 +61,17 @@ export function AppShell() {
     setActiveTab('home')
   }, [user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // When user opens Hugs tab, mark all current hugs as seen
+  // When user opens Hugs tab, mark ALL current hugs as seen
   useEffect(() => {
-    if (activeTab === 'hugs' && user && receivedHugs.length > 0) {
-      const ids = receivedHugs.map(h => h.id)
-      setSeenHugIds(prev => {
-        const next = new Set([...prev, ...ids])
-        localStorage.setItem(`dimlit_seen_hug_ids_${user.id}`, JSON.stringify([...next]))
-        return next
-      })
-    }
-  }, [activeTab, receivedHugs.length, user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+    if (activeTab !== 'hugs' || !user) return
+    if (receivedHugs.length === 0) return
+    const ids = receivedHugs.map(h => h.id)
+    setSeenHugIds(prev => {
+      const next = new Set([...prev, ...ids])
+      try { localStorage.setItem(`dimlit_seen_hug_ids_${user.id}`, JSON.stringify([...next])) } catch {}
+      return next
+    })
+  }, [activeTab, user?.id, receivedHugs.map(h => h.id).join(',')]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!user) return
@@ -86,10 +88,17 @@ export function AppShell() {
   useEffect(() => {
     if (!isAdmin) return
     const unsub = onSnapshot(collection(db, 'reports'), snap => {
-      setReportCount(snap.size)
+      setTotalReports(snap.size)
     }, () => {})
     return unsub
   }, [isAdmin])
+
+  // Clear admin badge when admin tab is opened
+  useEffect(() => {
+    if (activeTab === 'admin') {
+      setSeenReportCount(prev => Math.max(prev, totalReports))
+    }
+  }, [activeTab, totalReports])
 
   // Only show loading while auth is resolving (undefined)
   // If user is null (not logged in), skip straight to login screen
