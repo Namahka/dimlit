@@ -39,7 +39,7 @@ export function AppShell() {
   const [activeTab, setActiveTab] = useState<Tab>('home')
   const [onboardingDone, setOnboardingDone] = useState<boolean | null>(null)
   const [reportCount, setReportCount] = useState(0)
-  const [seenHugTs, setSeenHugTs] = useState(0)
+  const [seenHugIds, setSeenHugIds] = useState<Set<string>>(new Set())
   const [locationEnabled, setLocationEnabled] = useState(() =>
     typeof window !== 'undefined' ? localStorage.getItem('dimlit_location_enabled') !== '0' : true
   )
@@ -47,23 +47,29 @@ export function AppShell() {
   const { receivedHugs } = useHugs(user?.id ?? null)
 
   const isAdmin = user?.email === ADMIN_EMAIL
-  const hugCount = receivedHugs.filter(h => h.sentAt.getTime() > seenHugTs).length
+  const hugCount = receivedHugs.filter(h => !seenHugIds.has(h.id)).length
 
-  // When user is known, load seenHugTs from localStorage with correct key
+  // Load seen hug IDs from localStorage when user is known
   useEffect(() => {
     if (!user) return
-    setSeenHugTs(Number(localStorage.getItem(`dimlit_hugs_seen_${user.id}`) ?? 0))
+    try {
+      const stored = localStorage.getItem(`dimlit_seen_hug_ids_${user.id}`)
+      setSeenHugIds(new Set(stored ? JSON.parse(stored) : []))
+    } catch { setSeenHugIds(new Set()) }
     setActiveTab('home')
   }, [user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // When user opens Hugs tab, save timestamp
+  // When user opens Hugs tab, mark all current hugs as seen
   useEffect(() => {
-    if (activeTab === 'hugs' && user) {
-      const ts = Date.now()
-      localStorage.setItem(`dimlit_hugs_seen_${user.id}`, String(ts))
-      setSeenHugTs(ts)
+    if (activeTab === 'hugs' && user && receivedHugs.length > 0) {
+      const ids = receivedHugs.map(h => h.id)
+      setSeenHugIds(prev => {
+        const next = new Set([...prev, ...ids])
+        localStorage.setItem(`dimlit_seen_hug_ids_${user.id}`, JSON.stringify([...next]))
+        return next
+      })
     }
-  }, [activeTab, user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [activeTab, receivedHugs.length, user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!user) return
