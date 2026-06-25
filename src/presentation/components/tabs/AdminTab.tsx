@@ -47,7 +47,20 @@ export function AdminTab() {
   }
 
   useEffect(() => {
-    loadAll()
+    // Live messages listener
+    const unsubMsg = onSnapshot(
+      query(collection(db, 'messages'), orderBy('createdAt', 'desc')),
+      (snap) => {
+        setMessages(snap.docs.map(d => ({
+          id: d.id, username: d.data().username ?? 'Unknown', userId: d.data().userId ?? '',
+          text: d.data().text ?? '', createdAt: d.data().createdAt?.toDate() ?? new Date(),
+        })))
+      }, () => {}
+    )
+    // Live users listener
+    const unsubUsers = onSnapshot(collection(db, 'users'), (snap) => {
+      setUsers(snap.docs.map(d => ({ id: d.id, username: d.data().username, email: d.data().email })))
+    }, () => {})
     // Live reports listener
     const unsub = onSnapshot(
       query(collection(db, 'reports'), orderBy('reportedAt', 'desc')),
@@ -63,7 +76,7 @@ export function AdminTab() {
       },
       () => {}
     )
-    return unsub
+    return () => { unsubMsg(); unsubUsers(); unsub() }
   }, [])
 
   async function deleteMessage(id: string) {
