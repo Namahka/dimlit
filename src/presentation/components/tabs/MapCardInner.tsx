@@ -38,14 +38,16 @@ interface Props {
   userId: string
   userCoords: [number, number] | null
   isReady: boolean
-  onSendHug: (toUserId: string) => Promise<boolean | void>
+  onSendHug: (toUserId: string) => Promise<void>
   canSendHug: (toUserId: string) => boolean
-  huggedIds: Set<string>
 }
 
-export function MapCardInner({ presences, userId, userCoords, isReady, onSendHug, canSendHug, huggedIds }: Props) {
+export function MapCardInner({ presences, userId, userCoords, isReady, onSendHug, canSendHug }: Props) {
+  const [sentThisSession, setSentThisSession] = useState<Set<string>>(new Set())
+
   async function handleHug(toUserId: string) {
     await onSendHug(toUserId)
+    setSentThisSession(prev => new Set(prev).add(toUserId))
   }
   return (
     // maxWidth + margin auto = only the map is centered, nothing else
@@ -71,7 +73,7 @@ export function MapCardInner({ presences, userId, userCoords, isReady, onSendHug
           />
           <InvalidateSize />
           {userCoords && <SetView coords={userCoords} />}
-          <AutoClose trigger={huggedIds.size > 0} />
+          <AutoClose trigger={sentThisSession.size > 0} />
           {presences.map((p) => (
             <CircleMarker
               key={p.userId}
@@ -91,7 +93,7 @@ export function MapCardInner({ presences, userId, userCoords, isReady, onSendHug
                   ) : (
                     <>
                       <span className="font-semibold text-xs" style={{ color: '#1a1a1a' }}>{p.username}</span>
-                      {!canSendHug(p.userId) || huggedIds.has(p.userId) ? (
+                      {!canSendHug(p.userId) || sentThisSession.has(p.userId) ? (
                         <span className="text-xs" style={{ color: '#888' }}>Hugged</span>
                       ) : (
                         <button

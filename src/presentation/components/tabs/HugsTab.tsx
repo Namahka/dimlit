@@ -12,7 +12,7 @@ function timeAgo(date: Date): string {
 }
 
 export function HugsTab({ user, country }: { user: User; country: string }) {
-  const { receivedHugs, sendHug, sentThisSession } = useHugs(user.id)
+  const { receivedHugs, sendHug, canSendHug } = useHugs(user.id)
 
   return (
     <div className="flex flex-col h-full overflow-y-auto" style={{ background: 'var(--bg)' }}>
@@ -25,9 +25,9 @@ export function HugsTab({ user, country }: { user: User; country: string }) {
           <p className="text-sm text-center mt-8" style={{ color: 'var(--text-muted)' }}>No hugs yet.</p>
         )}
         {receivedHugs.map((hug) => {
-          const alreadySent = sentThisSession.has(hug.fromUserId)
           const displayName = hug.fromUsername && hug.fromUsername !== hug.fromCountry
             ? hug.fromUsername : hug.fromCountry
+          const canHugBack = canSendHug(hug.fromUserId)
           return (
             <div key={hug.id} className="px-4 py-3 rounded-2xl flex items-center justify-between gap-3"
               style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
@@ -35,15 +35,14 @@ export function HugsTab({ user, country }: { user: User; country: string }) {
                 <p className="text-sm font-medium" style={{ color: 'var(--text)' }}>{displayName}</p>
                 <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>{timeAgo(hug.sentAt)}</p>
               </div>
-              {/* 5 & 6: Hug back or Hugged */}
-              {alreadySent ? (
-                <span className="text-xs flex-shrink-0" style={{ color: 'var(--text-muted)' }}>Hugged</span>
-              ) : (
+              {canHugBack ? (
                 <button onClick={() => sendHug(hug.fromUserId, country, user.username)}
                   className="text-xs px-3 py-1.5 rounded-full text-white font-medium flex-shrink-0"
                   style={{ background: 'var(--accent)' }}>
                   Hug back
                 </button>
+              ) : (
+                <span className="text-xs flex-shrink-0" style={{ color: 'var(--text-muted)' }}>Hugged</span>
               )}
             </div>
           )
