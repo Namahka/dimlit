@@ -60,8 +60,16 @@ export function SettingsTab({ username, email, locationEnabled, onToggleLocation
             <button
               onClick={() => {
                 const next = !locationEnabled
-                localStorage.setItem('dimlit_location_enabled', next ? '1' : '0')
-                onToggleLocation(next)
+                if (next) {
+                  // Turning ON: ask for location permission explicitly
+                  navigator.geolocation.getCurrentPosition(
+                    () => onToggleLocation(true),
+                    () => alert('Location permission denied. You\'ll appear as Anonymous.'),
+                    { timeout: 10000 }
+                  )
+                } else {
+                  onToggleLocation(false)
+                }
               }}
               className="w-11 h-6 rounded-full transition-colors relative flex-shrink-0"
               style={{ background: locationEnabled ? 'var(--accent)' : '#444' }}

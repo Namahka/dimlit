@@ -44,10 +44,21 @@ export function AppShell() {
   const reportCount = Math.max(0, totalReports - seenReportCount)
   const [locationEnabled, setLocationEnabled] = useState<boolean | null>(null)
 
-  // Read locationEnabled from localStorage after mount (avoids SSR/hydration mismatch)
+  // Load locationEnabled from Firestore (cross-device) after user is known
   useEffect(() => {
-    setLocationEnabled(localStorage.getItem('dimlit_location_enabled') !== '0')
-  }, [])
+    if (!user) return
+    import('firebase/firestore').then(({ doc, getDoc }) => {
+      import('../../infrastructure/firebase/firebaseApp').then(({ db }) => {
+        getDoc(doc(db, 'users', user.id)).then(snap => {
+          if (snap.exists() && snap.data().locationEnabled === false) {
+            setLocationEnabled(false)
+          } else {
+            setLocationEnabled(true)
+          }
+        }).catch(() => setLocationEnabled(true))
+      })
+    })
+  }, [user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
   const { country } = usePresence(user ?? null, locationEnabled ?? true)
   const { receivedHugs } = useHugs(user?.id ?? null)
 
@@ -166,9 +177,13 @@ export function AppShell() {
           <SettingsTab username={user.username} email={user.email}
             locationEnabled={locationEnabled ?? true}
             onToggleLocation={(val) => {
-              localStorage.setItem('dimlit_location_enabled', val ? '1' : '0')
               setLocationEnabled(val)
-              // usePresence handles the actual Firestore update when locationEnabled changes
+              // Save to Firestore so setting persists cross-device
+              import('firebase/firestore').then(({ doc, updateDoc }) => {
+                import('../../infrastructure/firebase/firebaseApp').then(({ db }) => {
+                  updateDoc(doc(db, 'users', user.id), { locationEnabled: val }).catch(() => {})
+                })
+              })
             }}
             onUpdateUsername={updateUsername}
             onSendPasswordReset={sendPasswordReset} onDeleteAccount={deleteAccount} onSignOut={signOut} />
