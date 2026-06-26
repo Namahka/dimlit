@@ -1,6 +1,8 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { collection, query, where, getDocs, Timestamp } from 'firebase/firestore'
+import { db } from '../../infrastructure/firebase/firebaseApp'
 import { FirebaseHugRepository } from '../../infrastructure/repositories/FirebaseHugRepository'
 import { HugService } from '../../application/services/HugService'
 import type { Hug } from '../../domain/entities/Hug'
@@ -13,10 +15,32 @@ const COOLDOWN_MS = 24 * 60 * 60 * 1000
 export function useHugs(userId: string | null) {
   const [latestHug, setLatestHug] = useState<Hug | null>(null)
   const [receivedHugs, setReceivedHugs] = useState<Hug[]>([])
-  // sentTo tracks who you've hugged in THIS session only (resets on refresh)
   const [sentTo, setSentTo] = useState<Set<string>>(new Set())
   const [sentTimes, setSentTimes] = useState<Record<string, number>>({})
   const seenIds = useRef<Set<string>>(new Set())
+
+  // Load sent hugs from Firestore on mount so 24h cooldown persists across sessions
+  useEffect(() => {
+    if (!userId) return
+    const cutoff = new Date(Date.now() - COOLDOWN_MS)
+    getDocs(query(
+      collection(db, 'hugs'),
+      where('fromUserId', '==', userId),
+      where('sentAt', '>=', Timestamp.fromDate(cutoff))
+    )).then(snap => {
+      const toSet = new Set<string>()
+      const times: Record<string, number> = {}
+      snap.docs.forEach(d => {
+        const toId = d.data().toUserId as string
+        const sentAt = d.data().sentAt instanceof Timestamp
+          ? d.data().sentAt.toDate().getTime() : Date.now()
+        toSet.add(toId)
+        times[toId] = sentAt
+      })
+      setSentTo(toSet)
+      setSentTimes(times)
+    }).catch(() => {})
+  }, [userId])
 
   useEffect(() => {
     if (!userId) return
