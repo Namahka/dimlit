@@ -42,19 +42,29 @@ export function AppShell() {
   const [seenReportCount, setSeenReportCount] = useState(0)
   const [seenHugIds, setSeenHugIds] = useState<Set<string>>(new Set())
   const reportCount = Math.max(0, totalReports - seenReportCount)
-  const [locationEnabled, setLocationEnabled] = useState<boolean | null>(null)
+  // Read synchronously from localStorage first (instant, no async)
+  const [locationEnabled, setLocationEnabled] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return true
+    return localStorage.getItem('dimlit_location_enabled') !== '0'
+  })
 
-  // Load locationEnabled from Firestore (cross-device) after user is known
+  // Sync with Firestore when user loads (for cross-device)
   useEffect(() => {
     if (!user) return
     getDoc(doc(db, 'users', user.id))
       .then(snap => {
-        const stored = snap.exists() ? snap.data().locationEnabled : undefined
-        setLocationEnabled(stored === false ? false : true)
+        if (snap.exists() && snap.data().locationEnabled === false) {
+          setLocationEnabled(false)
+          localStorage.setItem('dimlit_location_enabled', '0')
+        } else if (snap.exists() && snap.data().locationEnabled === true) {
+          setLocationEnabled(true)
+          localStorage.setItem('dimlit_location_enabled', '1')
+        }
+        // If field doesn't exist, keep localStorage value
       })
-      .catch(() => setLocationEnabled(true))
+      .catch(() => {})
   }, [user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
-  const { country } = usePresence(user ?? null, locationEnabled)
+  const { country } = usePresence(user ?? null, locationEnabled ?? true)
   const { receivedHugs } = useHugs(user?.id ?? null)
 
   const isAdmin = user?.email === ADMIN_EMAIL
@@ -173,6 +183,7 @@ export function AppShell() {
             locationEnabled={locationEnabled ?? true}
             onToggleLocation={(val) => {
               setLocationEnabled(val)
+              localStorage.setItem('dimlit_location_enabled', val ? '1' : '0')
               updateDoc(doc(db, 'users', user.id), { locationEnabled: val }).catch(() => {})
             }}
             onUpdateUsername={updateUsername}
