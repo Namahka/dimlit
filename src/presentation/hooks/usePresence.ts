@@ -21,7 +21,7 @@ async function reverseGeocode(lat: number, lng: number) {
   } catch { return { country: 'Unknown' } }
 }
 
-export function usePresence(user: User | null, locationEnabled = true) {
+export function usePresence(user: User | null, locationEnabled: boolean | null = true) {
   const [country, setCountry] = useState('Unknown')
   const [userCoords, setUserCoords] = useState<[number, number] | null>(null)
   const [isReady, setIsReady] = useState(false)
@@ -63,7 +63,7 @@ export function usePresence(user: User | null, locationEnabled = true) {
   }
 
   useEffect(() => {
-    if (!user || locationEnabled === undefined) return
+    if (!user || locationEnabled === null) return // wait until locationEnabled is known
     doneRef.current = false
     if (locationEnabled) {
       requestLocation()

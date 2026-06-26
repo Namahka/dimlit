@@ -59,7 +59,7 @@ export function AppShell() {
       })
     })
   }, [user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
-  const { country } = usePresence(user ?? null, locationEnabled ?? true)
+  const { country } = usePresence(user ?? null, locationEnabled)
   const { receivedHugs } = useHugs(user?.id ?? null)
 
   const isAdmin = user?.email === ADMIN_EMAIL
