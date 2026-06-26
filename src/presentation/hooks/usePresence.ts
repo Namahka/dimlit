@@ -52,14 +52,14 @@ export function usePresence(user: User | null, locationEnabled = true) {
     doneRef.current = true
     const lat = Math.round((Math.random() * 160 - 80) * 10) / 10
     const lng = Math.round((Math.random() * 360 - 180) * 10) / 10
-    await setDoc(doc(db, 'presences', user.id), {
+    setUserCoords([lat, lng]) // center map immediately
+    setIsReady(true)
+    cleanupRef.current = () => presenceService.markInactive(user.id)
+    setDoc(doc(db, 'presences', user.id), {
       userId: user.id, username: 'Anonymous', isAnonymous: true,
       latitude: lat, longitude: lng, country: 'Unknown',
       isActive: true, lastSeen: serverTimestamp(),
-    })
-    setUserCoords([lat, lng])
-    setIsReady(true)
-    cleanupRef.current = () => presenceService.markInactive(user.id)
+    }).catch(() => {})
   }
 
   useEffect(() => {
