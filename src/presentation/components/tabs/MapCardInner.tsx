@@ -39,14 +39,15 @@ interface Props {
   userCoords: [number, number] | null
   isReady: boolean
   onSendHug: (toUserId: string) => Promise<boolean | void>
+  canSendHug: (toUserId: string) => boolean
 }
 
-export function MapCardInner({ presences, userId, userCoords, isReady, onSendHug }: Props) {
-  const [sentTo, setSentTo] = useState<Set<string>>(new Set())
+export function MapCardInner({ presences, userId, userCoords, isReady, onSendHug, canSendHug }: Props) {
+  const [sentThisSession, setSentThisSession] = useState<Set<string>>(new Set())
 
   async function handleHug(toUserId: string) {
     const result = await onSendHug(toUserId)
-    if (result !== false) setSentTo(prev => new Set(prev).add(toUserId))
+    if (result !== false) setSentThisSession(prev => new Set(prev).add(toUserId))
   }
   return (
     // maxWidth + margin auto = only the map is centered, nothing else
@@ -72,7 +73,7 @@ export function MapCardInner({ presences, userId, userCoords, isReady, onSendHug
           />
           <InvalidateSize />
           {userCoords && <SetView coords={userCoords} />}
-          <AutoClose trigger={sentTo.size > 0} />
+          <AutoClose trigger={sentThisSession.size > 0} />
           {presences.map((p) => (
             <CircleMarker
               key={p.userId}
@@ -92,13 +93,16 @@ export function MapCardInner({ presences, userId, userCoords, isReady, onSendHug
                   ) : (
                     <>
                       <span className="font-semibold text-xs" style={{ color: '#1a1a1a' }}>{p.username}</span>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); handleHug(p.userId) }}
-                        disabled={sentTo.has(p.userId)}
-                        className="px-3 py-1.5 rounded-full text-xs text-white font-medium disabled:opacity-60"
-                        style={{ background: '#e87c28' }}>
-                        {sentTo.has(p.userId) ? '✓ Hug sent' : 'Send a hug'}
-                      </button>
+                      {!canSendHug(p.userId) || sentThisSession.has(p.userId) ? (
+                        <span className="text-xs" style={{ color: '#888' }}>Hugged</span>
+                      ) : (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleHug(p.userId) }}
+                          className="px-3 py-1.5 rounded-full text-xs text-white font-medium"
+                          style={{ background: '#e87c28' }}>
+                          Send a hug
+                        </button>
+                      )}
                     </>
                   )}
                 </div>

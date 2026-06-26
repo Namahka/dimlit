@@ -34,7 +34,7 @@ export function HomeTab({ user, onGoToMessages }: { user: User; onGoToMessages: 
   const [reportedIds, setReportedIds] = useState<Set<string>>(new Set())
   const presences = useActiveUsers(user.id)
   const { country, userCoords, isReady, locationDenied, requestLocation } = usePresence(user)
-  const { latestHug, sendHug, clearLatestHug } = useHugs(user.id)
+  const { latestHug, sendHug, canSendHug, clearLatestHug } = useHugs(user.id)
   const { messages, toggleLike } = useMessages(user)
 
   return (
@@ -83,7 +83,8 @@ export function HomeTab({ user, onGoToMessages }: { user: User; onGoToMessages: 
 
           {/* Map */}
           <MapCard presences={presences} userId={user.id} userCoords={userCoords} isReady={isReady}
-            onSendHug={async (id) => sendHug(id, country, user.username)} />
+            onSendHug={async (id) => sendHug(id, country, user.username)}
+            canSendHug={canSendHug} />
 
           {/* Lift each other up — same width as map, directly below */}
           <div className="mt-4 bg-neutral-800 rounded-2xl border border-neutral-700 shadow-sm overflow-hidden">
