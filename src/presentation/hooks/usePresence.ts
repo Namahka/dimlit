@@ -63,7 +63,7 @@ export function usePresence(user: User | null, locationEnabled = true) {
   }
 
   useEffect(() => {
-    if (!user) return
+    if (!user || locationEnabled === undefined) return
     doneRef.current = false
     if (locationEnabled) {
       requestLocation()

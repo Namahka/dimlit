@@ -42,10 +42,13 @@ export function AppShell() {
   const [seenReportCount, setSeenReportCount] = useState(0)
   const [seenHugIds, setSeenHugIds] = useState<Set<string>>(new Set())
   const reportCount = Math.max(0, totalReports - seenReportCount)
-  const [locationEnabled, setLocationEnabled] = useState(() =>
-    typeof window !== 'undefined' ? localStorage.getItem('dimlit_location_enabled') !== '0' : true
-  )
-  const { country } = usePresence(user ?? null, locationEnabled)
+  const [locationEnabled, setLocationEnabled] = useState<boolean | null>(null)
+
+  // Read locationEnabled from localStorage after mount (avoids SSR/hydration mismatch)
+  useEffect(() => {
+    setLocationEnabled(localStorage.getItem('dimlit_location_enabled') !== '0')
+  }, [])
+  const { country } = usePresence(user ?? null, locationEnabled ?? true)
   const { receivedHugs } = useHugs(user?.id ?? null)
 
   const isAdmin = user?.email === ADMIN_EMAIL
@@ -161,7 +164,7 @@ export function AppShell() {
         </div>
         <div className={`absolute inset-0 overflow-y-auto ${activeTab === 'settings' ? 'block' : 'hidden'}`}>
           <SettingsTab username={user.username} email={user.email}
-            locationEnabled={locationEnabled}
+            locationEnabled={locationEnabled ?? true}
             onToggleLocation={(val) => {
               localStorage.setItem('dimlit_location_enabled', val ? '1' : '0')
               setLocationEnabled(val)
