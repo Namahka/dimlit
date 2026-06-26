@@ -61,7 +61,7 @@ export function SettingsTab({ username, email, locationEnabled, onToggleLocation
               onClick={() => {
                 const next = !locationEnabled
                 if (next) {
-                  // Turning ON: ask for location permission explicitly
+                  if (!confirm('Your approximate location (rounded to ~1km) will be visible on the map. Enable location sharing?')) return
                   navigator.geolocation.getCurrentPosition(
                     () => onToggleLocation(true),
                     () => alert('Location permission denied. You\'ll appear as Anonymous.'),
