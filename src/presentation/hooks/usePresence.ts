@@ -12,7 +12,10 @@ const presenceService = new PresenceService(presenceRepo)
 
 async function reverseGeocode(lat: number, lng: number) {
   try {
-    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`)
+    // Round BEFORE sending to external API so exact coords never leave the device
+    const roundedLat = Math.round(lat * 10) / 10
+    const roundedLng = Math.round(lng * 10) / 10
+    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${roundedLat}&lon=${roundedLng}&format=json`)
     const data = await res.json()
     return {
       country: data.address?.country_code?.toUpperCase() ?? 'Unknown',
