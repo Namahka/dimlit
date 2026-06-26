@@ -84,18 +84,6 @@ export function SettingsTab({ username, email, locationEnabled, onToggleLocation
           </form>
         </div>
 
-        {/* Reset hug cooldown */}
-        <div className="px-5 py-4" style={cardStyle}>
-          <h3 className="font-semibold text-sm mb-1" style={{ color: 'var(--text)' }}>Reset hug cooldown</h3>
-          <p className="text-xs mb-3" style={{ color: 'var(--text-muted)' }}>If "Hug back" is blocked but you haven't sent one, tap this to reset.</p>
-          <button onClick={() => {
-            Object.keys(localStorage).filter(k => k.startsWith('dimlit_sent_hugs')).forEach(k => localStorage.removeItem(k))
-            alert('Hug cooldown reset. Refresh the app.')
-          }} className="px-4 py-2 rounded-xl text-sm text-white font-medium" style={{ background: 'var(--accent)' }}>
-            Reset
-          </button>
-        </div>
-
         {/* Privacy */}
         <button onClick={() => setShowPrivacy(true)} className="w-full text-left px-5 py-4 rounded-2xl text-sm font-medium"
           style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}>

@@ -8,23 +8,22 @@ import type { Hug } from '../../domain/entities/Hug'
 const hugRepo = new FirebaseHugRepository()
 const hugService = new HugService(hugRepo)
 
-const COOLDOWN_MS = 24 * 60 * 60 * 1000 // 24 hours
+const COOLDOWN_MS = 24 * 60 * 60 * 1000
 
 export function useHugs(userId: string | null) {
   const [latestHug, setLatestHug] = useState<Hug | null>(null)
   const [receivedHugs, setReceivedHugs] = useState<Hug[]>([])
-  const storageKey = userId ? `dimlit_sent_hugs_${userId}` : null
-  const [sentMap, setSentMap] = useState<Record<string, number>>(() => {
-    if (!storageKey) return {}
-    try { return JSON.parse(localStorage.getItem(storageKey) ?? '{}') } catch { return {} }
-  })
+  // sentTo tracks who you've hugged in THIS session only (resets on refresh)
+  const [sentTo, setSentTo] = useState<Set<string>>(new Set())
+  const [sentTimes, setSentTimes] = useState<Record<string, number>>({})
   const seenIds = useRef<Set<string>>(new Set())
 
   useEffect(() => {
     if (!userId) return
-    const process = (hugs: import('../../domain/entities/Hug').Hug[]) => {
+    const process = (hugs: Hug[]) => {
       const cutoff = Date.now() - 24 * 60 * 60 * 1000
-      const recent = hugs.filter(h => h.sentAt.getTime() > cutoff).sort((a, b) => b.sentAt.getTime() - a.sentAt.getTime())
+      const recent = hugs.filter(h => h.sentAt.getTime() > cutoff)
+        .sort((a, b) => b.sentAt.getTime() - a.sentAt.getTime())
       setReceivedHugs(recent)
       for (const hug of recent) {
         if (!seenIds.current.has(hug.id)) {
@@ -35,45 +34,31 @@ export function useHugs(userId: string | null) {
         }
       }
     }
-    const unsubscribe = hugService.listen(userId, process)
-    return unsubscribe
+    return hugService.listen(userId, process)
   }, [userId])
 
+  // 5: Can send hug — false if already sent within 24h this session
+  function canSendHug(toUserId: string): boolean {
+    const last = sentTimes[toUserId]
+    return !last || Date.now() - last >= COOLDOWN_MS
+  }
+
+  // 1: Send hug — returns true if actually sent
   async function sendHug(toUserId: string, fromCountry: string, fromUsername = ''): Promise<boolean> {
     if (!userId) return false
-    // Check cooldown from localStorage (most up-to-date across instances)
-    if (storageKey) {
-      try {
-        const stored = JSON.parse(localStorage.getItem(storageKey) ?? '{}')
-        if (stored[toUserId] && Date.now() - stored[toUserId] < COOLDOWN_MS) return false
-      } catch {}
-    }
+    if (!canSendHug(toUserId)) return false
     try {
       await hugService.send(userId, toUserId, fromCountry, fromUsername)
-      setSentMap(prev => {
-        const next = { ...prev, [toUserId]: Date.now() }
-        if (storageKey) localStorage.setItem(storageKey, JSON.stringify(next))
-        return next
-      })
+      setSentTo(prev => new Set(prev).add(toUserId))
+      setSentTimes(prev => ({ ...prev, [toUserId]: Date.now() }))
       return true
     } catch (e) {
       console.error('sendHug failed:', e)
-      alert('Could not send hug: ' + (e instanceof Error ? e.message : String(e)))
       return false
     }
   }
 
-  function canSendHug(toUserId: string): boolean {
-    // Only check localStorage — single source of truth, works across all hook instances
-    if (!storageKey) return true
-    try {
-      const stored = JSON.parse(localStorage.getItem(storageKey) ?? '{}')
-      const last = stored[toUserId]
-      return !last || Date.now() - last >= COOLDOWN_MS
-    } catch { return true }
-  }
-
   function clearLatestHug() { setLatestHug(null) }
 
-  return { latestHug, receivedHugs, sendHug, canSendHug, clearLatestHug }
+  return { latestHug, receivedHugs, sendHug, canSendHug, sentTo, clearLatestHug }
 }
