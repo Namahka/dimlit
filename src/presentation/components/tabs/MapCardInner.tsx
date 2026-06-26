@@ -38,15 +38,15 @@ interface Props {
   userId: string
   userCoords: [number, number] | null
   isReady: boolean
-  onSendHug: (toUserId: string) => Promise<void>
+  onSendHug: (toUserId: string) => Promise<boolean | void>
 }
 
 export function MapCardInner({ presences, userId, userCoords, isReady, onSendHug }: Props) {
   const [sentTo, setSentTo] = useState<Set<string>>(new Set())
 
   async function handleHug(toUserId: string) {
-    const sent = await onSendHug(toUserId)
-    if (sent) setSentTo(prev => new Set(prev).add(toUserId))
+    const result = await onSendHug(toUserId)
+    if (result !== false) setSentTo(prev => new Set(prev).add(toUserId))
   }
   return (
     // maxWidth + margin auto = only the map is centered, nothing else
