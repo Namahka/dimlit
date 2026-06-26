@@ -17,6 +17,7 @@ export function useHugs(userId: string | null) {
   const [receivedHugs, setReceivedHugs] = useState<Hug[]>([])
   const [sentTo, setSentTo] = useState<Set<string>>(new Set())
   const [sentTimes, setSentTimes] = useState<Record<string, number>>({})
+  const [sentThisSession, setSentThisSession] = useState<Set<string>>(new Set())
   const seenIds = useRef<Set<string>>(new Set())
 
   // Load sent hugs from Firestore on mount so 24h cooldown persists across sessions
@@ -31,12 +32,17 @@ export function useHugs(userId: string | null) {
           const sentAt = d.data().sentAt instanceof Timestamp
             ? d.data().sentAt.toDate().getTime() : Date.now()
           if (sentAt > cutoff) {
-            toSet.add(d.data().toUserId as string)
-            times[d.data().toUserId as string] = sentAt
+            const toId = d.data().toUserId as string
+            toSet.add(toId)
+            times[toId] = sentAt
           }
         })
         setSentTo(toSet)
         setSentTimes(times)
+        // Also mark in sentThisSession so map popup shows Hugged immediately
+        if (toSet.size > 0) {
+          setSentThisSession(toSet)
+        }
       }).catch(() => {})
   }, [userId])
 
@@ -73,6 +79,7 @@ export function useHugs(userId: string | null) {
       await hugService.send(userId, toUserId, fromCountry, fromUsername)
       setSentTo(prev => new Set(prev).add(toUserId))
       setSentTimes(prev => ({ ...prev, [toUserId]: Date.now() }))
+      setSentThisSession(prev => new Set(prev).add(toUserId))
       return true
     } catch (e) {
       console.error('sendHug failed:', e)
@@ -82,5 +89,5 @@ export function useHugs(userId: string | null) {
 
   function clearLatestHug() { setLatestHug(null) }
 
-  return { latestHug, receivedHugs, sendHug, canSendHug, sentTo, clearLatestHug }
+  return { latestHug, receivedHugs, sendHug, canSendHug, sentTo, sentThisSession, clearLatestHug }
 }
