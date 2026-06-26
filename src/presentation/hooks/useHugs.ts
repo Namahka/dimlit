@@ -22,24 +22,22 @@ export function useHugs(userId: string | null) {
   // Load sent hugs from Firestore on mount so 24h cooldown persists across sessions
   useEffect(() => {
     if (!userId) return
-    const cutoff = new Date(Date.now() - COOLDOWN_MS)
-    getDocs(query(
-      collection(db, 'hugs'),
-      where('fromUserId', '==', userId),
-      where('sentAt', '>=', Timestamp.fromDate(cutoff))
-    )).then(snap => {
-      const toSet = new Set<string>()
-      const times: Record<string, number> = {}
-      snap.docs.forEach(d => {
-        const toId = d.data().toUserId as string
-        const sentAt = d.data().sentAt instanceof Timestamp
-          ? d.data().sentAt.toDate().getTime() : Date.now()
-        toSet.add(toId)
-        times[toId] = sentAt
-      })
-      setSentTo(toSet)
-      setSentTimes(times)
-    }).catch(() => {})
+    const cutoff = Date.now() - COOLDOWN_MS
+    getDocs(query(collection(db, 'hugs'), where('fromUserId', '==', userId)))
+      .then(snap => {
+        const toSet = new Set<string>()
+        const times: Record<string, number> = {}
+        snap.docs.forEach(d => {
+          const sentAt = d.data().sentAt instanceof Timestamp
+            ? d.data().sentAt.toDate().getTime() : Date.now()
+          if (sentAt > cutoff) {
+            toSet.add(d.data().toUserId as string)
+            times[d.data().toUserId as string] = sentAt
+          }
+        })
+        setSentTo(toSet)
+        setSentTimes(times)
+      }).catch(() => {})
   }, [userId])
 
   useEffect(() => {
