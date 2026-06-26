@@ -50,8 +50,18 @@ export function usePresence(user: User | null, locationEnabled: boolean | null =
   async function markAnonymous() {
     if (!user || doneRef.current) return
     doneRef.current = true
-    const lat = Math.round((Math.random() * 160 - 80) * 10) / 10
-    const lng = Math.round((Math.random() * 360 - 180) * 10) / 10
+    // Pick a random city to land on (not in water)
+    const cities: [number, number][] = [
+      [59.3, 18.1],[48.9, 2.3],[51.5, -0.1],[52.5, 13.4],[40.7, -74.0],
+      [34.1, -118.2],[41.9, 12.5],[55.8, 37.6],[35.7, 139.7],[37.6, 127.0],
+      [39.9, 116.4],[28.6, 77.2],[19.1, 72.9],[-23.5, -46.6],[-33.9, 151.2],
+      [43.7, -79.4],[45.5, -73.6],[64.1, -21.9],[59.9, 10.8],[57.7, 12.0],
+      [60.2, 25.0],[56.0, 12.6],[55.7, 12.6],[53.4, -2.2],[53.8, -1.5],
+      [48.2, 16.4],[47.4, 19.1],[50.1, 14.4],[52.2, 21.0],[44.4, 26.1],
+      [41.0, 29.0],[37.0, -122.0],[47.6, -122.3],[29.8, -95.4],[25.8, -80.2],
+      [33.4, -112.1],[41.5, -81.7],[43.0, -76.2],[45.5, -122.7],[49.3, -123.1],
+    ]
+    const [lat, lng] = cities[Math.floor(Math.random() * cities.length)]
     setUserCoords([lat, lng]) // center map immediately
     setIsReady(true)
     cleanupRef.current = () => presenceService.markInactive(user.id)
