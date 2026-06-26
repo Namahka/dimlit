@@ -42,29 +42,20 @@ export function AppShell() {
   const [seenReportCount, setSeenReportCount] = useState(0)
   const [seenHugIds, setSeenHugIds] = useState<Set<string>>(new Set())
   const reportCount = Math.max(0, totalReports - seenReportCount)
-  // Read synchronously from localStorage first (instant, no async)
-  const [locationEnabled, setLocationEnabled] = useState<boolean>(() => {
-    if (typeof window === 'undefined') return true
-    return localStorage.getItem('dimlit_location_enabled') !== '0'
-  })
+  const [locationEnabled, setLocationEnabled] = useState<boolean | null>(null)
 
-  // Sync with Firestore when user loads (for cross-device)
+  // Load from Firestore — single source of truth, cross-device
   useEffect(() => {
     if (!user) return
     getDoc(doc(db, 'users', user.id))
       .then(snap => {
-        if (snap.exists() && snap.data().locationEnabled === false) {
-          setLocationEnabled(false)
-          localStorage.setItem('dimlit_location_enabled', '0')
-        } else if (snap.exists() && snap.data().locationEnabled === true) {
-          setLocationEnabled(true)
-          localStorage.setItem('dimlit_location_enabled', '1')
-        }
-        // If field doesn't exist, keep localStorage value
+        const val = snap.exists() ? snap.data().locationEnabled : undefined
+        // undefined = not set yet = default true
+        setLocationEnabled(val === false ? false : true)
       })
-      .catch(() => {})
+      .catch(() => setLocationEnabled(true))
   }, [user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
-  const { country } = usePresence(user ?? null, locationEnabled ?? true)
+  const { country } = usePresence(user ?? null, locationEnabled)
   const { receivedHugs } = useHugs(user?.id ?? null)
 
   const isAdmin = user?.email === ADMIN_EMAIL
@@ -181,9 +172,9 @@ export function AppShell() {
         <div className={`absolute inset-0 overflow-y-auto ${activeTab === 'settings' ? 'block' : 'hidden'}`}>
           <SettingsTab username={user.username} email={user.email}
             locationEnabled={locationEnabled ?? true}
+
             onToggleLocation={(val) => {
               setLocationEnabled(val)
-              localStorage.setItem('dimlit_location_enabled', val ? '1' : '0')
               updateDoc(doc(db, 'users', user.id), { locationEnabled: val }).catch(() => {})
             }}
             onUpdateUsername={updateUsername}
