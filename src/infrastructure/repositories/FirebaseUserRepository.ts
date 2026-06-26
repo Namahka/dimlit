@@ -100,8 +100,21 @@ export class FirebaseUserRepository implements IUserRepository {
 
   async deleteAccount(userId: string): Promise<void> {
     if (!auth.currentUser) throw new Error('Not authenticated')
+    // Delete all user data
     await deleteDoc(doc(db, 'users', userId))
     await deleteDoc(doc(db, 'presences', userId))
+    // Delete messages sent by user
+    const { getDocs, collection, query, where } = await import('firebase/firestore')
+    const msgs = await getDocs(query(collection(db, 'messages'), where('userId', '==', userId)))
+    await Promise.all(msgs.docs.map(d => deleteDoc(d.ref)))
+    // Delete hugs sent or received by user
+    const hugsSent = await getDocs(query(collection(db, 'hugs'), where('fromUserId', '==', userId)))
+    const hugsReceived = await getDocs(query(collection(db, 'hugs'), where('toUserId', '==', userId)))
+    await Promise.all([...hugsSent.docs, ...hugsReceived.docs].map(d => deleteDoc(d.ref)))
+    // Delete reports by user
+    const reports = await getDocs(query(collection(db, 'reports'), where('reporterUserId', '==', userId)))
+    await Promise.all(reports.docs.map(d => deleteDoc(d.ref)))
+    // Finally delete the auth account
     await deleteUser(auth.currentUser)
   }
 
