@@ -12,7 +12,7 @@ function timeAgo(date: Date): string {
 }
 
 export function HugsTab({ user, country }: { user: User; country: string }) {
-  const { receivedHugs, sendHug, sentTo } = useHugs(user.id)
+  const { receivedHugs, sendHug, sentThisSession } = useHugs(user.id)
 
   return (
     <div className="flex flex-col h-full overflow-y-auto" style={{ background: 'var(--bg)' }}>
@@ -25,7 +25,7 @@ export function HugsTab({ user, country }: { user: User; country: string }) {
           <p className="text-sm text-center mt-8" style={{ color: 'var(--text-muted)' }}>No hugs yet.</p>
         )}
         {receivedHugs.map((hug) => {
-          const alreadySent = sentTo.has(hug.fromUserId)
+          const alreadySent = sentThisSession.has(hug.fromUserId)
           const displayName = hug.fromUsername && hug.fromUsername !== hug.fromCountry
             ? hug.fromUsername : hug.fromCountry
           return (
