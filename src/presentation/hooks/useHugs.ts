@@ -64,16 +64,13 @@ export function useHugs(userId: string | null) {
   }
 
   function canSendHug(toUserId: string): boolean {
-    // Read from localStorage directly so it's always up to date across hook instances
-    if (storageKey) {
-      try {
-        const stored = JSON.parse(localStorage.getItem(storageKey) ?? '{}')
-        const last = stored[toUserId]
-        if (last && Date.now() - last < COOLDOWN_MS) return false
-      } catch {}
-    }
-    const lastSent = sentMap[toUserId]
-    return !lastSent || Date.now() - lastSent >= COOLDOWN_MS
+    // Only check localStorage — single source of truth, works across all hook instances
+    if (!storageKey) return true
+    try {
+      const stored = JSON.parse(localStorage.getItem(storageKey) ?? '{}')
+      const last = stored[toUserId]
+      return !last || Date.now() - last >= COOLDOWN_MS
+    } catch { return true }
   }
 
   function clearLatestHug() { setLatestHug(null) }
