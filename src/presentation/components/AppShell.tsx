@@ -15,7 +15,7 @@ import { DistractTab } from './tabs/DistractTab'
 import { useAuth } from '../hooks/useAuth'
 import { usePresence } from '../hooks/usePresence'
 import { useHugs } from '../hooks/useHugs'
-import { collection, query, orderBy, onSnapshot, doc, updateDoc, setDoc, serverTimestamp } from 'firebase/firestore'
+import { collection, query, orderBy, onSnapshot, doc, getDoc, updateDoc, setDoc, serverTimestamp } from 'firebase/firestore'
 import { db } from '../../infrastructure/firebase/firebaseApp'
 
 const ADMIN_EMAIL = 'namahka@hotmail.com'
@@ -47,17 +47,12 @@ export function AppShell() {
   // Load locationEnabled from Firestore (cross-device) after user is known
   useEffect(() => {
     if (!user) return
-    import('firebase/firestore').then(({ doc, getDoc }) => {
-      import('../../infrastructure/firebase/firebaseApp').then(({ db }) => {
-        getDoc(doc(db, 'users', user.id)).then(snap => {
-          if (snap.exists() && snap.data().locationEnabled === false) {
-            setLocationEnabled(false)
-          } else {
-            setLocationEnabled(true)
-          }
-        }).catch(() => setLocationEnabled(true))
+    getDoc(doc(db, 'users', user.id))
+      .then(snap => {
+        const stored = snap.exists() ? snap.data().locationEnabled : undefined
+        setLocationEnabled(stored === false ? false : true)
       })
-    })
+      .catch(() => setLocationEnabled(true))
   }, [user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
   const { country } = usePresence(user ?? null, locationEnabled)
   const { receivedHugs } = useHugs(user?.id ?? null)
@@ -178,12 +173,7 @@ export function AppShell() {
             locationEnabled={locationEnabled ?? true}
             onToggleLocation={(val) => {
               setLocationEnabled(val)
-              // Save to Firestore so setting persists cross-device
-              import('firebase/firestore').then(({ doc, updateDoc }) => {
-                import('../../infrastructure/firebase/firebaseApp').then(({ db }) => {
-                  updateDoc(doc(db, 'users', user.id), { locationEnabled: val }).catch(() => {})
-                })
-              })
+              updateDoc(doc(db, 'users', user.id), { locationEnabled: val }).catch(() => {})
             }}
             onUpdateUsername={updateUsername}
             onSendPasswordReset={sendPasswordReset} onDeleteAccount={deleteAccount} onSignOut={signOut} />
