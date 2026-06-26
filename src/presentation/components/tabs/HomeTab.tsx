@@ -5,7 +5,6 @@ import { useState } from 'react'
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore'
 import { db } from '../../../infrastructure/firebase/firebaseApp'
 import { useActiveUsers } from '../../hooks/useActiveUsers'
-import { usePresence } from '../../hooks/usePresence'
 import { useHugs } from '../../hooks/useHugs'
 import { useMessages } from '../../hooks/useMessages'
 import type { User } from '../../../domain/entities/User'
@@ -30,10 +29,9 @@ function timeAgo(date: Date): string {
   return `${Math.floor(diff / 86400)}d ago`
 }
 
-export function HomeTab({ user, onGoToMessages }: { user: User; onGoToMessages: () => void }) {
+export function HomeTab({ user, country, userCoords, onGoToMessages }: { user: User; country: string; userCoords: [number, number] | null; onGoToMessages: () => void }) {
   const [reportedIds, setReportedIds] = useState<Set<string>>(new Set())
   const presences = useActiveUsers(user.id)
-  const { country, userCoords, isReady, locationDenied, requestLocation } = usePresence(user)
   const { latestHug, sendHug, canSendHug, clearLatestHug } = useHugs(user.id)
   const { messages, toggleLike } = useMessages(user)
 
@@ -74,15 +72,9 @@ export function HomeTab({ user, onGoToMessages }: { user: User; onGoToMessages: 
             })()}
           </div>
 
-          {locationDenied && (
-            <div className="flex items-center justify-between gap-3 bg-amber-50 border border-amber-200 px-4 py-3 rounded-2xl mb-3">
-              <p className="text-sm text-amber-700">Allow location to appear on the map.</p>
-              <button onClick={requestLocation} className="text-xs font-medium text-white bg-amber-500 px-3 py-1.5 rounded-full">Allow</button>
-            </div>
-          )}
 
           {/* Map */}
-          <MapCard presences={presences} userId={user.id} userCoords={userCoords} isReady={isReady}
+          <MapCard presences={presences} userId={user.id} userCoords={userCoords} isReady={true}
             onSendHug={async (id) => { await sendHug(id, country, user.username) }}
             canSendHug={canSendHug} />
 
