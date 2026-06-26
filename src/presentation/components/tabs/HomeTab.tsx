@@ -83,7 +83,7 @@ export function HomeTab({ user, onGoToMessages }: { user: User; onGoToMessages: 
 
           {/* Map */}
           <MapCard presences={presences} userId={user.id} userCoords={userCoords} isReady={isReady}
-            onSendHug={async (id) => { await sendHug(id, country, user.username) }} />
+            onSendHug={async (id) => sendHug(id, country, user.username)} />
 
           {/* Lift each other up — same width as map, directly below */}
           <div className="mt-4 bg-neutral-800 rounded-2xl border border-neutral-700 shadow-sm overflow-hidden">

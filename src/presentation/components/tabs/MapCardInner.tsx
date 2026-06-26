@@ -45,8 +45,8 @@ export function MapCardInner({ presences, userId, userCoords, isReady, onSendHug
   const [sentTo, setSentTo] = useState<Set<string>>(new Set())
 
   async function handleHug(toUserId: string) {
-    await onSendHug(toUserId)
-    setSentTo(prev => new Set(prev).add(toUserId))
+    const sent = await onSendHug(toUserId)
+    if (sent) setSentTo(prev => new Set(prev).add(toUserId))
   }
   return (
     // maxWidth + margin auto = only the map is centered, nothing else

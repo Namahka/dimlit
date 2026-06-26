@@ -39,10 +39,15 @@ export function useHugs(userId: string | null) {
     return unsubscribe
   }, [userId])
 
-  async function sendHug(toUserId: string, fromCountry: string, fromUsername = '') {
-    if (!userId) return
-    const lastSent = sentMap[toUserId]
-    if (lastSent && Date.now() - lastSent < COOLDOWN_MS) return
+  async function sendHug(toUserId: string, fromCountry: string, fromUsername = ''): Promise<boolean> {
+    if (!userId) return false
+    // Check cooldown from localStorage (most up-to-date across instances)
+    if (storageKey) {
+      try {
+        const stored = JSON.parse(localStorage.getItem(storageKey) ?? '{}')
+        if (stored[toUserId] && Date.now() - stored[toUserId] < COOLDOWN_MS) return false
+      } catch {}
+    }
     try {
       await hugService.send(userId, toUserId, fromCountry, fromUsername)
       setSentMap(prev => {
@@ -50,9 +55,11 @@ export function useHugs(userId: string | null) {
         if (storageKey) localStorage.setItem(storageKey, JSON.stringify(next))
         return next
       })
+      return true
     } catch (e) {
       console.error('sendHug failed:', e)
       alert('Could not send hug: ' + (e instanceof Error ? e.message : String(e)))
+      return false
     }
   }
 
