@@ -13,8 +13,10 @@ export function useActiveUsers(userId: string | null) {
 
   useEffect(() => {
     if (!userId) return
-    // Show all isActive: true — no time filter, presence disappears on logout/close
-    return presenceService.listenToActivePresences(setPresences)
+    return presenceService.listenToActivePresences((all) => {
+      const cutoff = Date.now() - 30 * 60 * 1000 // 30 min — catches abandoned sessions
+      setPresences(all.filter(p => p.lastSeen.getTime() > cutoff))
+    })
   }, [userId])
 
   return presences
