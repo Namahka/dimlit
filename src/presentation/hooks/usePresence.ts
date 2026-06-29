@@ -91,7 +91,7 @@ export function usePresence(user: User | null, locationEnabled: boolean | null =
         isAnonymous: !locationEnabled,
         username: locationEnabled ? user.username : 'Anonymous',
       }).catch(() => {})
-    }, 2 * 60 * 1000)
+    }, 60 * 1000)
 
     const handleUnload = () => presenceService.markInactive(user.id)
     window.addEventListener('beforeunload', handleUnload)
