@@ -29,7 +29,7 @@ function timeAgo(date: Date): string {
   return `${Math.floor(diff / 86400)}d ago`
 }
 
-export function HomeTab({ user, country, userCoords, onGoToMessages }: { user: User; country: string; userCoords: [number, number] | null; onGoToMessages: () => void }) {
+export function HomeTab({ user, country, userCoords, isReady, onGoToMessages }: { user: User; country: string; userCoords: [number, number] | null; isReady: boolean; onGoToMessages: () => void }) {
   const [reportedIds, setReportedIds] = useState<Set<string>>(new Set())
   const presences = useActiveUsers(user.id)
   const { latestHug, sendHug, canSendHug, clearLatestHug } = useHugs(user.id)
@@ -74,7 +74,7 @@ export function HomeTab({ user, country, userCoords, onGoToMessages }: { user: U
 
 
           {/* Map */}
-          <MapCard presences={presences} userId={user.id} userCoords={userCoords} isReady={true}
+          <MapCard presences={presences} userId={user.id} userCoords={userCoords} isReady={isReady}
             onSendHug={async (id) => { await sendHug(id, country, user.username) }}
             canSendHug={canSendHug} />
 

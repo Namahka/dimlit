@@ -55,7 +55,7 @@ export function AppShell() {
       })
       .catch(() => setLocationEnabled(true))
   }, [user?.id]) // eslint-disable-line react-hooks/exhaustive-deps
-  const { country, userCoords } = usePresence(user ?? null, locationEnabled)
+  const { country, userCoords, isReady } = usePresence(user ?? null, locationEnabled)
   const { receivedHugs } = useHugs(user?.id ?? null)
 
   const isAdmin = user?.email === ADMIN_EMAIL
@@ -152,7 +152,7 @@ export function AppShell() {
       {/* Content */}
       <div className="flex-1 min-h-0 relative overflow-hidden">
         <div className={`absolute inset-0 ${activeTab === 'home' ? 'block' : 'hidden'}`}>
-          <HomeTab user={user} country={country} userCoords={userCoords} onGoToMessages={() => setActiveTab('messages')} />
+          <HomeTab user={user} country={country} userCoords={userCoords} isReady={isReady} onGoToMessages={() => setActiveTab('messages')} />
         </div>
         <div className={`absolute inset-0 flex flex-col ${activeTab === 'messages' ? 'flex' : 'hidden'}`}>
           <MessagesTab user={user} country={country} />
